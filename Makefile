@@ -1,4 +1,14 @@
 
+
+all: rt.ppm
+	feh rt.ppm
+
+test: rt
+	./rt 640 400 
+
+rt.ppm: rt
+	./rt 640 400 > rt.ppm
+
 display_string := -Ddisplay_string
 
 source_dir := src
