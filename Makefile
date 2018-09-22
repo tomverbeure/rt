@@ -3,11 +3,8 @@
 all: rt.ppm
 	feh rt.ppm
 
-test: rt
-	./rt 200 200
-
 rt.ppm: rt
-	./rt 200 200 > rt.ppm
+	./rt 400 400 > rt.ppm
 
 display_string := -Ddisplay_string
 

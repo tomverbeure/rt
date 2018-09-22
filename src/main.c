@@ -63,7 +63,7 @@ plane_t plane = {
 };
 
 sphere_t sphere = {
-    { 3, 5, 10 },
+    { 3, 10, 10 },
     3
 };
 
@@ -133,7 +133,7 @@ bool plane_intersect(plane_t p, ray_t r, float *t, vec_t *intersection)
     return (*t >= 0.0);
 }
 
-bool sphere_intersect(sphere_t s, ray_t r, float *t, vec_t *intersection)
+bool sphere_intersect(sphere_t s, ray_t r, float *t, vec_t *intersection, vec_t *normal)
 {
     vec_t c0r0 = subtract(s.center, r.origin);
 
@@ -144,8 +144,25 @@ bool sphere_intersect(sphere_t s, ray_t r, float *t, vec_t *intersection)
     float d2 = dot_product(c0r0, c0r0);
     d2 = d2 - tca * tca;
 
-    if (d2 > (s.radius * s.radius)) return 0;
-    
+    float radius2 = s.radius * s.radius;
+    if (d2 > radius2) return 0;
+
+    float thc = sqrt(radius2 - d2);
+    float t0 = tca - thc;
+    float t1 = tca + thc;
+
+    // The smallest one is the closest one. Only works in this particular scene.
+    if (t0 >= t1)
+        t0 = t1;
+
+    *t = t0;
+
+    *intersection = add(r.origin, scalar_mul(r.direction, *t));
+
+    *normal = subtract(*intersection, s.center);
+    *normal = normalize_vec(*normal);
+
+
     return 1;
 }
 
@@ -158,19 +175,27 @@ color_t trace(ray_t ray, int iteration)
 
     float sphere_t;
     vec_t sphere_intersection;
-    bool sphere_intersects = sphere_intersect(sphere, ray, &sphere_t, &sphere_intersection);
+    vec_t sphere_normal;
+    bool sphere_intersects = (iteration == 0) ? sphere_intersect(sphere, ray, &sphere_t, &sphere_intersection, &sphere_normal) : 0;
 
     color_t c;
 
     if (sphere_intersects){
-        c.r = 1.0;
-        c.g = 1.0;
-        c.b = 0.0;
+        ray_t ray2;
+        ray2.direction = subtract(ray.direction, scalar_mul(sphere_normal, 2 * dot_product(ray.direction, sphere_normal)));
+        ray2.origin    = sphere_intersection;
+
+        color_t c = trace(ray2, 1);
+
+        float alpha = 0.3;
+        c.r = c.r * alpha + 0.9 * (1-alpha);
+        c.g = c.g * alpha + 0.9 * (1-alpha);
+        c.b = c.b * alpha;
 
         return c;
     }
 
-    if (!plane_intersects || plane_intersection.z > 50 || fabs(plane_intersection.x) > 20){
+    if (!plane_intersects || fabs(plane_intersection.z) > 30 || fabs(plane_intersection.x) > 20){
         c.r = 0;
         c.g = 0;
         c.b = 0.9;
@@ -202,11 +227,6 @@ int main(int argc, char **argv)
     int height = atoi(argv[2]);
 
     ray_t r = { { 0,5,-10 }, { 0,1,0 } };
-    float sphere_t;
-    vec_t sphere_intersection;
-    bool sphere_intersects = sphere_intersect(sphere, r, &sphere_t, &sphere_intersection);
-//    printf("sphere_intersects: %d\n", sphere_intersects);
-//    assert(0);
 
     printf("P6 %d %d 255 ", width, height);
 
@@ -222,9 +242,6 @@ int main(int argc, char **argv)
             ray.direction.x =  ((pix_x - ((float)width /2))) /  width  * 5;
             ray.direction.y = -((pix_y - ((float)height/2))) /  height * 5 - 2;
             ray.direction.z = 5;
-
-//            ray.direction.x = 0;
-//            ray.direction.y = 0;
 
             ray.direction = normalize_vec(ray.direction);
 
