@@ -63,8 +63,8 @@ plane_t plane = {
 };
 
 sphere_t sphere = {
-    { 0, 2, 0 },
-    1
+    { 3, 5, 10 },
+    3
 };
 
 float dot_product(vec_t a, vec_t b)
@@ -110,8 +110,9 @@ vec_t scalar_mul(vec_t a, float m)
 vec_t normalize_vec(vec_t v)
 {
     float denom = dot_product(v, v);
+    denom = sqrt(denom);
 
-    vec_t result = scalar_mul(v, denom);
+    vec_t result = scalar_mul(v, 1.0/denom);
 
     return result;
 }
@@ -134,27 +135,18 @@ bool plane_intersect(plane_t p, ray_t r, float *t, vec_t *intersection)
 
 bool sphere_intersect(sphere_t s, ray_t r, float *t, vec_t *intersection)
 {
-    vec_t r0c0 = subtract(r.origin, s.center);
-    print_vec(r0c0);
+    vec_t c0r0 = subtract(s.center, r.origin);
 
-    float term1 = dot_product(r.direction, r0c0);
-    term1 = term1 * term1;
-    printf("term1: %f\n", term1);
+    float tca = dot_product(r.direction, c0r0);
 
-    float term2 = dot_product(r0c0, r0c0);
-    term2 = term2 * term2;
-    printf("term2: %f\n", term2);
+    if (tca < 0) return 0;
+
+    float d2 = dot_product(c0r0, c0r0);
+    d2 = d2 - tca * tca;
+
+    if (d2 > (s.radius * s.radius)) return 0;
     
-    float term3 = s.radius * s.radius;
-    printf("term3: %f\n", term3);
-
-    float determinant = term1 - term2 + term3;
-    printf("deter: %f\n", determinant);
-
-    bool intersects = determinant >= 0;
-    assert(0);
-
-    return intersects;
+    return 1;
 }
 
 color_t trace(ray_t ray, int iteration)
@@ -168,9 +160,6 @@ color_t trace(ray_t ray, int iteration)
     vec_t sphere_intersection;
     bool sphere_intersects = sphere_intersect(sphere, ray, &sphere_t, &sphere_intersection);
 
-
-//    printf("intersects: %d, t: %f, intersection: %f, %f, %f\n", intersects, t, intersection.x, intersection.y, intersection.z);
-
     color_t c;
 
     if (sphere_intersects){
@@ -181,7 +170,7 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    if (!plane_intersects || plane_intersection.z > 100 || fabs(plane_intersection.x) > 20){
+    if (!plane_intersects || plane_intersection.z > 50 || fabs(plane_intersection.x) > 20){
         c.r = 0;
         c.g = 0;
         c.b = 0.9;
@@ -212,10 +201,12 @@ int main(int argc, char **argv)
     int width = atoi(argv[1]);
     int height = atoi(argv[2]);
 
-    ray_t r = { { 0,0,-10 }, { 0,1,0 } };
+    ray_t r = { { 0,5,-10 }, { 0,1,0 } };
     float sphere_t;
     vec_t sphere_intersection;
     bool sphere_intersects = sphere_intersect(sphere, r, &sphere_t, &sphere_intersection);
+//    printf("sphere_intersects: %d\n", sphere_intersects);
+//    assert(0);
 
     printf("P6 %d %d 255 ", width, height);
 
@@ -228,9 +219,12 @@ int main(int argc, char **argv)
 
             ray.origin = camera.origin;
 
-            ray.direction.x = ((float)(pix_x - (width/2)))  /  width * 5;
-            ray.direction.y = -((float)(pix_y - (height/2))) /  height * 5;
+            ray.direction.x =  ((pix_x - ((float)width /2))) /  width  * 5;
+            ray.direction.y = -((pix_y - ((float)height/2))) /  height * 5 - 2;
             ray.direction.z = 5;
+
+//            ray.direction.x = 0;
+//            ray.direction.y = 0;
 
             ray.direction = normalize_vec(ray.direction);
 
