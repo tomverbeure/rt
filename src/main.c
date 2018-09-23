@@ -130,6 +130,16 @@ sphere_t sphere = {
     .radius = { 3 }
 };
 
+scalar_t negate_scalar(scalar_t a)
+{
+    scalar_t r;
+
+    r.fp32  = -a.fp32;
+    r.fixed = -a.fixed;
+
+    return r;
+}
+
 scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
 {
     scalar_t r;
@@ -141,6 +151,7 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
 
     return r;
 }
+
 
 scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
 {
@@ -211,6 +222,18 @@ scalar_t dot_product(vec_t a, vec_t b)
 
     return d;
 }
+
+vec_t negate_vec(vec_t a, vec_t b)
+{
+    vec_t r;
+
+    r.s[0] = negate_scalar(a.s[0]);
+    r.s[1] = negate_scalar(a.s[1]);
+    r.s[2] = negate_scalar(a.s[2]);
+
+    return r;
+}
+
 
 vec_t add_vec_vec(vec_t a, vec_t b)
 {
@@ -291,12 +314,21 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
         return 0;
     }
 
+#ifdef SCENE_OPT
+    scalar_t p0r0_y = negate_scalar(r.origin.s[1]);
+
+    *t = p0r0_y;
+    *t = div_scalar_scalar(*t, denom);
+
+    *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
+#else
     vec_t p0r0 = subtract_vec_vec(p.origin, r.origin);
 
     *t = dot_product(p0r0, p.normal);
     *t = div_scalar_scalar(*t, denom);
 
     *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
+#endif
 
     return (t->fp32 >= 0.0);
 }
