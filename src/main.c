@@ -21,8 +21,7 @@ typedef struct {
 
 
 typedef struct {
-    float   fp32[3];
-    int     fixed[3];
+    scalar_t    s[3];
 } vec_t;
 
 float fixed2float(int fixed)
@@ -45,7 +44,7 @@ vec_t float2fixed_vec(vec_t v)
     vec_t result = v;
 
     for(int i=0;i<3;++i){
-        result.fixed[i] = float2fixed(v.fp32[i]);
+        result.s[i].fixed = float2fixed(v.s[i].fp32);
     }
 
     return result;
@@ -59,8 +58,8 @@ void print_scalar(scalar_t s)
 
 void print_vec(vec_t v)
 {
-    printf("fp32:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.fp32[0], v.fp32[1], v.fp32[2]);
-    printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f\n", fixed2float(v.fixed[0]), fixed2float(v.fixed[1]), fixed2float(v.fixed[2]));
+    printf("fp32:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.s[0].fp32, v.s[1].fp32, v.s[2].fp32);
+    printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f\n", fixed2float(v.s[0].fixed), fixed2float(v.s[1].fixed), fixed2float(v.s[2].fixed));
 }
 
 typedef struct {
@@ -92,18 +91,17 @@ y
 */
 
 ray_t camera = {
-    { 0,10,-10 },           // 10 high, -10 from xy plane
-    { 0,0,10 }              // forward looking. Not used.
+    .origin   = { .s={ {0,0}, {10,0}, {-10,0} } }        // 10 high, -10 from xy plane
 };
 
 plane_t plane = {
-    { 0,0,0 },              // Goes through origin
-    { 0,1,0 }               // pointing up
+    .origin = { .s={ {0, 0}, {0, 0}, {0, 0} } },            // Goes through origin
+    .normal = { .s={ {0, 0}, {1, 0}, {0, 0} } }             // pointing up
 };
 
 sphere_t sphere = {
-    { { 3, 10, 10 } },
-    { 3 }
+    .center = { .s={ {3, 0}, {10, 0}, {10, 0} } },
+    .radius = { 3 }
 };
 
 scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
@@ -151,8 +149,7 @@ scalar_t dot_product(vec_t a, vec_t b)
 {
     scalar_t d;
 
-    d.fp32  = a.fp32[0]  * b.fp32[0]  + a.fp32[1]  * b.fp32[1] +  a.fp32[2]  * b.fp32[2];
-    d.fixed = (a.fixed[0] * b.fixed[0] >> 16) + (a.fixed[1] * b.fixed[1] >> 16) + (a.fixed[2] * b.fixed[2] >> 16);
+    d = add_scalar_scalar( mul_scalar_scalar(a.s[0], b.s[0]), add_scalar_scalar( mul_scalar_scalar(a.s[1], b.s[1]), mul_scalar_scalar(a.s[2], b.s[2])));
 
     return d;
 }
@@ -161,9 +158,9 @@ vec_t add_vec_vec(vec_t a, vec_t b)
 {
     vec_t r;
 
-    r.fp32[0] = a.fp32[0] + b.fp32[0];
-    r.fp32[1] = a.fp32[1] + b.fp32[1];
-    r.fp32[2] = a.fp32[2] + b.fp32[2];
+    r.s[0] = add_scalar_scalar(a.s[0], b.s[0]);
+    r.s[1] = add_scalar_scalar(a.s[1], b.s[1]);
+    r.s[2] = add_scalar_scalar(a.s[2], b.s[2]);
 
     return r;
 }
@@ -172,9 +169,9 @@ vec_t subtract_vec_vec(vec_t a, vec_t b)
 {
     vec_t r;
 
-    r.fp32[0] = a.fp32[0] - b.fp32[0];
-    r.fp32[1] = a.fp32[1] - b.fp32[1];
-    r.fp32[2] = a.fp32[2] - b.fp32[2];
+    r.s[0] = subtract_scalar_scalar(a.s[0], b.s[0]);
+    r.s[1] = subtract_scalar_scalar(a.s[1], b.s[1]);
+    r.s[2] = subtract_scalar_scalar(a.s[2], b.s[2]);
 
     return r;
 }
@@ -183,13 +180,9 @@ vec_t mul_vec_scalar(vec_t a, scalar_t m)
 {
     vec_t r;
 
-    r.fp32[0] = m.fp32 * a.fp32[0];
-    r.fp32[1] = m.fp32 * a.fp32[1];
-    r.fp32[2] = m.fp32 * a.fp32[2];
-
-    r.fixed[0] = m.fixed * a.fixed[0];
-    r.fixed[1] = m.fixed * a.fixed[1];
-    r.fixed[2] = m.fixed * a.fixed[2];
+    r.s[0] = mul_scalar_scalar(a.s[0], m);
+    r.s[1] = mul_scalar_scalar(a.s[1], m);
+    r.s[2] = mul_scalar_scalar(a.s[2], m);
 
     return r;
 }
@@ -309,7 +302,7 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    if (!plane_intersects || fabs(plane_intersection.fp32[2]) > 30 || fabs(plane_intersection.fp32[0]) > 20){
+    if (!plane_intersects || fabs(plane_intersection.s[2].fp32) > 30 || fabs(plane_intersection.s[0].fp32) > 20){
         c.r = 0;
         c.g = 0;
         c.b = 0.9;
@@ -317,7 +310,7 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    int checker = ( (int)fabs((plane_intersection.fp32[0])+20) & 4 ) ^ ((int)fabs((plane_intersection.fp32[2])+20) & 4);
+    int checker = ( (int)fabs((plane_intersection.s[0].fp32)+20) & 4 ) ^ ((int)fabs((plane_intersection.s[2].fp32)+20) & 4);
 
     if ( checker){
         c.r = 1.0;
@@ -345,8 +338,6 @@ int main(int argc, char **argv)
         height = atoi(argv[2]);
     }
 
-    ray_t r = { { 0,5,-10 }, { 0,1,0 } };
-
 #ifdef GEN_IMAGE
     printf("P6 %d %d 255 ", width, height);
 #endif
@@ -368,13 +359,13 @@ int main(int argc, char **argv)
 
             ray.origin = camera.origin;
 
-            ray.direction.fp32[0] =  ((pix_x - ((float)width /2))) /  width  ;
-            ray.direction.fp32[1] = -((pix_y - ((float)height/2))) /  height - 0.4;
-            ray.direction.fp32[2] = 1;
+            ray.direction.s[0].fp32 =  ((pix_x - ((float)width /2))) /  width  ;
+            ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
+            ray.direction.s[2].fp32 = 1;
 
-            ray.direction.fixed[0] =  ((pix_x - width>>1 )) * 65536 /  width;
-            ray.direction.fixed[1] = -((pix_y - height>>1)) * 65536 /  height - (0.4 * 65536);
-            ray.direction.fixed[2] = 1 * 65536;
+            ray.direction.s[0].fixed =  ((pix_x - width>>1 )) * 65536 /  width;
+            ray.direction.s[1].fixed = -((pix_y - height>>1)) * 65536 /  height - (0.4 * 65536);
+            ray.direction.s[2].fixed = 1 * 65536;
 
             ray.direction = normalize_vec(ray.direction);
 
