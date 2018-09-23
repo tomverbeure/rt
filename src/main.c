@@ -130,7 +130,7 @@ scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
     scalar_t r;
 
     r.fp32  = a.fp32  * b.fp32;
-    r.fixed = (a.fixed * b.fixed) >> 16;
+    r.fixed = (a.fixed>>8) * (b.fixed>>8);
 
     return r;
 }
@@ -140,6 +140,16 @@ scalar_t sqrt_scalar(scalar_t a)
     scalar_t r;
 
     r.fp32  = sqrt(a.fp32);
+    r.fixed = float2fixed(r.fp32);
+
+    return r;
+}
+
+scalar_t recip_sqrt_scalar(scalar_t a)
+{
+    scalar_t r;
+
+    r.fp32  = 1/sqrt(a.fp32);
     r.fixed = float2fixed(r.fp32);
 
     return r;
@@ -191,11 +201,7 @@ vec_t normalize_vec(vec_t v)
 {
     scalar_t denom = dot_product(v, v);
 
-    denom.fp32  = sqrt(denom.fp32);
-    denom.fp32  = 1/denom.fp32;
-
-    denom.fixed = float2fixed(denom.fp32);
-
+    denom = recip_sqrt_scalar(denom);
     vec_t result = mul_vec_scalar(v, denom);
 
     return result;
@@ -342,8 +348,6 @@ int main(int argc, char **argv)
     printf("P6 %d %d 255 ", width, height);
 #endif
 
-    plane.normal = normalize_vec(plane.normal);
-
     camera.origin    = float2fixed_vec(camera.origin);
     camera.direction = float2fixed_vec(camera.direction);
 
@@ -351,6 +355,8 @@ int main(int argc, char **argv)
     plane.normal = float2fixed_vec(plane.normal);
 
     sphere.center = float2fixed_vec(sphere.center);
+
+    plane.normal = normalize_vec(plane.normal);
 
     for(int pix_y=0; pix_y<height; ++pix_y){
         for(int pix_x=0; pix_x<width; ++pix_x){
