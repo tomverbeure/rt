@@ -6,6 +6,8 @@
 
 #define GEN_IMAGE
 
+#define SCENE_OPT
+
 int scalar_add_cntr         = 0;
 int scalar_mul_cntr         = 0;
 int scalar_div_cntr         = 0;
@@ -165,6 +167,18 @@ scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
     return r;
 }
 
+scalar_t div_scalar_scalar(scalar_t a, scalar_t b)
+{
+    scalar_t r;
+
+    r.fp32  = a.fp32  / b.fp32;
+    r.fixed = float2fixed(r.fp32);
+
+    ++scalar_div_cntr;
+
+    return r;
+}
+
 scalar_t sqrt_scalar(scalar_t a)
 {
     scalar_t r;
@@ -231,6 +245,18 @@ vec_t mul_vec_scalar(vec_t a, scalar_t m)
     return r;
 }
 
+vec_t div_vec_scalar(vec_t a, scalar_t m)
+{
+    vec_t r;
+
+    r.s[0] = div_scalar_scalar(a.s[0], m);
+    r.s[1] = div_scalar_scalar(a.s[1], m);
+    r.s[2] = div_scalar_scalar(a.s[2], m);
+
+    return r;
+}
+
+
 vec_t normalize_vec(vec_t v)
 {
     scalar_t denom = dot_product(v, v);
@@ -243,7 +269,14 @@ vec_t normalize_vec(vec_t v)
 
 bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
 {
-    scalar_t denom = dot_product(p.normal, r.direction);
+    scalar_t denom;
+
+#ifdef SCENE_OPT
+    // Assume plane is always pointing upwards and normalized to 1.
+    denom = r.direction.s[1];
+#else
+    denom = dot_product(p.normal, r.direction);
+#endif
 
     scalar_t epsilon = { 1e-4, float2fixed(1e-4) };
 
@@ -260,8 +293,8 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
 
     vec_t p0r0 = subtract_vec_vec(p.origin, r.origin);
 
-    t->fp32  = dot_product(p0r0, p.normal).fp32 / denom.fp32;
-    t->fixed = float2fixed(t->fp32);
+    *t = dot_product(p0r0, p.normal);
+    *t = div_scalar_scalar(*t, denom);
 
     *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
 
