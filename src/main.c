@@ -5,8 +5,12 @@
 #include <assert.h>
 
 #define GEN_IMAGE
-
 #define SCENE_OPT
+//#define CHECK_DIVERGENT
+
+#define MAX_DIVERGENCE  1.0
+
+//#define USE_FIXED
 
 int scalar_add_cntr         = 0;
 int scalar_mul_cntr         = 0;
@@ -64,6 +68,31 @@ int float2fixed(float fp32)
     return fixed;
 }
 
+scalar_t float2fixed_scalar(scalar_t a)
+{
+    scalar_t r;
+
+    r.fp32 = a.fp32;
+    r.fixed = float2fixed(a.fp32);
+
+    return r;
+}
+
+
+void check_divergent(scalar_t a)
+{
+#ifdef CHECK_DIVERGENT
+    float a_fp32 = fixed2float(a.fixed);
+
+    if (a.fp32 >= 1e-4){
+        float ratio = fabs( (a_fp32/a.fp32)-1.0);
+
+        if ( ratio >= MAX_DIVERGENCE){
+            assert(0);
+        }
+    }
+#endif
+}
 
 vec_t float2fixed_vec(vec_t v)
 {
@@ -78,14 +107,19 @@ vec_t float2fixed_vec(vec_t v)
 
 void print_scalar(scalar_t s)
 {
+#ifndef GEN_IMAGE
     printf("fp32 : %.04f\n",s.fp32);
     printf("fixed: %.04f, %d\n",fixed2float(s.fixed), s.fixed);
+#endif
 }
 
 void print_vec(vec_t v)
 {
+#ifndef GEN_IMAGE
     printf("fp32:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.s[0].fp32, v.s[1].fp32, v.s[2].fp32);
-    printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f\n", fixed2float(v.s[0].fixed), fixed2float(v.s[1].fixed), fixed2float(v.s[2].fixed));
+    printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f (%d, %d, %d)\n", fixed2float(v.s[0].fixed), fixed2float(v.s[1].fixed), fixed2float(v.s[2].fixed),
+                                                                 v.s[0].fixed, v.s[1].fixed, v.s[2].fixed);
+#endif
 }
 
 typedef struct {
@@ -149,6 +183,8 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
 
     ++scalar_add_cntr;
 
+    check_divergent(r);
+
     return r;
 }
 
@@ -162,28 +198,44 @@ scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
 
     ++scalar_add_cntr;
 
+    check_divergent(r);
+
     return r;
 }
 
-
-scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
+scalar_t _mul_scalar_scalar(scalar_t a, scalar_t b, int shift_a, int shift_b, int shift_c)
 {
     scalar_t r;
 
     r.fp32  = a.fp32  * b.fp32;
-    r.fixed = (a.fixed>>8) * (b.fixed>>8);
+    r.fixed = ((a.fixed>>shift_a) * (b.fixed>>shift_b)) >> shift_c;
 
     ++scalar_mul_cntr;
 
+    check_divergent(r);
+
     return r;
+}
+
+scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
+{
+    return _mul_scalar_scalar(a, b, 8, 8, 0);
 }
 
 scalar_t div_scalar_scalar(scalar_t a, scalar_t b)
 {
     scalar_t r;
 
+#ifdef USE_FIXED
+    float a_fp32 = fixed2float(a.fixed);
+    float b_fp32 = fixed2float(b.fixed);
+
+    r.fp32  = a_fp32 / b_fp32;
+    r.fixed = float2fixed(r.fp32);
+#else
     r.fp32  = a.fp32  / b.fp32;
     r.fixed = float2fixed(r.fp32);
+#endif
 
     ++scalar_div_cntr;
 
@@ -194,10 +246,19 @@ scalar_t sqrt_scalar(scalar_t a)
 {
     scalar_t r;
 
+#ifdef USE_FIXED
+    float a_fp32 = fixed2float(a.fixed);
+
+    r.fp32  = sqrt(a_fp32);
+    r.fixed = float2fixed(r.fp32);
+#else
     r.fp32  = sqrt(a.fp32);
     r.fixed = float2fixed(r.fp32);
+#endif
 
     ++scalar_sqrt_cntr;
+
+    check_divergent(r);
 
     return r;
 }
@@ -206,10 +267,19 @@ scalar_t recip_sqrt_scalar(scalar_t a)
 {
     scalar_t r;
 
+#ifdef USE_FIXED
+    float a_fp32 = fixed2float(a.fixed);
+
+    r.fp32  = 1/sqrt(a_fp32);
+    r.fixed = float2fixed(r.fp32);
+#else
     r.fp32  = 1/sqrt(a.fp32);
     r.fixed = float2fixed(r.fp32);
+#endif
 
     ++scalar_recip_sqrt_cntr;
+
+    check_divergent(r);
 
     return r;
 }
@@ -256,6 +326,18 @@ vec_t subtract_vec_vec(vec_t a, vec_t b)
 
     return r;
 }
+
+vec_t _mul_vec_scalar(vec_t a, scalar_t m, int shift_a, int shift_b, int shift_c)
+{
+    vec_t r;
+
+    r.s[0] = _mul_scalar_scalar(a.s[0], m, shift_a, shift_b, shift_c);
+    r.s[1] = _mul_scalar_scalar(a.s[1], m, shift_a, shift_b, shift_c);
+    r.s[2] = _mul_scalar_scalar(a.s[2], m, shift_a, shift_b, shift_c);
+
+    return r;
+}
+
 
 vec_t mul_vec_scalar(vec_t a, scalar_t m)
 {
@@ -320,7 +402,7 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     *t = p0r0_y;
     *t = div_scalar_scalar(*t, denom);
 
-    *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
+    *intersection = add_vec_vec(r.origin, _mul_vec_scalar(r.direction, *t, 4, 4, 8));
 #else
     vec_t p0r0 = subtract_vec_vec(p.origin, r.origin);
 
@@ -457,6 +539,7 @@ int main(int argc, char **argv)
     plane.normal = float2fixed_vec(plane.normal);
 
     sphere.center = float2fixed_vec(sphere.center);
+    sphere.radius = float2fixed_scalar(sphere.radius);
 
     plane.normal = normalize_vec(plane.normal);
 
@@ -471,12 +554,13 @@ int main(int argc, char **argv)
             ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
             ray.direction.s[2].fp32 = 1;
 
-            ray.direction.s[0].fixed =  ((pix_x - width>>1 )) * 65536 /  width;
-            ray.direction.s[1].fixed = -((pix_y - height>>1)) * 65536 /  height - (0.4 * 65536);
+            ray.direction.s[0].fixed =  (((pix_x - width/2) ) * 4096 /  width) * 16;
+            ray.direction.s[1].fixed = -(((pix_y - height/2)) * 4096 /  height) * 16 - (0.4 * 65536);
             ray.direction.s[2].fixed = 1 * 65536;
 
             reset_counters();
 
+            print_vec(ray.direction);
             ray.direction = normalize_vec(ray.direction);
 
             color_t c = trace(ray, 0);
