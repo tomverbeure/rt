@@ -470,7 +470,7 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     *t = t0;
 
-    *intersection = add_vec_vec(r.origin, _mul_vec_scalar(r.direction, *t, 4, 4, 8));
+    *intersection = add_vec_vec(r.origin, _mul_vec_scalar(r.direction, *t, 2, 4, 10));
 
     *normal = subtract_vec_vec(*intersection, s.center);
     *normal = normalize_vec(*normal);
