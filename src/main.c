@@ -10,7 +10,7 @@
 
 #define MAX_DIVERGENCE  1.0
 
-//#define USE_FIXED
+#define USE_FIXED
 
 int scalar_add_cntr         = 0;
 int scalar_mul_cntr         = 0;
@@ -284,13 +284,20 @@ scalar_t recip_sqrt_scalar(scalar_t a)
     return r;
 }
 
-scalar_t dot_product(vec_t a, vec_t b)
+scalar_t _dot_product(vec_t a, vec_t b, int shift_a, int shift_b, int shift_c)
 {
     scalar_t d;
 
-    d = add_scalar_scalar( mul_scalar_scalar(a.s[0], b.s[0]), add_scalar_scalar( mul_scalar_scalar(a.s[1], b.s[1]), mul_scalar_scalar(a.s[2], b.s[2])));
+    d = add_scalar_scalar( _mul_scalar_scalar(a.s[0], b.s[0], shift_a, shift_b, shift_c),
+        add_scalar_scalar( _mul_scalar_scalar(a.s[1], b.s[1], shift_a, shift_b, shift_c),
+                           _mul_scalar_scalar(a.s[2], b.s[2], shift_a, shift_b, shift_c)));
 
     return d;
+}
+
+scalar_t dot_product(vec_t a, vec_t b)
+{
+    return _dot_product(a, b, 8, 8, 0);
 }
 
 vec_t negate_vec(vec_t a, vec_t b)
@@ -367,7 +374,7 @@ vec_t normalize_vec(vec_t v)
     scalar_t denom = dot_product(v, v);
 
     denom = recip_sqrt_scalar(denom);
-    vec_t result = mul_vec_scalar(v, denom);
+    vec_t result = _mul_vec_scalar(v, denom, 4, 4, 8);
 
     return result;
 }
@@ -418,7 +425,7 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
 bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec_t *normal)
 {
     vec_t c0r0 = subtract_vec_vec(s.center, r.origin);
-    scalar_t tca = dot_product(r.direction, c0r0);
+    scalar_t tca = _dot_product(r.direction, c0r0, 4, 4, 8);
 
     if (tca.fp32 < 0){
         return 0;
