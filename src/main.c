@@ -4,7 +4,14 @@
 #include <math.h>
 #include <assert.h>
 
+#define GEN_IMAGE
+
 typedef int bool;
+
+typedef struct {
+    float   fp32;
+    int     fixed;
+} scalar_t;
 
 typedef struct {
     float   r;
@@ -44,16 +51,17 @@ vec_t float2fixed_vec(vec_t v)
     return result;
 }
 
+void print_scalar(scalar_t s)
+{
+    printf("fp32 : %.04f\n",s.fp32);
+    printf("fixed: %.04f, %d\n",fixed2float(s.fixed), s.fixed);
+}
+
 void print_vec(vec_t v)
 {
     printf("fp32:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.fp32[0], v.fp32[1], v.fp32[2]);
     printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f\n", fixed2float(v.fixed[0]), fixed2float(v.fixed[1]), fixed2float(v.fixed[2]));
 }
-
-typedef struct {
-    float   fp32;
-    int     fixed;
-} scalar_t;
 
 typedef struct {
     vec_t   origin;
@@ -98,7 +106,6 @@ sphere_t sphere = {
     { 3 }
 };
 
-
 scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
 {
     scalar_t r;
@@ -108,6 +115,17 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
 
     return r;
 }
+
+scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
+{
+    scalar_t r;
+
+    r.fp32  = a.fp32  - b.fp32;
+    r.fixed = a.fixed - b.fixed;
+
+    return r;
+}
+
 
 scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
 {
@@ -119,12 +137,22 @@ scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
     return r;
 }
 
+scalar_t sqrt_scalar(scalar_t a)
+{
+    scalar_t r;
+
+    r.fp32  = sqrt(a.fp32);
+    r.fixed = float2fixed(r.fp32);
+
+    return r;
+}
+
 scalar_t dot_product(vec_t a, vec_t b)
 {
-    scalar_t d; 
+    scalar_t d;
 
     d.fp32  = a.fp32[0]  * b.fp32[0]  + a.fp32[1]  * b.fp32[1] +  a.fp32[2]  * b.fp32[2];
-    d.fixed = a.fixed[0] * b.fixed[0] + a.fixed[1] * b.fixed[1] + a.fixed[2] * b.fixed[2];
+    d.fixed = (a.fixed[0] * b.fixed[0] >> 16) + (a.fixed[1] * b.fixed[1] >> 16) + (a.fixed[2] * b.fixed[2] >> 16);
 
     return d;
 }
@@ -184,8 +212,18 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
 {
     scalar_t denom = dot_product(p.normal, r.direction);
 
-    if (fabs(denom.fp32) <= 1e-6)
+    scalar_t epsilon = { 1e-4, float2fixed(1e-4) };
+
+    if (fabs(denom.fp32) <= epsilon.fp32){
+#ifndef GEN_IMAGE
+        printf("\n");
+        print_vec(p.normal);
+        print_vec(r.direction);
+        print_scalar(denom);
+        assert(0);
+#endif
         return 0;
+    }
 
     vec_t p0r0 = subtract_vec_vec(p.origin, r.origin);
 
@@ -200,16 +238,16 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
 bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec_t *normal)
 {
     vec_t c0r0 = subtract_vec_vec(s.center, r.origin);
-
     scalar_t tca = dot_product(r.direction, c0r0);
 
-    if (tca.fp32 < 0) return 0;
+    if (tca.fp32 < 0){
+        return 0;
+    }
 
     scalar_t d2 = dot_product(c0r0, c0r0);
-    d2.fp32 = d2.fp32 - tca.fp32 * tca.fp32;
-    d2.fixed = float2fixed(d2.fp32);
+    d2 = subtract_scalar_scalar(d2, mul_scalar_scalar(tca, tca));
 
-    scalar_t radius2; 
+    scalar_t radius2;
 
     radius2.fp32 = s.radius.fp32 * s.radius.fp32;
     radius2.fixed = float2fixed(radius2.fp32);
@@ -220,9 +258,10 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     scalar_t t0;
     scalar_t t1;
 
-    thc.fp32 = sqrt(radius2.fp32 - d2.fp32);
-    t0.fp32 = tca.fp32 - thc.fp32;
-    t1.fp32 = tca.fp32 + thc.fp32;
+    thc = sqrt_scalar(subtract_scalar_scalar(radius2, d2));
+
+    t0 = subtract_scalar_scalar(tca, thc);
+    t1 = add_scalar_scalar     (tca, thc);
 
     // The smallest one is the closest one. Only works in this particular scene.
     if (t0.fp32 >= t1.fp32)
@@ -235,7 +274,6 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     *normal = subtract_vec_vec(*intersection, s.center);
     *normal = normalize_vec(*normal);
-
 
     return 1;
 }
@@ -299,12 +337,19 @@ color_t trace(ray_t ray, int iteration)
 
 int main(int argc, char **argv)
 {
-    int width = atoi(argv[1]);
-    int height = atoi(argv[2]);
+    int width  = 400;
+    int height = 400;
+
+    if (argc >= 2){
+        width = atoi(argv[1]);
+        height = atoi(argv[2]);
+    }
 
     ray_t r = { { 0,5,-10 }, { 0,1,0 } };
 
+#ifdef GEN_IMAGE
     printf("P6 %d %d 255 ", width, height);
+#endif
 
     plane.normal = normalize_vec(plane.normal);
 
@@ -327,10 +372,16 @@ int main(int argc, char **argv)
             ray.direction.fp32[1] = -((pix_y - ((float)height/2))) /  height - 0.4;
             ray.direction.fp32[2] = 1;
 
+            ray.direction.fixed[0] =  ((pix_x - width>>1 )) * 65536 /  width;
+            ray.direction.fixed[1] = -((pix_y - height>>1)) * 65536 /  height - (0.4 * 65536);
+            ray.direction.fixed[2] = 1 * 65536;
+
             ray.direction = normalize_vec(ray.direction);
 
             color_t c = trace(ray, 0);
+#ifdef GEN_IMAGE
             printf("%c%c%c", (int)(c.r*255), (int)(c.g*255), (int)(c.b*255));
+#endif
         }
     }
 }
