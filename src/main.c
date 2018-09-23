@@ -6,6 +6,30 @@
 
 #define GEN_IMAGE
 
+int scalar_add_cntr         = 0;
+int scalar_mul_cntr         = 0;
+int scalar_div_cntr         = 0;
+int scalar_sqrt_cntr        = 0;
+int scalar_recip_sqrt_cntr  = 0;
+
+void reset_counters()
+{
+    scalar_add_cntr         = 0;
+    scalar_mul_cntr         = 0;
+    scalar_div_cntr         = 0;
+    scalar_sqrt_cntr        = 0;
+    scalar_recip_sqrt_cntr  = 0;
+}
+
+void print_counters()
+{
+    printf("scalar_add_cntr:        %d\n", scalar_add_cntr);
+    printf("scalar_mul_cntr:        %d\n", scalar_mul_cntr);
+    printf("scalar_div_cntr:        %d\n", scalar_div_cntr);
+    printf("scalar_sqrt_cntr:       %d\n", scalar_sqrt_cntr);
+    printf("scalar_recip_sqrt_cntr: %d\n", scalar_recip_sqrt_cntr);
+}
+
 typedef int bool;
 
 typedef struct {
@@ -111,6 +135,8 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
     r.fp32  = a.fp32  + b.fp32;
     r.fixed = a.fixed + b.fixed;
 
+    ++scalar_add_cntr;
+
     return r;
 }
 
@@ -120,6 +146,8 @@ scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
 
     r.fp32  = a.fp32  - b.fp32;
     r.fixed = a.fixed - b.fixed;
+
+    ++scalar_add_cntr;
 
     return r;
 }
@@ -132,6 +160,8 @@ scalar_t mul_scalar_scalar(scalar_t a, scalar_t b)
     r.fp32  = a.fp32  * b.fp32;
     r.fixed = (a.fixed>>8) * (b.fixed>>8);
 
+    ++scalar_mul_cntr;
+
     return r;
 }
 
@@ -142,6 +172,8 @@ scalar_t sqrt_scalar(scalar_t a)
     r.fp32  = sqrt(a.fp32);
     r.fixed = float2fixed(r.fp32);
 
+    ++scalar_sqrt_cntr;
+
     return r;
 }
 
@@ -151,6 +183,8 @@ scalar_t recip_sqrt_scalar(scalar_t a)
 
     r.fp32  = 1/sqrt(a.fp32);
     r.fixed = float2fixed(r.fp32);
+
+    ++scalar_recip_sqrt_cntr;
 
     return r;
 }
@@ -248,8 +282,7 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     scalar_t radius2;
 
-    radius2.fp32 = s.radius.fp32 * s.radius.fp32;
-    radius2.fixed = float2fixed(radius2.fp32);
+    radius2 = mul_scalar_scalar(s.radius, s.radius);
 
     if (d2.fp32 > radius2.fp32) return 0;
 
@@ -264,10 +297,9 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     // The smallest one is the closest one. Only works in this particular scene.
     if (t0.fp32 >= t1.fp32)
-        t0.fp32 = t1.fp32;
+        t0 = t1;
 
-    t->fp32 = t0.fp32;
-    t->fixed = float2fixed(t->fp32);
+    *t = t0;
 
     *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
 
@@ -304,6 +336,11 @@ color_t trace(ray_t ray, int iteration)
         c.r = c.r * alpha + 0.9 * (1-alpha);
         c.g = c.g * alpha + 0.9 * (1-alpha);
         c.b = c.b * alpha;
+
+#ifndef GEN_IMAGE
+        print_counters();
+        assert(0);
+#endif
 
         return c;
     }
@@ -373,9 +410,12 @@ int main(int argc, char **argv)
             ray.direction.s[1].fixed = -((pix_y - height>>1)) * 65536 /  height - (0.4 * 65536);
             ray.direction.s[2].fixed = 1 * 65536;
 
+            reset_counters();
+
             ray.direction = normalize_vec(ray.direction);
 
             color_t c = trace(ray, 0);
+
 #ifdef GEN_IMAGE
             printf("%c%c%c", (int)(c.r*255), (int)(c.g*255), (int)(c.b*255));
 #endif
