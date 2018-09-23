@@ -4,7 +4,7 @@ all: rt.ppm
 	feh rt.ppm
 
 rt.ppm: rt
-	./rt 400 400 3 > rt.ppm
+	./rt 400 400 10 > rt.ppm
 
 display_string := -Ddisplay_string
 

@@ -227,7 +227,12 @@ scalar_t _mul_scalar_scalar(scalar_t a, scalar_t b, int shift_a, int shift_b, in
     scalar_t r;
 
     r.fp32  = a.fp32  * b.fp32;
-    r.fixed = ((a.fixed>>shift_a) * (b.fixed>>shift_b)) >> shift_c;
+
+    // Restrict to an 18x18 multiply (32-14=18)
+    int a_fixed = ((a.fixed>>shift_a)<<14)>>14;
+    int b_fixed = ((b.fixed>>shift_b)<<14)>>14;
+
+    r.fixed = (a_fixed * b_fixed) >> shift_c;
 
     ++scalar_mul_cntr;
 
@@ -266,6 +271,12 @@ scalar_t sqrt_scalar(scalar_t a)
     scalar_t r;
 
 #ifdef USE_FIXED
+    static bool init = 0;
+
+    if (!init){
+        init = 1;
+    }
+
     float a_fp32 = fixed2float(a.fixed);
 
     r.fp32  = sqrt(a_fp32);
