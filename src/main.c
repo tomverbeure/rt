@@ -496,7 +496,15 @@ color_t trace(ray_t ray, int iteration)
 
     if (sphere_intersects){
         ray_t ray2;
-        ray2.direction = subtract_vec_vec(ray.direction, mul_vec_scalar(sphere_normal, mul_scalar_scalar(two, dot_product(ray.direction, sphere_normal))));
+        ray2.direction = subtract_vec_vec(
+                                    ray.direction,
+                                    mul_vec_scalar(
+                                        sphere_normal,
+                                        _mul_scalar_scalar(two, _dot_product(ray.direction, sphere_normal, 4, 4, 8),
+                                        4, 4, 8)
+                                        )
+                                    );
+
         ray2.origin    = sphere_intersection;
 
         color_t c = trace(ray2, 1);
@@ -544,10 +552,12 @@ int main(int argc, char **argv)
 {
     int width  = 400;
     int height = 400;
+    int sphere_height = 10;
 
-    if (argc >= 2){
+    if (argc >= 3){
         width = atoi(argv[1]);
         height = atoi(argv[2]);
+        sphere_height = atoi(argv[3]);;
     }
 
 #ifdef GEN_IMAGE
@@ -559,6 +569,8 @@ int main(int argc, char **argv)
 
     plane.origin = float2fixed_vec(plane.origin);
     plane.normal = float2fixed_vec(plane.normal);
+
+    sphere.center.s[1].fp32 = sphere_height;
 
     sphere.center = float2fixed_vec(sphere.center);
     sphere.radius = float2fixed_scalar(sphere.radius);
