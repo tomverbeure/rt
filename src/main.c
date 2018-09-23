@@ -203,6 +203,25 @@ scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
     return r;
 }
 
+bool smaller_scalar_scalar(scalar_t a, scalar_t b)
+{
+#ifdef USE_FIXED
+    return a.fixed < b.fixed;
+#else
+    return a.fp32 < b.fp32;
+#endif
+}
+
+scalar_t abs_scalar(scalar_t a)
+{
+    scalar_t r;
+
+    r.fp32  = fabs(a.fp32);
+    r.fixed = abs(a.fixed);
+
+    return r;
+}
+
 scalar_t _mul_scalar_scalar(scalar_t a, scalar_t b, int shift_a, int shift_b, int shift_c)
 {
     scalar_t r;
@@ -390,16 +409,9 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     denom = dot_product(p.normal, r.direction);
 #endif
 
-    scalar_t epsilon = { 1e-4, float2fixed(1e-4) };
+    scalar_t epsilon = { 1e-3, float2fixed(1e-3) };
 
-    if (fabs(denom.fp32) <= epsilon.fp32){
-#ifndef GEN_IMAGE
-        printf("\n");
-        print_vec(p.normal);
-        print_vec(r.direction);
-        print_scalar(denom);
-        assert(0);
-#endif
+    if (smaller_scalar_scalar(abs_scalar(denom), epsilon)) {
         return 0;
     }
 
@@ -438,7 +450,9 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     radius2 = mul_scalar_scalar(s.radius, s.radius);
 
-    if (d2.fp32 > radius2.fp32) return 0;
+    if (smaller_scalar_scalar(radius2, d2)){
+        return 0;
+    }
 
     scalar_t thc;
     scalar_t t0;
@@ -450,12 +464,13 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     t1 = add_scalar_scalar     (tca, thc);
 
     // The smallest one is the closest one. Only works in this particular scene.
-    if (t0.fp32 >= t1.fp32)
+    if (smaller_scalar_scalar(t1, t0)){
         t0 = t1;
+    }
 
     *t = t0;
 
-    *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
+    *intersection = add_vec_vec(r.origin, _mul_vec_scalar(r.direction, *t, 4, 4, 8));
 
     *normal = subtract_vec_vec(*intersection, s.center);
     *normal = normalize_vec(*normal);
