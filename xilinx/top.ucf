@@ -128,10 +128,10 @@ NET "led_blue"  LOC = L1  |IOSTANDARD = LVCMOS33;
 #============================================================
 # VGA Out - TI THS8135
 #============================================================
-#NET "vo_clk"  LOC = E10  |IOSTANDARD = LVCMOS33;   # CLK
-#NET "vo_vsync"  LOC = D1  |IOSTANDARD = LVCMOS33;  # B2B A[9]
-#NET "vo_hsync"  LOC = C2  |IOSTANDARD = LVCMOS33;  # B2B A[11]
-#NET "vo_blank_" LOC = A8  |IOSTANDARD = LVCMOS33;  # BLANK_
+NET "vo_clk"  LOC = E10  |IOSTANDARD = LVCMOS33;   # CLK
+NET "vo_vsync"  LOC = D1  |IOSTANDARD = LVCMOS33;  # B2B A[9]
+NET "vo_hsync"  LOC = C2  |IOSTANDARD = LVCMOS33;  # B2B A[11]
+NET "vo_blank_" LOC = A8  |IOSTANDARD = LVCMOS33;  # BLANK_
                                                     # SYNC_  = 10k pullup to VDD
                                                     # SYNC_T = 10k R to ?
                                                     # M1 = 10 pulldown to GND
@@ -139,34 +139,34 @@ NET "led_blue"  LOC = L1  |IOSTANDARD = LVCMOS33;
 #NET "vo_scl"  LOC = D4  |IOSTANDARD = LVCMOS33;
 #NET "vo_sda"  LOC = G3  |IOSTANDARD = LVCMOS33;
 
-#NET "vo_r[7]" LOC = D9  |IOSTANDARD = LVCMOS33;    # R9
-#NET "vo_r[6]" LOC = E9  |IOSTANDARD = LVCMOS33;    # R8
-#NET "vo_r[5]" LOC = C9  |IOSTANDARD = LVCMOS33;    # R7
-#NET "vo_r[4]" LOC = F9  |IOSTANDARD = LVCMOS33;    # R6
-#NET "vo_r[3]" LOC = F8  |IOSTANDARD = LVCMOS33;    # R5
-#NET "vo_r[2]" LOC = C7  |IOSTANDARD = LVCMOS33;    # R4
-#NET "vo_r[1]" LOC = E8  |IOSTANDARD = LVCMOS33;    # R3
-#NET "vo_r[0]" LOC = F7  |IOSTANDARD = LVCMOS33;    # R2
+NET "vo_r[7]" LOC = D9  |IOSTANDARD = LVCMOS33;    # R9
+NET "vo_r[6]" LOC = E9  |IOSTANDARD = LVCMOS33;    # R8
+NET "vo_r[5]" LOC = C9  |IOSTANDARD = LVCMOS33;    # R7
+NET "vo_r[4]" LOC = F9  |IOSTANDARD = LVCMOS33;    # R6
+NET "vo_r[3]" LOC = F8  |IOSTANDARD = LVCMOS33;    # R5
+NET "vo_r[2]" LOC = C7  |IOSTANDARD = LVCMOS33;    # R4
+NET "vo_r[1]" LOC = E8  |IOSTANDARD = LVCMOS33;    # R3
+NET "vo_r[0]" LOC = F7  |IOSTANDARD = LVCMOS33;    # R2
                                                     # R1 = GND
                                                     # R0 = GND
-#NET "vo_g[7]" LOC = G9   |IOSTANDARD = LVCMOS33;   # G9
-#NET "vo_g[6]" LOC = D11  |IOSTANDARD = LVCMOS33;   # G8
-#NET "vo_g[5]" LOC = C4   |IOSTANDARD = LVCMOS33;   # G7
-#NET "vo_g[4]" LOC = A7   |IOSTANDARD = LVCMOS33;   # G6
-#NET "vo_g[3]" LOC = A10  |IOSTANDARD = LVCMOS33;   # G5
-#NET "vo_g[2]" LOC = D10  |IOSTANDARD = LVCMOS33;   # G4
-#NET "vo_g[1]" LOC = C11  |IOSTANDARD = LVCMOS33;   # G3
-#NET "vo_g[0]" LOC = B10  |IOSTANDARD = LVCMOS33;   # G2
+NET "vo_g[7]" LOC = G9   |IOSTANDARD = LVCMOS33;   # G9
+NET "vo_g[6]" LOC = D11  |IOSTANDARD = LVCMOS33;   # G8
+NET "vo_g[5]" LOC = C4   |IOSTANDARD = LVCMOS33;   # G7
+NET "vo_g[4]" LOC = A7   |IOSTANDARD = LVCMOS33;   # G6
+NET "vo_g[3]" LOC = A10  |IOSTANDARD = LVCMOS33;   # G5
+NET "vo_g[2]" LOC = D10  |IOSTANDARD = LVCMOS33;   # G4
+NET "vo_g[1]" LOC = C11  |IOSTANDARD = LVCMOS33;   # G3
+NET "vo_g[0]" LOC = B10  |IOSTANDARD = LVCMOS33;   # G2
                                                     # G1 = GND
                                                     # G0 = GND
-#NET "vo_b[7]" LOC = A4  |IOSTANDARD = LVCMOS33;    # B9
-#NET "vo_b[6]" LOC = D6  |IOSTANDARD = LVCMOS33;    # B8
-#NET "vo_b[5]" LOC = C3  |IOSTANDARD = LVCMOS33;    # B7
-#NET "vo_b[4]" LOC = E6  |IOSTANDARD = LVCMOS33;    # B6
-#NET "vo_b[3]" LOC = B4  |IOSTANDARD = LVCMOS33;    # B5
-#NET "vo_b[2]" LOC = C5  |IOSTANDARD = LVCMOS33;    # B4
-#NET "vo_b[1]" LOC = B6  |IOSTANDARD = LVCMOS33;    # B3
-#NET "vo_b[0]" LOC = A6  |IOSTANDARD = LVCMOS33;    # B2
+NET "vo_b[7]" LOC = A4  |IOSTANDARD = LVCMOS33;    # B9
+NET "vo_b[6]" LOC = D6  |IOSTANDARD = LVCMOS33;    # B8
+NET "vo_b[5]" LOC = C3  |IOSTANDARD = LVCMOS33;    # B7
+NET "vo_b[4]" LOC = E6  |IOSTANDARD = LVCMOS33;    # B6
+NET "vo_b[3]" LOC = B4  |IOSTANDARD = LVCMOS33;    # B5
+NET "vo_b[2]" LOC = C5  |IOSTANDARD = LVCMOS33;    # B4
+NET "vo_b[1]" LOC = B6  |IOSTANDARD = LVCMOS33;    # B3
+NET "vo_b[0]" LOC = A6  |IOSTANDARD = LVCMOS33;    # B2
                                                     # B1 = GND
                                                     # B0 = GND
 #============================================================

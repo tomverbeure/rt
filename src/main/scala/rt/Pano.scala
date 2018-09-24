@@ -107,14 +107,14 @@ else{
         timings.h_sync := 96
         timings.h_bp := 48
         timings.h_sync_positive := False
-        timings.h_total_m1 := (timings.h_active + timings.h_fp + timings.h_sync + timings.h_bp).resize(timings.h_total_m1.getWidth)
+        timings.h_total_m1 := (timings.h_active + timings.h_fp + timings.h_sync + timings.h_bp -1).resize(timings.h_total_m1.getWidth)
 
         timings.v_active := 480
         timings.v_fp := 11
         timings.v_sync := 2
         timings.v_bp := 31
         timings.v_sync_positive := False
-        timings.v_total_m1 := (timings.v_active + timings.v_fp + timings.v_sync + timings.v_bp).resize(timings.v_total_m1.getWidth)
+        timings.v_total_m1 := (timings.v_active + timings.v_fp + timings.v_sync + timings.v_bp -1).resize(timings.v_total_m1.getWidth)
 
         val vi_gen = new VideoTimingGen()
         vi_gen.io.timings := timings
