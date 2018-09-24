@@ -3,14 +3,37 @@ package rt
 
 import spinal.core._
 
-case class VgaIo() extends Bundle {
-    val clk      = out(Bool)
-    val vsync    = out(Bool)
-    val hsync    = out(Bool)
-    val blank_   = out(Bool)
-    val r        = out(UInt(8 bits))
-    val g        = out(UInt(8 bits))
-    val b        = out(UInt(8 bits))
+case class VgaData() extends Bundle {
+    val vsync    = Bool
+    val hsync    = Bool
+    val blank_   = Bool
+    val r        = UInt(8 bits)
+    val g        = UInt(8 bits)
+    val b        = UInt(8 bits)
+
+    def init() : VgaData = {
+        vsync   init(False)
+        hsync   init(False)
+        blank_  init(False)
+        r       init(0)
+        g       init(0)
+        b       init(0)
+        this
+    }
+}
+
+case class Pixel() extends Bundle {
+    val r       = UInt(8 bits)
+    val g       = UInt(8 bits)
+    val b       = UInt(8 bits)
+}
+
+case class PixelStream() extends Bundle {
+    val vsync   = Bool
+    val req     = Bool
+    val eol     = Bool
+    val eof     = Bool
+    val pixel   = Pixel()
 }
 
 
