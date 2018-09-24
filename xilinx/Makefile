@@ -2,7 +2,8 @@
 XILINX_DIR = /opt/Xilinx/14.7/ISE_DS/
 XILINX_BIN = $(XILINX_DIR)/ISE/bin/lin64
 
-ise: progmem.hex c64_font.hex vga8x12_font.hex screen_buffer.hex
+#ise: progmem.hex c64_font.hex vga8x12_font.hex screen_buffer.hex
+ise: 
 	$(XILINX_BIN)/ise
 
 impact:
