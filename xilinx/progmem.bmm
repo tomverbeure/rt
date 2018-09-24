@@ -1,0 +1,12 @@
+
+ADDRESS_SPACE progmem COMBINED [0x00000000:0x00001FFF]
+  ADDRESS_RANGE RAMB16
+    BUS_BLOCK
+      u_soc/memory/Mram_mem3 [31:24] PLACED=X0Y3;
+      u_soc/memory/Mram_mem2 [23:16] PLACED=X0Y2;
+      u_soc/memory/Mram_mem1 [15:8]  PLACED=X0Y1;
+      u_soc/memory/Mram_mem0 [7:0]   PLACED=X0Y0;
+    END_BUS_BLOCK;
+  END_ADDRESS_RANGE;
+END_ADDRESS_SPACE;
+
