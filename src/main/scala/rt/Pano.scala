@@ -124,6 +124,8 @@ else{
         vo.io.pixel_in <> vi_gen.io.pixel_out
         vo.io.vga_out <> io.vo
 
+        val cam_sweep = new CamSweep()
+
     }
 
 }
