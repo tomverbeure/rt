@@ -16,6 +16,7 @@ bin_dir    := ./
 sources := $(wildcard $(source_dir)/*.c)
 objects := $(sources:$(source_dir)/%.c=$(build_dir)/%.o)
 
+CC       := clang++
 CPPFLAGS := $(display_string) -I$(header_dir) -MMD -MP -O0 -g
 LDLIBS   := -lm
 

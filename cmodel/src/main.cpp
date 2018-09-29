@@ -4,6 +4,8 @@
 #include <math.h>
 #include <assert.h>
 
+#include <fpxx.h>
+
 #define GEN_IMAGE
 #define SCENE_OPT
 //#define CHECK_DIVERGENT
