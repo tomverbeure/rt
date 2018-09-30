@@ -13,8 +13,8 @@ header_dir := src
 build_dir  := build
 bin_dir    := ./
 
-sources := $(wildcard $(source_dir)/*.c)
-objects := $(sources:$(source_dir)/%.c=$(build_dir)/%.o)
+sources := $(wildcard $(source_dir)/*.cpp)
+objects := $(sources:$(source_dir)/%.cpp=$(build_dir)/%.o)
 
 CC       := clang++
 CPPFLAGS := $(display_string) -I$(header_dir) -MMD -MP -O0 -g
@@ -23,7 +23,7 @@ LDLIBS   := -lm
 $(bin_dir)/rt: $(objects) | $(bin_dir)
 	$(LINK.o) $^ $(LDLIBS) -o $@
 
-$(build_dir)/%.o: $(source_dir)/%.c | $(build_dir)
+$(build_dir)/%.o: $(source_dir)/%.cpp | $(build_dir)
 	$(COMPILE.c) $(OUTPUT_OPTION) $<
 
 $(build_dir) $(bin_dir): ; mkdir $@
@@ -31,3 +31,6 @@ $(build_dir) $(bin_dir): ; mkdir $@
 clean: ; $(RM) -fr  rt $(objects) $(deps) $(build_dir)
 
 -include $(deps)
+
+main.o: Makefile fpxx.h misc.h
+

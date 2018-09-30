@@ -38,8 +38,6 @@ void print_counters()
     printf("scalar_recip_sqrt_cntr: %d\n", scalar_recip_sqrt_cntr);
 }
 
-typedef int bool;
-
 typedef struct {
     float   fp32;
     int     fixed;
