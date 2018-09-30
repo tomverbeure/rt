@@ -8,11 +8,13 @@
 
 #define GEN_IMAGE
 #define SCENE_OPT
-//#define CHECK_DIVERGENT
+//#define CHECK_DIVERGENT_FIXED
+//#define CHECK_DIVERGENT_FPXX
 
 #define MAX_DIVERGENCE  1.0
 
-#define USE_FIXED
+//#define USE_FIXED
+#define USE_FPXX
 
 int scalar_add_cntr         = 0;
 int scalar_mul_cntr         = 0;
@@ -38,8 +40,11 @@ void print_counters()
     printf("scalar_recip_sqrt_cntr: %d\n", scalar_recip_sqrt_cntr);
 }
 
+typedef fpxx<14,6> floatrt;
+
 typedef struct {
     float   fp32;
+    floatrt fpxx;
     int     fixed;
 } scalar_t;
 
@@ -73,6 +78,7 @@ scalar_t float2fixed_scalar(scalar_t a)
     scalar_t r;
 
     r.fp32 = a.fp32;
+    r.fpxx = a.fp32;
     r.fixed = float2fixed(a.fp32);
 
     return r;
@@ -81,11 +87,21 @@ scalar_t float2fixed_scalar(scalar_t a)
 
 void check_divergent(scalar_t a)
 {
-#ifdef CHECK_DIVERGENT
+#ifdef CHECK_DIVERGENT_FIXED
     float a_fp32 = fixed2float(a.fixed);
 
     if (a.fp32 >= 1e-4){
         float ratio = fabs( (a_fp32/a.fp32)-1.0);
+
+        if ( ratio >= MAX_DIVERGENCE){
+            assert(0);
+        }
+    }
+#endif
+
+#ifdef CHECK_DIVERGENT_FPXX
+    if (a.fpxx >= 1e-4){
+        float ratio = fabs( ((float)a.fpxx/a.fp32)-1.0);
 
         if ( ratio >= MAX_DIVERGENCE){
             assert(0);
@@ -99,6 +115,7 @@ vec_t float2fixed_vec(vec_t v)
     vec_t result = v;
 
     for(int i=0;i<3;++i){
+        result.s[i].fpxx  = v.s[i].fp32;
         result.s[i].fixed = float2fixed(v.s[i].fp32);
     }
 
@@ -109,6 +126,7 @@ void print_scalar(scalar_t s)
 {
 #ifndef GEN_IMAGE
     printf("fp32 : %.04f\n",s.fp32);
+    printf("fpxx : %.04f\n",s.fpxx);
     printf("fixed: %.04f, %d\n",fixed2float(s.fixed), s.fixed);
 #endif
 }
@@ -117,6 +135,7 @@ void print_vec(vec_t v)
 {
 #ifndef GEN_IMAGE
     printf("fp32:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.s[0].fp32, v.s[1].fp32, v.s[2].fp32);
+    printf("fpxx:  x: %0.4f, y: %0.4f, z: %0.4f\n", v.s[0].fpxx, v.s[1].fpxx, v.s[2].fpxx);
     printf("fixed: x: %0.4f, y: %0.4f, z: %0.4f (%d, %d, %d)\n", fixed2float(v.s[0].fixed), fixed2float(v.s[1].fixed), fixed2float(v.s[2].fixed),
                                                                  v.s[0].fixed, v.s[1].fixed, v.s[2].fixed);
 #endif
@@ -150,17 +169,20 @@ y
 ------------------x
 */
 
+scalar_t zero = { 0.0, 0.0, 0 };
+scalar_t epsilon = { 1e-3, 1e-3, float2fixed(1e-3) };
+
 ray_t camera = {
-    .origin   = { .s={ {0,0}, {10,0}, {-10,0} } }        // 10 high, -10 from xy plane
+    .origin   = { .s={ {0,0,0}, {10,0,0}, {-10,0,0} } }        // 10 high, -10 from xy plane
 };
 
 plane_t plane = {
-    .origin = { .s={ {0, 0}, {0, 0}, {0, 0} } },            // Goes through origin
-    .normal = { .s={ {0, 0}, {1, 0}, {0, 0} } }             // pointing up
+    .origin = { .s={ {0, 0, 0}, {0, 0, 0}, {0, 0, 0} } },            // Goes through origin
+    .normal = { .s={ {0, 0, 0}, {1, 0, 0}, {0, 0, 0} } }             // pointing up
 };
 
 sphere_t sphere = {
-    .center = { .s={ {3, 0}, {10, 0}, {10, 0} } },
+    .center = { .s={ {3, 0, 0}, {10, 0, 0}, {10, 0, 0} } },
     .radius = { 3 }
 };
 
@@ -169,6 +191,7 @@ scalar_t negate_scalar(scalar_t a)
     scalar_t r;
 
     r.fp32  = -a.fp32;
+    r.fpxx  = -a.fpxx;
     r.fixed = -a.fixed;
 
     return r;
@@ -179,6 +202,7 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
     scalar_t r;
 
     r.fp32  = a.fp32  + b.fp32;
+    r.fpxx  = a.fpxx  + b.fpxx;
     r.fixed = a.fixed + b.fixed;
 
     ++scalar_add_cntr;
@@ -194,6 +218,7 @@ scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
     scalar_t r;
 
     r.fp32  = a.fp32  - b.fp32;
+    r.fpxx  = a.fpxx  - b.fpxx;
     r.fixed = a.fixed - b.fixed;
 
     ++scalar_add_cntr;
@@ -208,7 +233,11 @@ bool smaller_scalar_scalar(scalar_t a, scalar_t b)
 #ifdef USE_FIXED
     return a.fixed < b.fixed;
 #else
+#ifdef USE_FPXX
+    return a.fpxx < b.fpxx;
+#else
     return a.fp32 < b.fp32;
+#endif
 #endif
 }
 
@@ -217,6 +246,7 @@ scalar_t abs_scalar(scalar_t a)
     scalar_t r;
 
     r.fp32  = fabs(a.fp32);
+    r.fpxx  = fabs(a.fpxx);
     r.fixed = abs(a.fixed);
 
     return r;
@@ -227,6 +257,7 @@ scalar_t _mul_scalar_scalar(scalar_t a, scalar_t b, int shift_a, int shift_b, in
     scalar_t r;
 
     r.fp32  = a.fp32  * b.fp32;
+    r.fpxx  = a.fpxx  * b.fpxx;
 
     // Restrict to an 18x18 multiply (32-14=18)
     int a_fixed = ((a.fixed>>shift_a)<<14)>>14;
@@ -255,9 +286,11 @@ scalar_t div_scalar_scalar(scalar_t a, scalar_t b)
     float b_fp32 = fixed2float(b.fixed);
 
     r.fp32  = a_fp32 / b_fp32;
+    r.fpxx  = a.fpxx  / b.fpxx;
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = a.fp32  / b.fp32;
+    r.fpxx  = a.fpxx  / b.fpxx;
     r.fixed = float2fixed(r.fp32);
 #endif
 
@@ -280,9 +313,11 @@ scalar_t sqrt_scalar(scalar_t a)
     float a_fp32 = fixed2float(a.fixed);
 
     r.fp32  = sqrt(a_fp32);
+    r.fpxx  = sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = sqrt(a.fp32);
+    r.fpxx  = sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #endif
 
@@ -301,9 +336,11 @@ scalar_t recip_sqrt_scalar(scalar_t a)
     float a_fp32 = fixed2float(a.fixed);
 
     r.fp32  = 1/sqrt(a_fp32);
+    r.fpxx  = (float)1/(float)sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = 1/sqrt(a.fp32);
+    r.fpxx  = (float)1/(float)sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #endif
 
@@ -420,10 +457,8 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     denom = dot_product(p.normal, r.direction);
 #endif
 
-    scalar_t epsilon = { 1e-3, float2fixed(1e-3) };
-
     if (smaller_scalar_scalar(abs_scalar(denom), epsilon)) {
-        return 0;
+        return false;
     }
 
 #ifdef SCENE_OPT
@@ -442,7 +477,7 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
 #endif
 
-    return (t->fp32 >= 0.0);
+    return !smaller_scalar_scalar(*t, zero);
 }
 
 bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec_t *normal)
@@ -450,8 +485,8 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     vec_t c0r0 = subtract_vec_vec(s.center, r.origin);
     scalar_t tca = _dot_product(r.direction, c0r0, 4, 4, 8);
 
-    if (tca.fp32 < 0){
-        return 0;
+    if (smaller_scalar_scalar(tca, zero)){
+        return false;
     }
 
     scalar_t d2 = dot_product(c0r0, c0r0);
@@ -462,7 +497,7 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     radius2 = mul_scalar_scalar(s.radius, s.radius);
 
     if (smaller_scalar_scalar(radius2, d2)){
-        return 0;
+        return false;
     }
 
     scalar_t thc;
@@ -486,7 +521,7 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     *normal = subtract_vec_vec(*intersection, s.center);
     *normal = normalize_vec(*normal);
 
-    return 1;
+    return true;
 }
 
 color_t trace(ray_t ray, int iteration)
@@ -503,7 +538,7 @@ color_t trace(ray_t ray, int iteration)
 
     color_t c;
 
-    scalar_t two = { 2, float2fixed(2) };
+    scalar_t two = { 2, 2, float2fixed(2) };
 
     if (sphere_intersects){
         ray_t ray2;
@@ -598,6 +633,10 @@ int main(int argc, char **argv)
             ray.direction.s[0].fp32 =  ((pix_x - ((float)width /2))) /  width  ;
             ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
             ray.direction.s[2].fp32 = 1;
+
+            ray.direction.s[0].fpxx = ray.direction.s[0].fp32;
+            ray.direction.s[1].fpxx = ray.direction.s[1].fp32;
+            ray.direction.s[2].fpxx = ray.direction.s[2].fp32;
 
             ray.direction.s[0].fixed =  (((pix_x - width/2) ) * 4096 /  width) * 16;
             ray.direction.s[1].fixed = -(((pix_y - height/2)) * 4096 /  height) * 16 - (0.4 * 65536);
