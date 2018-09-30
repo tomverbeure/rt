@@ -40,7 +40,7 @@ void print_counters()
     printf("scalar_recip_sqrt_cntr: %d\n", scalar_recip_sqrt_cntr);
 }
 
-typedef fpxx<14,6> floatrt;
+typedef fpxx<15,8> floatrt;
 
 typedef struct {
     float   fp32;
@@ -336,11 +336,11 @@ scalar_t recip_sqrt_scalar(scalar_t a)
     float a_fp32 = fixed2float(a.fixed);
 
     r.fp32  = 1/sqrt(a_fp32);
-    r.fpxx  = (float)1/(float)sqrt(a.fpxx);
+    r.fpxx  = recip_sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = 1/sqrt(a.fp32);
-    r.fpxx  = (float)1/(float)sqrt(a.fpxx);
+    r.fpxx  = recip_sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #endif
 
