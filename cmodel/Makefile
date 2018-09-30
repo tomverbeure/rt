@@ -32,5 +32,5 @@ clean: ; $(RM) -fr  rt $(objects) $(deps) $(build_dir)
 
 -include $(deps)
 
-main.o: Makefile fpxx.h misc.h
+$(build_dir)/main.o: Makefile src/fpxx.h src/misc.h
 
