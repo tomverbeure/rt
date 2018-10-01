@@ -8,16 +8,18 @@
 #define FPXX_SQRT_LUT_SIZE_BITS          11
 #define FPXX_SQRT_LUT_SIZE               ((1<<FPXX_SQRT_LUT_SIZE_BITS)-(1<<(FPXX_SQRT_LUT_SIZE_BITS-2)))
 #define FPXX_SQRT_LUT_MANT_BITS          12
-#define FPXX_SQRT_LUT_SLOW_BITS          8
 #define FPXX_SQRT_LUT_SHIFT_BITS         4
 #define FPXX_SQRT_FRAC_BITS              8
 
 typedef struct {
     unsigned    mant;
-    int         slope;
     int         shift;
 } sqrt_lut_entry_t;
 
+typedef struct {
+    unsigned    mant;
+    int         shift;
+} div_lut_entry_t;
 
 template <int _m_size, int _exp_size, int _zero_offset = ((1<<(_exp_size-1))-1)>
 class fpxx {
@@ -205,18 +207,87 @@ public:
         return r;
     }
 
-    friend fpxx<_m_size, _exp_size, _zero_offset>  operator/(const fpxx<_m_size, _exp_size, _zero_offset> left, const fpxx<_m_size, _exp_size, _zero_offset> right) {
+    friend bool operator< (const fpxx<_m_size, _exp_size, _zero_offset> left, const fpxx<_m_size, _exp_size, _zero_offset> right) {
 
-        fpxx<_m_size, _exp_size, _zero_offset> r;
+        static bool init = false;
 
-        r = (float)left / (float)right;
+        bool r = (float)left < (float)right;
 
         return r;
     }
 
-    friend bool operator< (const fpxx<_m_size, _exp_size, _zero_offset> left, const fpxx<_m_size, _exp_size, _zero_offset> right) {
+    friend fpxx<_m_size, _exp_size, _zero_offset>  operator/(const fpxx<_m_size, _exp_size, _zero_offset> left, const fpxx<_m_size, _exp_size, _zero_offset> right) {
 
-        bool r = (float)left < (float)right;
+        assert((_m_size&1) == 1);
+
+        unsigned int half_bits = (_m_size+1)/2;
+
+        static bool init = false;
+        static div_lut_entry_t div_lut[1<<((_m_size+1)/2-1)]; // -1 because the MSB is always set.
+
+        if (!init){
+            int max_shift = 0;
+            int table_size_bits = half_bits-1;
+            int table_size = 1<<table_size_bits;
+
+            for(int i=0;i<table_size;++i){
+                float fin   = 1.0 + (float)i/table_size;
+                int fin_exp = (float_as_int(fin) >> 23) & 0xff;
+
+                float f     = 1.0/(fin*fin);
+
+                unsigned mant =  float_as_int(f) & 0x7fffff;
+                int exp       = (float_as_int(f) >> 23) & 0xff;
+
+                int shift = fin_exp - exp;
+
+                div_lut[i].mant  = mant >> (23-(2*half_bits+1));      // +1 instead of +2 because the MSB is not included.
+                div_lut[i].shift = shift;
+
+                max_shift = shift > max_shift ? shift : max_shift;
+            }
+            init = true;
+        }
+
+
+        unsigned int yl_mask = (1<<half_bits)-1;
+        unsigned int yh_mask = ~yl_mask & ((1<<(_m_size+1))-1);
+
+        unsigned int yh = ((1<<_m_size) | right.m) & yh_mask;
+        unsigned int yl = right.m & yl_mask;
+
+        unsigned int yh_m_yl = yh - yl;
+
+        div_lut_entry_t div_lut_val = div_lut[right.m >> half_bits];            // Don't include MSB in lookup, because it's always 1.
+        unsigned int recip_yh2 = (1<<(2*half_bits+1)) | div_lut_val.mant;
+
+        // Multiplying 2*half_bits * 2*half_bits = 4*half_bits.
+        // According to paper, we need to keep 2*half_bits+2, so shift right by 2*half_bits-2
+        unsigned long x_mul_yhyl = ((1<<_m_size) | left.m) * yh_m_yl;
+        x_mul_yhyl >>= 2*half_bits-2;
+
+        // (2*half_bits+2) + (2*half_bits+2) = 4*half_bits +4
+        // We need to keep 2*half_bits eventually, but there may be a leading zero. So first go to 2*half_bits+1.
+        // So shift by 2*half_bits + 3
+        unsigned long div = (x_mul_yhyl * recip_yh2);
+        unsigned int div_shift = 2*half_bits+3;
+        div >>= div_shift;
+
+        fpxx<_m_size, _exp_size, _zero_offset> r;
+
+        r.sign = left.sign ^ right.sign;
+        r.exp = left.exp - right.exp + 1 - div_lut_val.shift + _zero_offset;
+
+        unsigned int div_msb = 2*half_bits;
+        if (div & (1<<div_msb)){
+            div >>= 1;
+            ++r.exp;
+        }
+        else if (!(div &(1<<(div_msb-1))) && div & (1<<(div_msb-2))){
+            div <<= 1;
+            --r.exp;
+        }
+        r.m = div & ((1<<_m_size)-1);
 
         return r;
     }
