@@ -40,7 +40,7 @@ void print_counters()
     printf("scalar_recip_sqrt_cntr: %d\n", scalar_recip_sqrt_cntr);
 }
 
-typedef fpxx<13,8> floatrt;
+typedef fpxx<13,6> floatrt;
 
 typedef struct {
     float   fp32;
