@@ -2,6 +2,7 @@
 package rt
 
 import spinal.core._
+import math._
 
 
 class Pano extends Component {
@@ -100,6 +101,7 @@ if (false){
 else{
         io.led_blue     := !led_cntr.msb
 }
+        val rtConfig = RTConfig()
 
         val timings = VideoTimings()
         timings.h_active := 640
@@ -124,7 +126,7 @@ else{
         vo.io.pixel_in <> vi_gen.io.pixel_out
         vo.io.vga_out <> io.vo
 
-        val cam_sweep = new CamSweep()
+        val cam_sweep = new CamSweep(rtConfig)
 
     }
 
