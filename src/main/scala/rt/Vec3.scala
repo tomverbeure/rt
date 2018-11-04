@@ -96,5 +96,84 @@ class DotProduct(c: RTConfig) extends Component {
 
     io.result_vld := xx_yy_zz_vld
     io.result     := xx_yy_zz
-
 }
+
+class MulVecScalar(c: RTConfig) extends Component {
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val op_vec      = in(Vec3(c))
+        val op_scalar   = in(Fpxx(c.fpxxConfig))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    val u_x = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    u_x.io.op_vld <> io.op_vld
+    u_x.io.op_a   <> io.op_vec.x
+    u_x.io.op_b   <> io.op_scalar
+
+    u_x.io.result_vld <> io.result_vld
+    u_x.io.result     <> io.result.x
+
+
+    val u_y = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    u_y.io.op_vld <> io.op_vld
+    u_y.io.op_a   <> io.op_vec.y
+    u_y.io.op_b   <> io.op_scalar
+
+    u_y.io.result     <> io.result.y
+
+    val u_z = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    u_z.io.op_vld <> io.op_vld
+    u_z.io.op_a   <> io.op_vec.z
+    u_z.io.op_b   <> io.op_scalar
+
+    u_z.io.result     <> io.result.z
+}
+
+class Normalize(c: RTConfig) extends Component {
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val op          = in(Vec3(c))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    val vec_dot_vld = Bool
+    val vec_dot     = Fpxx(c.fpxxConfig)
+
+    val u_dot = new DotProduct(c)
+    u_dot.io.op_vld <> io.op_vld
+    u_dot.io.op_a   <> io.op
+    u_dot.io.op_b   <> io.op
+
+    u_dot.io.result_vld <> vec_dot_vld
+    u_dot.io.result     <> vec_dot
+
+
+    val denom_vld = Bool
+    val denom     = Fpxx(c.fpxxConfig)
+
+    val u_rsqrt = new FpxxRSqrt(c.fpxxConfig, FpxxRSqrtConfig(pipeStages = 5))
+    u_rsqrt.io.op_vld <> vec_dot_vld
+    u_rsqrt.io.op     <> vec_dot
+
+    u_rsqrt.io.result_vld <> denom_vld
+    u_rsqrt.io.result     <> denom
+
+    val denom_latency = LatencyAnalysis(io.op_vld, denom_vld)
+    val op_delayed = Delay(io.op, cycleCount = denom_latency)
+
+    val u_vec_adj = new MulVecScalar(c)
+    u_vec_adj.io.op_vld    <> denom_vld
+    u_vec_adj.io.op_vec    <> op_delayed
+    u_vec_adj.io.op_scalar <> denom
+
+    u_vec_adj.io.result_vld <> io.result_vld
+    u_vec_adj.io.result     <> io.result
+}
+

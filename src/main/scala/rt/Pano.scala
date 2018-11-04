@@ -2,7 +2,9 @@
 package rt
 
 import spinal.core._
+import spinal.lib.Counter
 import spinal.lib.CounterFreeRun
+import spinal.lib.GrayCounter
 import math._
 
 
@@ -136,8 +138,8 @@ else{
         val vec_test = new Area {
 
             val cntr0 = CounterFreeRun((1<<24))
-            val cntr1 = CounterFreeRun((1<<24))
-            val cntr2 = CounterFreeRun((1<<24))
+            val cntr1 = GrayCounter(24, True)
+            val cntr2 = Counter(1, 1<<24, True)
 
             val v_a = new Vec3(rtConfig)
             val v_b = new Vec3(rtConfig)
@@ -163,9 +165,19 @@ else{
             v_b.y := vec1
             v_b.z := vec0
 
+            val v_a_norm = Vec3(rtConfig)
+            val v_a_norm_vld = Bool
+
+            val u_normalize = new Normalize(rtConfig)
+            u_normalize.io.op_vld      := True
+            u_normalize.io.op          := v_a
+
+            u_normalize.io.result_vld  <> v_a_norm_vld
+            u_normalize.io.result      <> v_a_norm
+
             val u_dot = new DotProduct(rtConfig)
-            u_dot.io.op_vld := True
-            u_dot.io.op_a := v_a
+            u_dot.io.op_vld := v_a_norm_vld
+            u_dot.io.op_a := v_a_norm
             u_dot.io.op_b := v_b
             dot_r := u_dot.io.result
 
