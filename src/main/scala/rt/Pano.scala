@@ -165,23 +165,94 @@ else{
             v_b.y := vec1
             v_b.z := vec0
 
-            val v_a_norm = Vec3(rtConfig)
-            val v_a_norm_vld = Bool
+            if (false){
+                val v_a_norm = Vec3(rtConfig)
+                val v_a_norm_vld = Bool
 
-            val u_normalize = new Normalize(rtConfig)
-            u_normalize.io.op_vld      := True
-            u_normalize.io.op          := v_a
+                val u_normalize = new Normalize(rtConfig)
+                u_normalize.io.op_vld      := True
+                u_normalize.io.op          := v_a
 
-            u_normalize.io.result_vld  <> v_a_norm_vld
-            u_normalize.io.result      <> v_a_norm
+                u_normalize.io.result_vld  <> v_a_norm_vld
+                u_normalize.io.result      <> v_a_norm
 
-            val u_dot = new DotProduct(rtConfig)
-            u_dot.io.op_vld := v_a_norm_vld
-            u_dot.io.op_a := v_a_norm
-            u_dot.io.op_b := v_b
-            dot_r := u_dot.io.result
+                val u_dot = new DotProduct(rtConfig)
+                u_dot.io.op_vld := v_a_norm_vld
+                u_dot.io.op_a := v_a_norm
+                u_dot.io.op_b := v_b
+                dot_r := u_dot.io.result
+            }
 
-            io.led_blue := dot_r.toVec().orR
+
+            //============================================================
+            // Plane definition
+            //============================================================
+
+            val plane = new Plane(rtConfig)
+
+            plane.origin.x.fromDouble(0.0)
+            plane.origin.y.fromDouble(0.0)
+            plane.origin.z.fromDouble(0.0)
+
+            plane.normal.x.fromDouble(0.0)
+            plane.normal.y.fromDouble(1.0)
+            plane.normal.z.fromDouble(0.0)
+
+            //============================================================
+            // Ray definition
+            //============================================================
+
+            val ray = new Ray(rtConfig)
+
+            ray.origin.x.fromDouble(  0.0)
+            ray.origin.y.fromDouble( 10.0)
+            ray.origin.z.fromDouble(-10.0)
+
+            ray.direction.x := vec0
+            ray.direction.y := vec1
+            ray.direction.z.fromDouble(-1.0)
+
+            //============================================================
+            // ray_normalized
+            //============================================================
+
+            val ray_normalized_vld = Bool
+            val ray_normalized = new Ray(rtConfig)
+
+            ray_normalized.origin := ray.origin
+
+            val u_normalize_ray = new Normalize(rtConfig)
+            u_normalize_ray.io.op_vld      := True
+            u_normalize_ray.io.op          <> ray.direction
+
+            u_normalize_ray.io.result_vld  <> ray_normalized_vld
+            u_normalize_ray.io.result      <> ray_normalized.direction
+
+            //============================================================
+            // plane intersect
+            //============================================================
+
+            val plane_intersect_vld     = Bool
+            val plane_intersects        = Bool
+            val plane_intersect_t       = Fpxx(rtConfig.fpxxConfig)
+            val plane_intersection      = Vec3(rtConfig)
+
+            val u_plane_intersect = new PlaneIntersect(rtConfig)
+            u_plane_intersect.io.plane_vld  := ray_normalized_vld
+            u_plane_intersect.io.plane      <> plane
+            u_plane_intersect.io.ray        <> ray_normalized
+
+            u_plane_intersect.io.result_vld             <> plane_intersect_vld
+            u_plane_intersect.io.result_intersects      <> plane_intersects
+            u_plane_intersect.io.result_t               <> plane_intersect_t
+            u_plane_intersect.io.result_intersection    <> plane_intersection
+
+            io.led_blue := plane_intersect_vld |
+                           plane_intersects |
+                           plane_intersect_t.toVec().orR |
+                           plane_intersection.x.toVec().orR |
+                           plane_intersection.y.toVec().orR |
+                           plane_intersection.z.toVec().orR
         }
 
     }
