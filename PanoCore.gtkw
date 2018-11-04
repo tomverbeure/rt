@@ -1,0 +1,182 @@
+[*]
+[*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
+[*] Sun Nov  4 23:25:07 2018
+[*]
+[dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
+[dumpfile_mtime] "Sun Nov  4 23:17:39 2018"
+[dumpfile_size] 521160
+[savefile] "/home/tom/projects/rt/PanoCore.gtkw"
+[timestart] 0
+[size] 2557 1267
+[pos] -1 -1
+*-6.484355 325 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.PanoCoreDut.
+[treeopen] TOP.PanoCoreDut.u_pano_core.
+[treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.
+[treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.
+[sst_width] 597
+[signals_width] 502
+[sst_expanded] 1
+[sst_vpaned_height] 395
+@28
+TOP.clk
+@200
+-
+@c00201
+-ray_normalize
+@800200
+-dot
+@c00200
+-xx
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_x_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.xx_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.xx_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.xx_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.xx_mant[12:0]
+@1401200
+-xx
+@c00200
+-yy
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_y_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.yy_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.yy_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.yy_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.yy_mant[12:0]
+@1401200
+-yy
+@c00200
+-zz
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_sign
+@c00022
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+@28
+(0)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+(1)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+(2)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+(3)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+(4)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+(5)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_exp[5:0]
+@1401200
+-group_end
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_op_z_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.zz_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.zz_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.zz_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.zz_mant[12:0]
+@200
+-
+@1401200
+-zz
+@c00200
+-dot
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.io_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.io_result_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.io_result_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_dot.io_result_mant[12:0]
+@1401200
+-dot
+@1000200
+-dot
+@c00200
+-rsqrt
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_exp[5:0]
+@c00022
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+@28
+(0)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(1)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(2)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(3)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(4)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(5)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(6)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(7)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(8)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(9)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(10)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(11)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+(12)TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_rsqrt.io_result_mant[12:0]
+@1401200
+-group_end
+-rsqrt
+@800200
+-vec_adj
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_x_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_x.io_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_x.io_result_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_x.io_result_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_x.io_result_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_y_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_y.io_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_y.io_result_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_y.io_result_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_y.io_result_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_z_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_z_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.op_delayed_z_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_z.io_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_z.io_result_sign
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_z.io_result_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.u_vec_adj.u_z.io_result_mant[12:0]
+@1000200
+-vec_adj
+@1401201
+-ray_normalize
+[pattern_trace] 1
+[pattern_trace] 0

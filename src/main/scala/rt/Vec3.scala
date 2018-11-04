@@ -87,7 +87,7 @@ class DotProduct(c: RTConfig) extends Component {
     val zz_delayed = Delay(zz, cycleCount = xx_yy_latency)
 
     val u_xx_yy_zz = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
-    u_xx_yy_zz.io.op_vld := zz_vld
+    u_xx_yy_zz.io.op_vld := xx_yy_vld
     u_xx_yy_zz.io.op_a   := xx_yy
     u_xx_yy_zz.io.op_b   := zz_delayed
 

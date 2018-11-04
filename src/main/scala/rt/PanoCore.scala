@@ -60,7 +60,7 @@ class PanoCore extends Component {
 
     val cam_sweep = new CamSweep(rtConfig)
 
-    val vec_test = new Area {
+    val rt = new Area {
 
         val cntr0 = CounterFreeRun((1<<24))
         val cntr1 = GrayCounter(24, True)
@@ -130,8 +130,11 @@ class PanoCore extends Component {
         ray.origin.y.fromDouble( 10.0)
         ray.origin.z.fromDouble(-10.0)
 
-        ray.direction.x := vec0
-        ray.direction.y := vec1
+//        ray.direction.x := vec0
+//        ray.direction.y := vec1
+
+        ray.direction.x.fromDouble(0.0)
+        ray.direction.y.fromDouble(-0.5)
         ray.direction.z.fromDouble(1.0)
 
         //============================================================
