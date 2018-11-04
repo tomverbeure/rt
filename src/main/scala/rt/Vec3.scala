@@ -98,6 +98,77 @@ class DotProduct(c: RTConfig) extends Component {
     io.result     := xx_yy_zz
 }
 
+class AddVecVec(c: RTConfig) extends Component {
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val op_a        = in(Vec3(c))
+        val op_b        = in(Vec3(c))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    val u_x = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    u_x.io.op_vld <> io.op_vld
+    u_x.io.op_a   <> io.op_a.x
+    u_x.io.op_b   <> io.op_b.x
+
+    u_x.io.result_vld <> io.result_vld
+    u_x.io.result     <> io.result.x
+
+
+    val u_y = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    u_y.io.op_vld <> io.op_vld
+    u_y.io.op_a   <> io.op_a.y
+    u_y.io.op_b   <> io.op_b.y
+
+    u_y.io.result     <> io.result.y
+
+    val u_z = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    u_z.io.op_vld <> io.op_vld
+    u_z.io.op_a   <> io.op_a.z
+    u_z.io.op_b   <> io.op_b.z
+
+    u_z.io.result     <> io.result.z
+}
+
+class SubVecVec(c: RTConfig) extends Component {
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val op_a        = in(Vec3(c))
+        val op_b        = in(Vec3(c))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    val u_x = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    u_x.io.op_vld <> io.op_vld
+    u_x.io.op_a   <> io.op_a.x
+    u_x.io.op_b   <> io.op_b.x
+
+    u_x.io.result_vld <> io.result_vld
+    u_x.io.result     <> io.result.x
+
+
+    val u_y = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    u_y.io.op_vld <> io.op_vld
+    u_y.io.op_a   <> io.op_a.y
+    u_y.io.op_b   <> io.op_b.y
+
+    u_y.io.result     <> io.result.y
+
+    val u_z = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    u_z.io.op_vld <> io.op_vld
+    u_z.io.op_a   <> io.op_a.z
+    u_z.io.op_b   <> io.op_b.z
+
+    u_z.io.result     <> io.result.z
+}
+
+
 class MulVecScalar(c: RTConfig) extends Component {
 
     val io = new Bundle {
