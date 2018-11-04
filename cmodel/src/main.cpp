@@ -7,7 +7,7 @@
 #include <fpxx.h>
 
 #define GEN_IMAGE
-#define SCENE_OPT
+//#define SCENE_OPT
 //#define CHECK_DIVERGENT_FIXED
 //#define CHECK_DIVERGENT_FPXX
 
@@ -474,7 +474,9 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     *t = dot_product(p0r0, p.normal);
     *t = div_scalar_scalar(*t, denom);
 
-    *intersection = add_vec_vec(r.origin, mul_vec_scalar(r.direction, *t));
+    vec_t t_mul_dir = mul_vec_scalar(r.direction, *t);
+
+    *intersection = add_vec_vec(r.origin, t_mul_dir);
 #endif
 
     return !smaller_scalar_scalar(*t, zero);
@@ -630,9 +632,15 @@ int main(int argc, char **argv)
 
             ray.origin = camera.origin;
 
+#if 1
             ray.direction.s[0].fp32 =  ((pix_x - ((float)width /2))) /  width  ;
             ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
             ray.direction.s[2].fp32 = 1;
+#else
+            ray.direction.s[0].fp32 = 0;
+            ray.direction.s[1].fp32 = -0.5;
+            ray.direction.s[2].fp32 = 1;
+#endif
 
             ray.direction.s[0].fpxx = ray.direction.s[0].fp32;
             ray.direction.s[1].fpxx = ray.direction.s[1].fp32;
