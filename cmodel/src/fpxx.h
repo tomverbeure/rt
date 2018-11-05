@@ -528,6 +528,15 @@ public:
         return result;
     }
 
+    fpxx<_m_size, _exp_size, _zero_offset> abs () const {
+        fpxx<_m_size, _exp_size, _zero_offset> r;
+
+        r = *this;
+        r.sign = 0;
+        return r;
+    }
+
+
     void print_bits() {
         printf("%d ", sign);
 

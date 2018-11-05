@@ -578,18 +578,8 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
-
-    unsigned int *p_x = (unsigned int *)&plane_intersection.s[0].fp32;
-    unsigned int *p_z = (unsigned int *)&plane_intersection.s[2].fp32;
-
-    int p_x_sign  = (*p_x >> 31) & 0x1;
-    int p_x_exp   = (*p_x >> 23) & 0xff;
-    int p_x_mant  = *p_x & ((1<<24)-1);
-
-    int p_z_sign  = (*p_z >> 31) & 0x1;
-    int p_z_exp = (*p_z >> 23) & 0xff;
-    int p_z_mant = *p_z & ((1<<24)-1);
+    //int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
+    int checker = ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4) ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4) ^ plane_intersection.s[0].fpxx.sign;
 
     if ( checker){
         c.r = 1.0;
