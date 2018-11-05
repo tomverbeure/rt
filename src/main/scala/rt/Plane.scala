@@ -43,6 +43,9 @@ class PlaneIntersect(c: RTConfig) extends Component {
     u_dot_norm_dir.io.result_vld <> denom_vld
     u_dot_norm_dir.io.result     <> denom
 
+    // Some random very small number
+    val intersects = (denom.exp >= 3)
+
     //============================================================
     // p0r0
     //============================================================
@@ -156,10 +159,12 @@ class PlaneIntersect(c: RTConfig) extends Component {
     //============================================================
 
     val intersection_latency = LatencyAnalysis(io.plane_vld, intersection_vld)
+
+    val intersects_delayed = Delay(intersects, cycleCount = intersection_latency - denom_latency)
     val t_delayed = Delay(t, cycleCount = (intersection_latency - t_latency))
 
     io.result_vld           := intersection_vld
-    io.result_intersects    := True
+    io.result_intersects    := intersects_delayed
     io.result_t             := t_delayed
     io.result_intersection  := intersection
 }
