@@ -491,8 +491,9 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
         return false;
     }
 
-    scalar_t d2 = dot_product(c0r0, c0r0);
-    d2 = subtract_scalar_scalar(d2, mul_scalar_scalar(tca, tca));
+    scalar_t c0r0_c0r0 = dot_product(c0r0, c0r0);
+    scalar_t tca_tca = mul_scalar_scalar(tca, tca);
+    scalar_t d2 = subtract_scalar_scalar(c0r0_c0r0, tca_tca);
 
     scalar_t radius2;
 
