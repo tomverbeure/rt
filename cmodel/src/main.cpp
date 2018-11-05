@@ -482,7 +482,7 @@ bool plane_intersect(plane_t p, ray_t r, scalar_t *t, vec_t *intersection)
     return !smaller_scalar_scalar(*t, zero);
 }
 
-bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec_t *normal)
+bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec_t *normal, ray_t *reflect_ray)
 {
     vec_t c0r0 = subtract_vec_vec(s.center, r.origin);
     scalar_t tca = _dot_product(r.direction, c0r0, 4, 4, 8);
@@ -523,39 +523,34 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
     *normal = subtract_vec_vec(*intersection, s.center);
     *normal = normalize_vec(*normal);
 
+    scalar_t two = { 2, 2, float2fixed(2) };
+
+    reflect_ray->direction = subtract_vec_vec(
+                                    r.direction,
+                                    mul_vec_scalar(
+                                        *normal,
+                                        _mul_scalar_scalar(two, _dot_product(r.direction, *normal, 4, 4, 8),
+                                        4, 4, 8)
+                                        )
+                                    );
+
+    reflect_ray->origin    = *intersection;
+
     return true;
 }
 
 color_t trace(ray_t ray, int iteration)
 {
-
-    scalar_t plane_t;
-    vec_t plane_intersection;
-    bool plane_intersects = plane_intersect(plane, ray, &plane_t, &plane_intersection);
-
     scalar_t sphere_t;
     vec_t sphere_intersection;
     vec_t sphere_normal;
-    bool sphere_intersects = (iteration == 0) ? sphere_intersect(sphere, ray, &sphere_t, &sphere_intersection, &sphere_normal) : 0;
+    ray_t reflect_ray;
+    bool sphere_intersects = (iteration == 0) ? sphere_intersect(sphere, ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray) : 0;
 
     color_t c;
 
-    scalar_t two = { 2, 2, float2fixed(2) };
-
     if (sphere_intersects){
-        ray_t ray2;
-        ray2.direction = subtract_vec_vec(
-                                    ray.direction,
-                                    mul_vec_scalar(
-                                        sphere_normal,
-                                        _mul_scalar_scalar(two, _dot_product(ray.direction, sphere_normal, 4, 4, 8),
-                                        4, 4, 8)
-                                        )
-                                    );
-
-        ray2.origin    = sphere_intersection;
-
-        color_t c = trace(ray2, 1);
+        color_t c = trace(reflect_ray, 1);
 
         float alpha = 0.3;
         c.r = c.r * alpha + 0.9 * (1-alpha);
@@ -570,7 +565,11 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    if (!plane_intersects || fabs(plane_intersection.s[2].fp32) > 30 || fabs(plane_intersection.s[0].fp32) > 20){
+    scalar_t plane_t;
+    vec_t plane_intersection;
+    bool plane_intersects = plane_intersect(plane, ray, &plane_t, &plane_intersection);
+
+    if (!plane_intersects || plane_intersection.s[2].fpxx.abs().to_int() > 30 || plane_intersection.s[0].fpxx.abs().to_int() > 20){
         c.r = 0;
         c.g = 0;
         c.b = 0.9;
