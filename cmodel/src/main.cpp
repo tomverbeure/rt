@@ -525,15 +525,11 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     scalar_t two = { 2, 2, float2fixed(2) };
 
-    reflect_ray->direction = subtract_vec_vec(
-                                    r.direction,
-                                    mul_vec_scalar(
-                                        *normal,
-                                        _mul_scalar_scalar(two, _dot_product(r.direction, *normal, 4, 4, 8),
-                                        4, 4, 8)
-                                        )
-                                    );
+    scalar_t dir_dot_normal = _dot_product(r.direction, *normal, 4, 4, 8);
+    scalar_t two_mul_dir_dot_normal = _mul_scalar_scalar(two, dir_dot_normal, 4, 4, 8);
+    vec_t    dir_mirror = mul_vec_scalar( *normal, two_mul_dir_dot_normal);
 
+    reflect_ray->direction = subtract_vec_vec(r.direction, dir_mirror);
     reflect_ray->origin    = *intersection;
 
     return true;
