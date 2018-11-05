@@ -578,7 +578,7 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
-    int checker = ( (int)fabs((plane_intersection.s[0].fp32)+20) & 4 ) ^ ((int)fabs((plane_intersection.s[2].fp32)+20) & 4);
+    int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
 
     if ( checker){
         c.r = 1.0;
