@@ -1,7 +1,10 @@
 
 
-all: rt.ppm
-	feh rt.ppm
+all: rt.ppm rt_rs.ppm
+	feh rt.ppm rt_rs.ppm
+
+rt_rs.ppm: rt.ppm
+	convert $< -filter box -resize 200x200 $@
 
 rt.ppm: rt
 	./rt 400 400 10 > rt.ppm
