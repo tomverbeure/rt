@@ -166,7 +166,7 @@ class PanoCore extends Component {
         val plane_intersection      = Vec3(rtConfig)
 
         val u_plane_intersect = new PlaneIntersect(rtConfig)
-        u_plane_intersect.io.plane_vld  := ray_normalized_vld
+        u_plane_intersect.io.op_vld     <> ray_normalized_vld
         u_plane_intersect.io.plane      <> plane
         u_plane_intersect.io.ray        <> ray_normalized
 

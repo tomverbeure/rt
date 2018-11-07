@@ -18,7 +18,7 @@ case class Plane(c: RTConfig) extends Bundle {
 class PlaneIntersect(c: RTConfig) extends Component {
 
     val io = new Bundle {
-        val plane_vld       = in(Bool)
+        val op_vld          = in(Bool)
         val plane           = in(Plane(c))
         val ray             = in(Ray(c))
 
@@ -36,7 +36,7 @@ class PlaneIntersect(c: RTConfig) extends Component {
     val denom = Fpxx(c.fpxxConfig)
 
     val u_dot_norm_dir = new DotProduct(c)
-    u_dot_norm_dir.io.op_vld     <> io.plane_vld
+    u_dot_norm_dir.io.op_vld     <> io.op_vld
     u_dot_norm_dir.io.op_a       <> io.plane.normal
     u_dot_norm_dir.io.op_b       <> io.ray.direction
 
@@ -44,7 +44,8 @@ class PlaneIntersect(c: RTConfig) extends Component {
     u_dot_norm_dir.io.result     <> denom
 
     // Some random very small number
-    val intersects = (denom.exp >= 3)
+    val intersects_vld = RegNext(denom_vld)
+    val intersects = (RegNext(denom.exp) >= 3)
 
     //============================================================
     // p0r0
@@ -54,7 +55,7 @@ class PlaneIntersect(c: RTConfig) extends Component {
     val p0r0 = new Vec3(c)
 
     val u_p0r0 = new SubVecVec(c)
-    u_p0r0.io.op_vld        <> io.plane_vld
+    u_p0r0.io.op_vld        <> io.op_vld
     u_p0r0.io.op_a          <> io.plane.origin
     u_p0r0.io.op_b          <> io.ray.origin
 
@@ -65,7 +66,7 @@ class PlaneIntersect(c: RTConfig) extends Component {
     // p0r0_dot_norm
     //============================================================
 
-    val p0r0_latency = LatencyAnalysis(io.plane_vld, p0r0_vld)
+    val p0r0_latency = LatencyAnalysis(io.op_vld, p0r0_vld)
     val plane_normal_delayed = Delay(io.plane.normal, cycleCount = p0r0_latency)
 
     val p0r0_dot_norm_vld = Bool
@@ -83,8 +84,8 @@ class PlaneIntersect(c: RTConfig) extends Component {
     // t
     //============================================================
 
-    val p0r0_dot_norm_latency = LatencyAnalysis(io.plane_vld, p0r0_dot_norm_vld)
-    val denom_latency         = LatencyAnalysis(io.plane_vld, denom_vld)
+    val p0r0_dot_norm_latency = LatencyAnalysis(io.op_vld, p0r0_dot_norm_vld)
+    val denom_latency         = LatencyAnalysis(io.op_vld, denom_vld)
 
     val p0r0_dot_norm_delayed = Fpxx(c.fpxxConfig)
     val denom_delayed         = Fpxx(c.fpxxConfig)
@@ -119,49 +120,46 @@ class PlaneIntersect(c: RTConfig) extends Component {
     u_div_p0r0_dot_norm_denom.io.result     <> t
 
     //============================================================
-    // t_mul_dir
-    //============================================================
-
-    val t_latency = LatencyAnalysis(io.plane_vld, t_vld)
-    val dir_delayed = Delay(io.ray.direction, cycleCount = t_latency)
-
-    val t_mul_dir_vld = Bool
-    val t_mul_dir = Vec3(c)
-
-    val u_mul_t_dir = new MulVecScalar(c)
-    u_mul_t_dir.io.op_vld       <> t_vld
-    u_mul_t_dir.io.op_vec       <> dir_delayed
-    u_mul_t_dir.io.op_scalar    <> t
-
-    u_mul_t_dir.io.result_vld   <> t_mul_dir_vld
-    u_mul_t_dir.io.result       <> t_mul_dir
-
-    //============================================================
     // intersection
     //============================================================
 
-    val t_mul_dir_latency = LatencyAnalysis(io.plane_vld, t_mul_dir_vld)
-    val ray_origin_delayed = Delay(io.ray.origin, cycleCount = t_mul_dir_latency)
+    val (dir_delayed_vld, dir_delayed, t_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        io.op_vld, io.ray.direction,
+                                                        t_vld,    t)
+
+    val (origin_delayed_vld, origin_delayed, t_delayed_1) = MatchLatency(
+                                                        io.op_vld,
+                                                        io.op_vld, io.ray.origin,
+                                                        t_vld,    t)
 
     val intersection_vld = Bool
-    val intersection = Vec3(c)
+    val intersection     = Vec3(c)
 
-    val u_add_origin_t_mul_dir = new AddVecVec(c)
-    u_add_origin_t_mul_dir.io.op_vld        <> t_mul_dir_vld
-    u_add_origin_t_mul_dir.io.op_a          <> t_mul_dir
-    u_add_origin_t_mul_dir.io.op_b          <> ray_origin_delayed
+    val u_intersection = new Intersection(c)
+    u_intersection.io.op_vld     <> t_vld
+    u_intersection.io.ray_origin <> origin_delayed
+    u_intersection.io.ray_dir    <> dir_delayed
+    u_intersection.io.t          <> t
 
-    u_add_origin_t_mul_dir.io.result_vld    <> intersection_vld
-    u_add_origin_t_mul_dir.io.result        <> intersection
+    u_intersection.io.result_vld <> intersection_vld
+    u_intersection.io.result     <> intersection
+
 
     //============================================================
     // result
     //============================================================
 
-    val intersection_latency = LatencyAnalysis(io.plane_vld, intersection_vld)
+    val (t_delayed_vld, t_delayed, intersection_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        t_vld, t,
+                                                        intersection_vld, intersection)
 
-    val intersects_delayed = Delay(intersects, cycleCount = intersection_latency - denom_latency)
-    val t_delayed = Delay(t, cycleCount = (intersection_latency - t_latency))
+    val (intersects_delayed_vld, intersects_delayed, intersection_delayed_1) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersects_vld, intersects,
+                                                        intersection_vld, intersection)
+
 
     io.result_vld           := intersection_vld
     io.result_intersects    := intersects_delayed
