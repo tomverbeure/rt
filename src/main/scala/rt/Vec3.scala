@@ -248,3 +248,55 @@ class Normalize(c: RTConfig) extends Component {
     u_vec_adj.io.result     <> io.result
 }
 
+class Intersection(c: RTConfig) extends Component {
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val ray_origin  = in(Vec3(c))
+        val ray_dir     = in(Vec3(c))
+        val t           = in(Fpxx(c.fpxxConfig))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    //============================================================
+    // dir_mul_t
+    //============================================================
+
+    val dir_mul_t_vld = Bool
+    val dir_mul_t = Vec3(c)
+
+    val u_mul_dir_t = new MulVecScalar(c)
+    u_mul_dir_t.io.op_vld       <> io.op_vld
+    u_mul_dir_t.io.op_vec       <> io.ray_dir
+    u_mul_dir_t.io.op_scalar    <> io.t
+
+    u_mul_dir_t.io.result_vld   <> dir_mul_t_vld
+    u_mul_dir_t.io.result       <> dir_mul_t
+
+    //============================================================
+    // intersection
+    //============================================================
+
+    val (origin_delayed_vld, origin_delayed, dir_mul_t_delayed) = MatchLatency(
+                                                                    io.op_vld, 
+                                                                    io.op_vld, io.ray_origin,
+                                                                    dir_mul_t_vld, dir_mul_t)
+
+    val intersection_vld = Bool
+    val intersection = Vec3(c)
+
+    val u_add_origin_dir_mul_t = new AddVecVec(c)
+    u_add_origin_dir_mul_t.io.op_vld        <> dir_mul_t_vld
+    u_add_origin_dir_mul_t.io.op_a          <> dir_mul_t
+    u_add_origin_dir_mul_t.io.op_b          <> origin_delayed
+
+    u_add_origin_dir_mul_t.io.result_vld    <> intersection_vld
+    u_add_origin_dir_mul_t.io.result        <> intersection
+
+    io.result_vld <> intersection_vld
+    io.result     <> intersection
+
+}
+
