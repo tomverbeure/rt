@@ -62,6 +62,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     u_dot_tca.io.result_vld <> tca_vld
     u_dot_tca.io.result     <> tca
 
+    val intersects_tca_vld = tca_vld
     val intersects_tca = !tca.sign
 
     //============================================================
@@ -114,6 +115,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     u_d2.io.result_vld <> d2_vld
     u_d2.io.result     <> d2
 
+    val intersects_d2_vld = d2_vld
     val intersects_d2 = (d2.toVec().asSInt <= io.sphere.radius2.toVec().asSInt)
 
     //============================================================
@@ -212,6 +214,165 @@ class SphereIntersect(c: RTConfig) extends Component {
 
     u_intersection.io.result_vld <> intersection_vld
     u_intersection.io.result     <> intersection
+
+    //============================================================
+    // normal_raw
+    //============================================================
+
+    val (center_delayed_vld, center_delayed, intersection_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        io.op_vld,        io.sphere.center,
+                                                        intersection_vld, intersection)
+
+    val normal_raw_vld = Bool
+    val normal_raw     = Vec3(c)
+
+    val u_normal_raw = new SubVecVec(c)
+    u_normal_raw.io.op_vld        <> center_delayed_vld
+    u_normal_raw.io.op_a          <> center_delayed
+    u_normal_raw.io.op_b          <> intersection
+
+    u_normal_raw.io.result_vld    <> normal_raw_vld
+    u_normal_raw.io.result        <> normal_raw
+
+    //============================================================
+    // normal
+    //============================================================
+
+    val normal_vld = Bool
+    val normal     = Vec3(c)
+
+    val u_normalize = new Normalize(c)
+    u_normalize.io.op_vld      <> normal_raw_vld
+    u_normalize.io.op          <> normal_raw
+
+    u_normalize.io.result_vld  <> normal_vld
+    u_normalize.io.result      <> normal
+
+    //============================================================
+    // dir_dot_normal
+    //============================================================
+
+    val (dir_delayed_vld_dot_normal, dir_delayed_dot_normal, normal_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        dir_delayed_vld_intersect, dir_delayed_intersect,
+                                                        normal_vld,                normal)
+
+    val dir_dot_normal_vld = Bool
+    val dir_dot_normal     = Fpxx(c.fpxxConfig)
+
+    val u_dir_dot_normal = new DotProduct(c)
+    u_dir_dot_normal.io.op_vld     <> normal_vld
+    u_dir_dot_normal.io.op_a       <> normal
+    u_dir_dot_normal.io.op_b       <> dir_delayed_dot_normal
+
+    u_dir_dot_normal.io.result_vld <> dir_dot_normal_vld
+    u_dir_dot_normal.io.result     <> dir_dot_normal
+
+    //============================================================
+    // dir_dot_normal_x2
+    //============================================================
+
+    val dir_dot_normal_x2_vld = Bool
+    val dir_dot_normal_x2     = Fpxx(c.fpxxConfig)
+
+    dir_dot_normal_x2_vld   := RegNext(dir_dot_normal_vld)
+    dir_dot_normal_x2.sign  := RegNext(dir_dot_normal.sign)
+    dir_dot_normal_x2.exp   := RegNext(dir_dot_normal.exp) + 1
+    dir_dot_normal_x2.mant  := RegNext(dir_dot_normal.mant)
+
+    //============================================================
+    // dir_mirror
+    //============================================================
+
+    val (normal_delayed_vld_dir_mirror, normal_delayed_dir_mirror, dir_dot_normal_x2_delayed) = MatchLatency(
+                                                        io.op_vld,
+                                                        normal_vld,            normal,
+                                                        dir_dot_normal_x2_vld, dir_dot_normal_x2)
+
+    val dir_mirror_vld = Bool
+    val dir_mirror     = Vec3(c)
+
+    val u_dir_mirror = new MulVecScalar(c)
+    u_dir_mirror.io.op_vld     <> normal_delayed_vld_dir_mirror
+    u_dir_mirror.io.op_vec     <> normal_delayed_dir_mirror
+    u_dir_mirror.io.op_scalar  <> dir_dot_normal_x2
+
+    u_dir_mirror.io.result_vld <> dir_mirror_vld
+    u_dir_mirror.io.result     <> dir_mirror
+
+    //============================================================
+    // reflect_ray_dir
+    //============================================================
+
+    val (dir_delayed_vld_reflect_dir, dir_delayed_reflect_dir, dir_mirror_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        dir_delayed_vld_dot_normal, dir_delayed_dot_normal,
+                                                        dir_mirror_vld,             dir_mirror)
+
+
+    val reflect_dir_vld = Bool
+    val reflect_dir     = Vec3(c)
+
+    val u_reflect_dir = new SubVecVec(c)
+    u_reflect_dir.io.op_vld        <> dir_delayed_vld_reflect_dir
+    u_reflect_dir.io.op_a          <> dir_delayed_reflect_dir
+    u_reflect_dir.io.op_b          <> dir_mirror
+
+    u_reflect_dir.io.result_vld    <> reflect_dir_vld
+    u_reflect_dir.io.result        <> reflect_dir
+
+    //============================================================
+    // result
+    //============================================================
+
+    val (intersects_tca_delayed_vld, intersects_tca_delayed, reflect_dir_delayed_0) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersects_tca_vld,             intersects_tca,
+                                                        reflect_dir_vld,                reflect_dir)
+
+    val (intersects_d2_delayed_vld, intersects_d2_delayed, reflect_dir_delayed_1) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersects_d2_vld,              intersects_d2,
+                                                        reflect_dir_vld,                reflect_dir)
+
+    val (t_delayed_vld, t_delayed, reflect_dir_delayed_2) = MatchLatency(
+                                                        io.op_vld,
+                                                        t_vld,                          t,
+                                                        reflect_dir_vld,                reflect_dir)
+
+    val (intersection_delayed_vld, intersection_delayed, reflect_dir_delayed_3) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersection_vld,               intersection,
+                                                        reflect_dir_vld,                reflect_dir)
+
+    val (normal_delayed_vld_result, normal_delayed_result, reflect_dir_delayed_4) = MatchLatency(
+                                                        io.op_vld,
+                                                        normal_delayed_vld_dir_mirror,  normal_delayed_dir_mirror,
+                                                        reflect_dir_vld,                reflect_dir)
+
+    val (origin_delayed_vld_result, origin_delayed_result, reflect_dir_delayed_5) = MatchLatency(
+                                                        io.op_vld,
+                                                        origin_delayed_vld_intersect,   origin_delayed_intersect,
+                                                        reflect_dir_vld,                reflect_dir)
+
+
+    val intersects_delayed = intersects_tca_delayed && intersects_d2_delayed
+
+    val reflect_ray = Ray(c)
+    reflect_ray.origin    := origin_delayed_result
+    reflect_ray.direction := reflect_dir
+
+
+    u_intersection.io.ray_origin <> origin_delayed_intersect
+
+    io.result_vld          <> reflect_dir_vld
+    io.result_intersects   <> intersects_delayed
+    io.result_t            <> t_delayed
+    io.result_intersection <> intersection_delayed
+    io.result_normal       <> normal_delayed_result
+    io.result_reflect_ray  <> reflect_ray
+
 
 }
 
