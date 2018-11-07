@@ -11,7 +11,7 @@ import math._
 
 case class Sphere(c: RTConfig) extends Bundle {
     val center  = Vec3(c)
-    val radius  = Fpxx(c.fpxxConfig)
+    val radius2 = Fpxx(c.fpxxConfig)
 }
 
 class SphereIntersect(c: RTConfig) extends Component {
@@ -132,5 +132,35 @@ class SphereIntersect(c: RTConfig) extends Component {
     u_d2.io.result_vld <> d2_vld
     u_d2.io.result     <> d2
 
+    val intersects_d2 = (d2.toVec().asSInt <= io.sphere.radius2.toVec().asSInt)
+
+    //============================================================
+    // radius2_m_d2
+    //============================================================
+
+    val radius2_m_d2_vld = Bool
+    val radius2_m_d2     = Fpxx(c.fpxxConfig)
+
+    val u_radius2_m_d2 = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    u_radius2_m_d2.io.op_vld <> d2_vld
+    u_radius2_m_d2.io.op_a   <> io.sphere.radius2
+    u_radius2_m_d2.io.op_b   <> d2
+
+    u_radius2_m_d2.io.result_vld <> radius2_m_d2_vld
+    u_radius2_m_d2.io.result     <> radius2_m_d2
+
+    //============================================================
+    // thc
+    //============================================================
+
+    val thc_vld = Bool
+    val thc     = Fpxx(c.fpxxConfig)
+
+    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5))
+    u_thc.io.op_vld <> radius2_m_d2_vld
+    u_thc.io.op     <> radius2_m_d2
+
+    u_thc.io.result_vld <> thc_vld
+    u_thc.io.result     <> thc
 
 }
