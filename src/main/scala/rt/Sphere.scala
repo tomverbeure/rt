@@ -27,6 +27,7 @@ class SphereIntersect(c: RTConfig) extends Component {
         val result_intersection = out(Vec3(c))
         val result_normal       = out(Vec3(c))
         val result_reflect_ray  = out(Ray(c))
+        var result_ray          = out(Ray(c))
     }
 
     //============================================================
@@ -356,6 +357,10 @@ class SphereIntersect(c: RTConfig) extends Component {
                                                         origin_delayed_vld_intersect,   origin_delayed_intersect,
                                                         reflect_dir_vld,                reflect_dir)
 
+    val (dir_delayed_vld_result, dir_delayed_result, reflect_dir_delayed_6) = MatchLatency(
+                                                        io.op_vld,
+                                                        dir_delayed_vld_reflect_dir,    dir_delayed_reflect_dir,
+                                                        reflect_dir_vld,                reflect_dir)
 
     val intersects_delayed = intersects_tca_delayed && intersects_d2_delayed
 
@@ -363,8 +368,9 @@ class SphereIntersect(c: RTConfig) extends Component {
     reflect_ray.origin    := origin_delayed_result
     reflect_ray.direction := reflect_dir
 
-
-    u_intersection.io.ray_origin <> origin_delayed_intersect
+    val ray_delayed = Ray(c)
+    ray_delayed.origin    := origin_delayed_result
+    ray_delayed.direction := dir_delayed_result
 
     io.result_vld          <> reflect_dir_vld
     io.result_intersects   <> intersects_delayed
@@ -372,7 +378,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     io.result_intersection <> intersection_delayed
     io.result_normal       <> normal_delayed_result
     io.result_reflect_ray  <> reflect_ray
-
+    io.result_ray          <> ray_delayed
 
 }
 
