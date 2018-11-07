@@ -317,6 +317,7 @@ scalar_t sqrt_scalar(scalar_t a)
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = sqrt(a.fp32);
+    //r.fpxx  = sqrt(a.fpxx.to_float());
     r.fpxx  = sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #endif
@@ -340,6 +341,7 @@ scalar_t recip_sqrt_scalar(scalar_t a)
     r.fixed = float2fixed(r.fp32);
 #else
     r.fp32  = 1/sqrt(a.fp32);
+    //r.fpxx  = 1/sqrt(a.fpxx.to_float());
     r.fpxx  = recip_sqrt(a.fpxx);
     r.fixed = float2fixed(r.fp32);
 #endif
@@ -521,8 +523,8 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
 
     *intersection = add_vec_vec(r.origin, _mul_vec_scalar(r.direction, *t, 2, 4, 10));
 
-    *normal = subtract_vec_vec(*intersection, s.center);
-    *normal = normalize_vec(*normal);
+    vec_t normal_raw = subtract_vec_vec(*intersection, s.center);
+    *normal = normalize_vec(normal_raw);
 
     scalar_t two = { 2, 2, float2fixed(2) };
 
