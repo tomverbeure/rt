@@ -157,8 +157,40 @@ class PanoCore extends Component {
         u_normalize_ray.io.result      <> ray_normalized.direction
 
         //============================================================
+        // sphere intersect
+        //============================================================
+
+        val sphere = new Sphere(rtConfig)
+        sphere.center.x.fromDouble(3.0)
+        sphere.center.y.fromDouble(10.0)
+        sphere.center.z.fromDouble(10.0)
+
+        sphere.radius2.fromDouble(9.0)
+
+        val sphere_result_vld   = Bool
+        val sphere_intersects   = Bool
+        val sphere_reflect_ray  = Ray(rtConfig)
+        val sphere_ray          = Ray(rtConfig)
+
+        val u_sphere_intersect = new SphereIntersect(rtConfig)
+        u_sphere_intersect.io.op_vld    <> ray_normalized_vld
+        u_sphere_intersect.io.sphere    <> sphere
+        u_sphere_intersect.io.ray       <> ray_normalized
+
+        u_sphere_intersect.io.result_vld            <> sphere_result_vld
+        u_sphere_intersect.io.result_intersects     <> sphere_intersects
+        u_sphere_intersect.io.result_reflect_ray    <> sphere_reflect_ray
+        u_sphere_intersect.io.result_ray            <> sphere_ray
+        // u_sphere_intersect.io.result_t
+        // u_sphere_intersect.io.result_intersection
+        // u_sphere_intersect.io.result_normal
+
+        //============================================================
         // plane intersect
         //============================================================
+
+        val plane_ray = Ray(rtConfig)
+        plane_ray := sphere_intersects ? sphere_reflect_ray | sphere_ray
 
         val plane_intersect_vld     = Bool
         val plane_intersects        = Bool
@@ -166,9 +198,9 @@ class PanoCore extends Component {
         val plane_intersection      = Vec3(rtConfig)
 
         val u_plane_intersect = new PlaneIntersect(rtConfig)
-        u_plane_intersect.io.op_vld     <> ray_normalized_vld
+        u_plane_intersect.io.op_vld     <> sphere_result_vld
         u_plane_intersect.io.plane      <> plane
-        u_plane_intersect.io.ray        <> ray_normalized
+        u_plane_intersect.io.ray        <> plane_ray
 
         u_plane_intersect.io.result_vld             <> plane_intersect_vld
         u_plane_intersect.io.result_intersects      <> plane_intersects
