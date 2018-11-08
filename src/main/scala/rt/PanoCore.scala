@@ -135,8 +135,8 @@ class PanoCore extends Component {
             ray.direction.y := vec1
         } else {
             // For debugging...
-            ray.direction.x.fromDouble(0.0)
-            ray.direction.y.fromDouble(-0.5)
+            ray.direction.x.fromDouble(0.125)
+            ray.direction.y.fromDouble(-0.0749969482)
         }
         ray.direction.z.fromDouble(1.0)
 
