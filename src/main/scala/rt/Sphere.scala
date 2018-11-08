@@ -141,7 +141,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val thc_vld = Bool
     val thc     = Fpxx(c.fpxxConfig)
 
-    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5, tableSizeBits = 10, lutMantBits = 12))
+    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5, tableSizeBits = 11, lutMantBits = 12))
     u_thc.io.op_vld <> radius2_m_d2_vld
     u_thc.io.op     <> radius2_m_d2
 
