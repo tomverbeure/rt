@@ -110,8 +110,8 @@ class SphereIntersect(c: RTConfig) extends Component {
 
     val u_d2 = new FpxxSub(c.fpxxConfig, pipeStages = 5)
     u_d2.io.op_vld <> tca_tca_delayed_vld
-    u_d2.io.op_a   <> tca_tca_delayed
-    u_d2.io.op_b   <> c0r0_c0r0_delayed
+    u_d2.io.op_a   <> c0r0_c0r0_delayed
+    u_d2.io.op_b   <> tca_tca_delayed
 
     u_d2.io.result_vld <> d2_vld
     u_d2.io.result     <> d2
@@ -141,7 +141,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val thc_vld = Bool
     val thc     = Fpxx(c.fpxxConfig)
 
-    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5))
+    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5, tableSizeBits = 10, lutMantBits = 12))
     u_thc.io.op_vld <> radius2_m_d2_vld
     u_thc.io.op     <> radius2_m_d2
 
@@ -365,7 +365,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val intersects_delayed = intersects_tca_delayed && intersects_d2_delayed
 
     val reflect_ray = Ray(c)
-    reflect_ray.origin    := origin_delayed_result
+    reflect_ray.origin    := intersection_delayed
     reflect_ray.direction := reflect_dir
 
     val ray_delayed = Ray(c)
