@@ -229,7 +229,7 @@ class Normalize(c: RTConfig) extends Component {
     val denom_vld = Bool
     val denom     = Fpxx(c.fpxxConfig)
 
-    val u_rsqrt = new FpxxRSqrt(c.fpxxConfig, FpxxRSqrtConfig(pipeStages = 5))
+    val u_rsqrt = new FpxxRSqrt(c.fpxxConfig, FpxxRSqrtConfig(pipeStages = 5, tableSizeBits = 10, lutMantBits = 12))
     u_rsqrt.io.op_vld <> vec_dot_vld
     u_rsqrt.io.op     <> vec_dot
 
@@ -280,7 +280,7 @@ class Intersection(c: RTConfig) extends Component {
     //============================================================
 
     val (origin_delayed_vld, origin_delayed, dir_mul_t_delayed) = MatchLatency(
-                                                                    io.op_vld, 
+                                                                    io.op_vld,
                                                                     io.op_vld, io.ray_origin,
                                                                     dir_mul_t_vld, dir_mul_t)
 
