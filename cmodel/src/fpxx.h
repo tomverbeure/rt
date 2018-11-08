@@ -5,7 +5,7 @@
 
 #include "misc.h"
 
-#define FPXX_SQRT_LUT_SIZE_BITS          11
+#define FPXX_SQRT_LUT_SIZE_BITS          10
 #define FPXX_SQRT_LUT_SIZE               ((1L<<FPXX_SQRT_LUT_SIZE_BITS)-(1L<<(FPXX_SQRT_LUT_SIZE_BITS-2)))
 #define FPXX_SQRT_LUT_MANT_BITS          12
 #define FPXX_SQRT_LUT_SHIFT_BITS         4
@@ -36,7 +36,7 @@ class fpxx {
 
 public:
     bool        sign;
-    uint32_t    exp;
+    int32_t     exp;
     uint64_t    m;
 
     fpxx() {
@@ -460,7 +460,7 @@ public:
                 uint64_t mant =  double_as_long(f) & FP64_MANT_MASK;
                 int exp       = (double_as_long(f) >> FP64_MANT_BITS) & FP64_EXP_MASK;
 
-                int shift = fin_exp - exp;
+                int shift = (fin_exp - exp) > 0 ? 1 : 0;
 
                 sqrt_lut[i].mant  = mant >> (FP64_MANT_BITS-FPXX_SQRT_LUT_MANT_BITS);
                 sqrt_lut[i].shift = shift;
@@ -487,12 +487,8 @@ public:
 
         fpxx<_m_size, _exp_size, _zero_offset> r;
 
-        int shift_adj = lut_val.shift == -1 ?  0  :
-                        lut_val.shift ==  0 ?  0  :
-                        lut_val.shift ==  1 ?  -1 : -100;
-
         r.sign  = false;
-        r.exp   = -(op.exp - _zero_offset)/2 + shift_adj + _zero_offset;
+        r.exp   = -((op.exp - _zero_offset + 1)>>1) - lut_val.shift + _zero_offset;
         if (r.exp < 0)
             r.exp = 0;
         if (r.exp > (1L<<_exp_size)-2)

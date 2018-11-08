@@ -357,9 +357,14 @@ scalar_t _dot_product(vec_t a, vec_t b, int shift_a, int shift_b, int shift_c)
 {
     scalar_t d;
 
-    d = add_scalar_scalar( _mul_scalar_scalar(a.s[0], b.s[0], shift_a, shift_b, shift_c),
-        add_scalar_scalar( _mul_scalar_scalar(a.s[1], b.s[1], shift_a, shift_b, shift_c),
-                           _mul_scalar_scalar(a.s[2], b.s[2], shift_a, shift_b, shift_c)));
+    scalar_t xx = _mul_scalar_scalar(a.s[0], b.s[0], shift_a, shift_b, shift_c);
+    scalar_t yy = _mul_scalar_scalar(a.s[1], b.s[1], shift_a, shift_b, shift_c);
+    scalar_t zz = _mul_scalar_scalar(a.s[2], b.s[2], shift_a, shift_b, shift_c);
+
+    scalar_t xx_yy = add_scalar_scalar( xx, yy);
+    scalar_t xx_yy_zz = add_scalar_scalar( xx_yy, zz);
+
+    d = xx_yy_zz;
 
     return d;
 }
@@ -505,11 +510,13 @@ bool sphere_intersect(sphere_t s, ray_t r, scalar_t *t, vec_t *intersection, vec
         return false;
     }
 
+    scalar_t radius2_m_d2;
     scalar_t thc;
     scalar_t t0;
     scalar_t t1;
 
-    thc = sqrt_scalar(subtract_scalar_scalar(radius2, d2));
+    radius2_m_d2 = subtract_scalar_scalar(radius2, d2);
+    thc = sqrt_scalar(radius2_m_d2);
 
     t0 = subtract_scalar_scalar(tca, thc);
     t1 = add_scalar_scalar     (tca, thc);
@@ -627,8 +634,9 @@ int main(int argc, char **argv)
     for(int pix_y=0; pix_y<height; ++pix_y){
         for(int pix_x=0; pix_x<width; ++pix_x){
 
-            ray_t ray;
+            color_t c;
 
+            ray_t ray;
             ray.origin = camera.origin;
 
 #if 1
@@ -640,6 +648,12 @@ int main(int argc, char **argv)
             ray.direction.s[1].fp32 = -0.5;
             ray.direction.s[2].fp32 = 1;
 #endif
+
+            if (pix_x == 250 && pix_y == 70){
+                c.r = 1.0;
+                c.g = 1.0;
+                c.b = 1.0;
+            }
 
             ray.direction.s[0].fpxx = ray.direction.s[0].fp32;
             ray.direction.s[1].fpxx = ray.direction.s[1].fp32;
@@ -654,7 +668,14 @@ int main(int argc, char **argv)
             print_vec(ray.direction);
             ray.direction = normalize_vec(ray.direction);
 
-            color_t c = trace(ray, 0);
+            c = trace(ray, 0);
+
+            if (pix_x == 250 && pix_y == 70 & 0){
+                c.r = 1.0;
+                c.g = 1.0;
+                c.b = 1.0;
+            }
+
 
 #ifdef GEN_IMAGE
             printf("%c%c%c", (int)(c.r*255), (int)(c.g*255), (int)(c.b*255));
