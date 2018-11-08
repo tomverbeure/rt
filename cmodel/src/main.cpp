@@ -575,7 +575,7 @@ color_t trace(ray_t ray, int iteration)
     vec_t plane_intersection;
     bool plane_intersects = plane_intersect(plane, ray, &plane_t, &plane_intersection);
 
-    if (!plane_intersects || plane_intersection.s[2].fpxx.abs().to_int() > 30 || plane_intersection.s[0].fpxx.abs().to_int() > 20){
+    if (!plane_intersects || plane_intersection.s[2].fpxx.abs().to_int() >= 28 || plane_intersection.s[0].fpxx.abs().to_int() >= 16){
         c.r = 0;
         c.g = 0;
         c.b = 0.9;
@@ -604,7 +604,7 @@ color_t trace(ray_t ray, int iteration)
 
 int main(int argc, char **argv)
 {
-    int width  = 400;
+    int width  = 640;
     int height = 400;
     int sphere_height = 10;
 
@@ -640,7 +640,7 @@ int main(int argc, char **argv)
             ray.origin = camera.origin;
 
 #if 1
-            ray.direction.s[0].fp32 =  ((pix_x - ((float)width /2))) /  width  ;
+            ray.direction.s[0].fp32 =  (((pix_x - ((float)width/2))) / height * width) / width  ;
             ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
             ray.direction.s[2].fp32 = 1;
 #else

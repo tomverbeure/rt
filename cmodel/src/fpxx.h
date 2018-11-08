@@ -5,7 +5,7 @@
 
 #include "misc.h"
 
-#define FPXX_SQRT_LUT_SIZE_BITS          10
+#define FPXX_SQRT_LUT_SIZE_BITS          11
 #define FPXX_SQRT_LUT_SIZE               ((1L<<FPXX_SQRT_LUT_SIZE_BITS)-(1L<<(FPXX_SQRT_LUT_SIZE_BITS-2)))
 #define FPXX_SQRT_LUT_MANT_BITS          12
 #define FPXX_SQRT_LUT_SHIFT_BITS         4
