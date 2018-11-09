@@ -58,61 +58,19 @@ class PanoCore extends Component {
 
     val rtConfig = RTConfig()
 
-    val cam_sweep = new CamSweep(rtConfig)
 
     val rt = new Area {
 
-        val cntr0 = CounterFreeRun((1<<24))
-        val cntr1 = GrayCounter(24, True)
-        val cntr2 = Counter(1, 1<<24, True)
+        val cam_sweep_pixel = PixelStream()
+        val ray             = Ray(rtConfig)
 
-        val vec0 = new Fpxx(rtConfig.fpxxConfig)
-        vec0.fromVec( cntr0(0, rtConfig.fpxxConfig.full_size bits).asBits )
-
-        val vec1 = new Fpxx(rtConfig.fpxxConfig)
-        vec1.fromVec( cntr1(1, rtConfig.fpxxConfig.full_size bits).asBits )
-
-        val vec2 = new Fpxx(rtConfig.fpxxConfig)
-        vec2.fromVec( cntr2(2, rtConfig.fpxxConfig.full_size bits).asBits )
-
-        val vec3 = new Fpxx(rtConfig.fpxxConfig)
-        vec3.fromVec( vec0.toVec() ^ vec1.toVec() )
-
-        val vec4 = new Fpxx(rtConfig.fpxxConfig)
-        vec4.fromVec( vec1.toVec() ^ vec2.toVec() )
-
-        if (false){
-            v_a.x := vec0
-            v_a.y := vec1
-            v_a.z := vec2
-
-            v_b.x := vec2
-            v_b.y := vec1
-            v_b.z := vec0
-
-            val v_a = new Vec3(rtConfig)
-            val v_b = new Vec3(rtConfig)
-            val dot_r = new Fpxx(rtConfig.fpxxConfig)
-
-            val v_a_norm = Vec3(rtConfig)
-            val v_a_norm_vld = Bool
-
-            val u_normalize = new Normalize(rtConfig)
-            u_normalize.io.op_vld      := True
-            u_normalize.io.op          := v_a
-
-            u_normalize.io.result_vld  <> v_a_norm_vld
-            u_normalize.io.result      <> v_a_norm
-
-            val u_dot = new DotProduct(rtConfig)
-            u_dot.io.op_vld := v_a_norm_vld
-            u_dot.io.op_a := v_a_norm
-            u_dot.io.op_b := v_b
-            dot_r := u_dot.io.result
-        }
+        val u_cam_sweep = new CamSweep(rtConfig)
+        u_cam_sweep.io.pixel_in     <> video.vi_gen.io.pixel_out
+        u_cam_sweep.io.pixel_out    <> cam_sweep_pixel
+        u_cam_sweep.io.ray          <> ray
 
         //============================================================
-        // Plane definition
+        // Scene definition
         //============================================================
 
         val plane = new Plane(rtConfig)
@@ -125,32 +83,28 @@ class PanoCore extends Component {
         plane.normal.y.fromDouble(1.0)
         plane.normal.z.fromDouble(0.0)
 
+        val sphere = new Sphere(rtConfig)
+
+        sphere.center.x.fromDouble(3.0)
+        sphere.center.y.fromDouble(10.0)
+        sphere.center.z.fromDouble(10.0)
+
+        sphere.radius2.fromDouble(9.0)
+
         //============================================================
         // Ray definition
         //============================================================
 
-        val ray = new Ray(rtConfig)
-
-        if (true){
+        if (false){
+            // For debugging...
             ray.origin.x.fromDouble(  0.0)
             ray.origin.y.fromDouble( 10.0)
             ray.origin.z.fromDouble(-10.0)
-        }
-        else{
-            ray.origin.x := vec2
-            ray.origin.y.fromDouble(10.0)
-            ray.origin.z := vec3
-        }
-
-        if (true){
-            ray.direction.x := vec0
-            ray.direction.y := vec1
-        } else {
-            // For debugging...
+    
             ray.direction.x.fromDouble(0.125)
             ray.direction.y.fromDouble(-0.0749969482)
+            ray.direction.z.fromDouble(1.0)
         }
-        ray.direction.z.fromDouble(1.0)
 
         //============================================================
         // ray_normalized
@@ -162,7 +116,7 @@ class PanoCore extends Component {
         ray_normalized.origin := ray.origin
 
         val u_normalize_ray = new Normalize(rtConfig)
-        u_normalize_ray.io.op_vld      := True
+        u_normalize_ray.io.op_vld      <> cam_sweep_pixel.req
         u_normalize_ray.io.op          <> ray.direction
 
         u_normalize_ray.io.result_vld  <> ray_normalized_vld
@@ -171,21 +125,6 @@ class PanoCore extends Component {
         //============================================================
         // sphere intersect
         //============================================================
-
-        val sphere = new Sphere(rtConfig)
-
-        if (true){
-            sphere.center.x.fromDouble(3.0)
-            sphere.center.y.fromDouble(10.0)
-            sphere.center.z.fromDouble(10.0)
-        }
-        else{
-            sphere.center.x.fromDouble(3.0)
-            sphere.center.y := vec4
-            sphere.center.z.fromDouble(10.0)
-        }
-
-        sphere.radius2.fromDouble(9.0)
 
         val sphere_result_vld   = Bool
         val sphere_intersects   = Bool
