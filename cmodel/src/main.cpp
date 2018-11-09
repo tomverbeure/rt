@@ -631,8 +631,18 @@ int main(int argc, char **argv)
 
     plane.normal = normalize_vec(plane.normal);
 
-    for(int pix_y=0; pix_y<height; ++pix_y){
-        for(int pix_x=0; pix_x<width; ++pix_x){
+    float stepX = 1.0/height;           // Assume height < width
+    float stepY = 1.0/height;
+
+    float xLeft = -width/2 * stepX;
+    float yTop  = height/2 * stepY - 0.4;   // -0.4: look down
+
+    float dirX, dirY;
+    dirY = yTop;
+    for(int pix_y=0; pix_y<height; ++pix_y, dirY -= stepY){
+
+        dirX = xLeft;
+        for(int pix_x=0; pix_x<width; ++pix_x, dirX += stepX){
 
             color_t c;
 
@@ -640,8 +650,8 @@ int main(int argc, char **argv)
             ray.origin = camera.origin;
 
 #if 1
-            ray.direction.s[0].fp32 =  (((pix_x - ((float)width/2))) / height * width) / width  ;
-            ray.direction.s[1].fp32 = -((pix_y - ((float)height/2))) /  height - 0.4;
+            ray.direction.s[0].fp32 = dirX;
+            ray.direction.s[1].fp32 = dirY;
             ray.direction.s[2].fp32 = 1;
 #else
             ray.direction.s[0].fp32 = 0;
