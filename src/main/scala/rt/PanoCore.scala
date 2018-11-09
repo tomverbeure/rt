@@ -66,10 +66,6 @@ class PanoCore extends Component {
         val cntr1 = GrayCounter(24, True)
         val cntr2 = Counter(1, 1<<24, True)
 
-        val v_a = new Vec3(rtConfig)
-        val v_b = new Vec3(rtConfig)
-        val dot_r = new Fpxx(rtConfig.fpxxConfig)
-
         val vec0 = new Fpxx(rtConfig.fpxxConfig)
         vec0.fromVec( cntr0(0, rtConfig.fpxxConfig.full_size bits).asBits )
 
@@ -79,15 +75,25 @@ class PanoCore extends Component {
         val vec2 = new Fpxx(rtConfig.fpxxConfig)
         vec2.fromVec( cntr2(2, rtConfig.fpxxConfig.full_size bits).asBits )
 
-        v_a.x := vec0
-        v_a.y := vec1
-        v_a.z := vec2
+        val vec3 = new Fpxx(rtConfig.fpxxConfig)
+        vec3.fromVec( vec0.toVec() ^ vec1.toVec() )
 
-        v_b.x := vec2
-        v_b.y := vec1
-        v_b.z := vec0
+        val vec4 = new Fpxx(rtConfig.fpxxConfig)
+        vec4.fromVec( vec1.toVec() ^ vec2.toVec() )
 
         if (false){
+            v_a.x := vec0
+            v_a.y := vec1
+            v_a.z := vec2
+
+            v_b.x := vec2
+            v_b.y := vec1
+            v_b.z := vec0
+
+            val v_a = new Vec3(rtConfig)
+            val v_b = new Vec3(rtConfig)
+            val dot_r = new Fpxx(rtConfig.fpxxConfig)
+
             val v_a_norm = Vec3(rtConfig)
             val v_a_norm_vld = Bool
 
@@ -104,7 +110,6 @@ class PanoCore extends Component {
             u_dot.io.op_b := v_b
             dot_r := u_dot.io.result
         }
-
 
         //============================================================
         // Plane definition
@@ -126,9 +131,16 @@ class PanoCore extends Component {
 
         val ray = new Ray(rtConfig)
 
-        ray.origin.x.fromDouble(  0.0)
-        ray.origin.y.fromDouble( 10.0)
-        ray.origin.z.fromDouble(-10.0)
+        if (true){
+            ray.origin.x.fromDouble(  0.0)
+            ray.origin.y.fromDouble( 10.0)
+            ray.origin.z.fromDouble(-10.0)
+        }
+        else{
+            ray.origin.x := vec2
+            ray.origin.y.fromDouble(10.0)
+            ray.origin.z := vec3
+        }
 
         if (true){
             ray.direction.x := vec0
@@ -161,9 +173,17 @@ class PanoCore extends Component {
         //============================================================
 
         val sphere = new Sphere(rtConfig)
-        sphere.center.x.fromDouble(3.0)
-        sphere.center.y.fromDouble(10.0)
-        sphere.center.z.fromDouble(10.0)
+
+        if (true){
+            sphere.center.x.fromDouble(3.0)
+            sphere.center.y.fromDouble(10.0)
+            sphere.center.z.fromDouble(10.0)
+        }
+        else{
+            sphere.center.x.fromDouble(3.0)
+            sphere.center.y := vec4
+            sphere.center.z.fromDouble(10.0)
+        }
 
         sphere.radius2.fromDouble(9.0)
 
