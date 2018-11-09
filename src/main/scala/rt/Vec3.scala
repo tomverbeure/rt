@@ -45,7 +45,7 @@ class DotProduct(c: RTConfig) extends Component {
     val yy  = Fpxx(c.fpxxConfig)
     val zz  = Fpxx(c.fpxxConfig)
 
-    val u_xx = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_xx = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_xx.io.op_vld := io.op_vld
     u_xx.io.op_a   := io.op_a.x
     u_xx.io.op_b   := io.op_b.x
@@ -53,7 +53,7 @@ class DotProduct(c: RTConfig) extends Component {
     xx_vld := u_xx.io.result_vld
     xx := u_xx.io.result
 
-    val u_yy = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_yy = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_yy.io.op_vld := io.op_vld
     u_yy.io.op_a   := io.op_a.y
     u_yy.io.op_b   := io.op_b.y
@@ -61,7 +61,7 @@ class DotProduct(c: RTConfig) extends Component {
     yy_vld := u_yy.io.result_vld
     yy := u_yy.io.result
 
-    val u_zz = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_zz = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_zz.io.op_vld := io.op_vld
     u_zz.io.op_a   := io.op_a.z
     u_zz.io.op_b   := io.op_b.z
@@ -75,7 +75,7 @@ class DotProduct(c: RTConfig) extends Component {
     val xx_yy     = Fpxx(c.fpxxConfig)
     val xx_yy_zz  = Fpxx(c.fpxxConfig)
 
-    val u_xx_yy = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_xx_yy = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_xx_yy.io.op_vld := xx_vld
     u_xx_yy.io.op_a   := xx
     u_xx_yy.io.op_b   := yy
@@ -86,7 +86,7 @@ class DotProduct(c: RTConfig) extends Component {
     val xx_yy_latency = LatencyAnalysis(xx.sign, xx_yy.sign)
     val zz_delayed = Delay(zz, cycleCount = xx_yy_latency)
 
-    val u_xx_yy_zz = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_xx_yy_zz = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_xx_yy_zz.io.op_vld := xx_yy_vld
     u_xx_yy_zz.io.op_a   := xx_yy
     u_xx_yy_zz.io.op_b   := zz_delayed
@@ -109,7 +109,7 @@ class AddVecVec(c: RTConfig) extends Component {
         val result      = out(Vec3(c))
     }
 
-    val u_x = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_x = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_x.io.op_vld <> io.op_vld
     u_x.io.op_a   <> io.op_a.x
     u_x.io.op_b   <> io.op_b.x
@@ -118,14 +118,14 @@ class AddVecVec(c: RTConfig) extends Component {
     u_x.io.result     <> io.result.x
 
 
-    val u_y = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_y = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_y.io.op_vld <> io.op_vld
     u_y.io.op_a   <> io.op_a.y
     u_y.io.op_b   <> io.op_b.y
 
     u_y.io.result     <> io.result.y
 
-    val u_z = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_z = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_z.io.op_vld <> io.op_vld
     u_z.io.op_a   <> io.op_a.z
     u_z.io.op_b   <> io.op_b.z
@@ -144,7 +144,7 @@ class SubVecVec(c: RTConfig) extends Component {
         val result      = out(Vec3(c))
     }
 
-    val u_x = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_x = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_x.io.op_vld <> io.op_vld
     u_x.io.op_a   <> io.op_a.x
     u_x.io.op_b   <> io.op_b.x
@@ -153,14 +153,14 @@ class SubVecVec(c: RTConfig) extends Component {
     u_x.io.result     <> io.result.x
 
 
-    val u_y = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_y = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_y.io.op_vld <> io.op_vld
     u_y.io.op_a   <> io.op_a.y
     u_y.io.op_b   <> io.op_b.y
 
     u_y.io.result     <> io.result.y
 
-    val u_z = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_z = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_z.io.op_vld <> io.op_vld
     u_z.io.op_a   <> io.op_a.z
     u_z.io.op_b   <> io.op_b.z
@@ -180,7 +180,7 @@ class MulVecScalar(c: RTConfig) extends Component {
         val result      = out(Vec3(c))
     }
 
-    val u_x = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_x = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_x.io.op_vld <> io.op_vld
     u_x.io.op_a   <> io.op_vec.x
     u_x.io.op_b   <> io.op_scalar
@@ -189,14 +189,14 @@ class MulVecScalar(c: RTConfig) extends Component {
     u_x.io.result     <> io.result.x
 
 
-    val u_y = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_y = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_y.io.op_vld <> io.op_vld
     u_y.io.op_a   <> io.op_vec.y
     u_y.io.op_b   <> io.op_scalar
 
     u_y.io.result     <> io.result.y
 
-    val u_z = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_z = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_z.io.op_vld <> io.op_vld
     u_z.io.op_a   <> io.op_vec.z
     u_z.io.op_b   <> io.op_scalar
@@ -229,7 +229,7 @@ class Normalize(c: RTConfig) extends Component {
     val denom_vld = Bool
     val denom     = Fpxx(c.fpxxConfig)
 
-    val u_rsqrt = new FpxxRSqrt(c.fpxxConfig, FpxxRSqrtConfig(pipeStages = 5, tableSizeBits = 11, lutMantBits = 12))
+    val u_rsqrt = new FpxxRSqrt(c.fpxxConfig, Constants.fpxxRSqrtConfig)
     u_rsqrt.io.op_vld <> vec_dot_vld
     u_rsqrt.io.op     <> vec_dot
 

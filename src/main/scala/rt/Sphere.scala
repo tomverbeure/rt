@@ -88,7 +88,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val tca_tca_vld = Bool
     val tca_tca     = Fpxx(c.fpxxConfig)
 
-    val u_tca_tca = new FpxxMul(c.fpxxConfig, pipeStages = 5)
+    val u_tca_tca = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
     u_tca_tca.io.op_vld <> tca_vld
     u_tca_tca.io.op_a   <> tca
     u_tca_tca.io.op_b   <> tca
@@ -108,7 +108,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val d2_vld = Bool
     val d2     = Fpxx(c.fpxxConfig)
 
-    val u_d2 = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_d2 = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_d2.io.op_vld <> tca_tca_delayed_vld
     u_d2.io.op_a   <> c0r0_c0r0_delayed
     u_d2.io.op_b   <> tca_tca_delayed
@@ -126,7 +126,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val radius2_m_d2_vld = Bool
     val radius2_m_d2     = Fpxx(c.fpxxConfig)
 
-    val u_radius2_m_d2 = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_radius2_m_d2 = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_radius2_m_d2.io.op_vld <> d2_vld
     u_radius2_m_d2.io.op_a   <> io.sphere.radius2           // Static parameter. No need for latency matching.
     u_radius2_m_d2.io.op_b   <> d2
@@ -141,7 +141,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val thc_vld = Bool
     val thc     = Fpxx(c.fpxxConfig)
 
-    val u_thc = new FpxxSqrt(c.fpxxConfig, FpxxSqrtConfig(pipeStages = 5, tableSizeBits = 11, lutMantBits = 12))
+    val u_thc = new FpxxSqrt(c.fpxxConfig, Constants.fpxxSqrtConfig)
     u_thc.io.op_vld <> radius2_m_d2_vld
     u_thc.io.op     <> radius2_m_d2
 
@@ -160,7 +160,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val t0_vld = Bool
     val t0     = Fpxx(c.fpxxConfig)
 
-    val u_t0 = new FpxxSub(c.fpxxConfig, pipeStages = 5)
+    val u_t0 = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
     u_t0.io.op_vld <> tca_delayed_vld
     u_t0.io.op_a   <> tca_delayed
     u_t0.io.op_b   <> thc_delayed
@@ -171,7 +171,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val t1_vld = Bool
     val t1     = Fpxx(c.fpxxConfig)
 
-    val u_t1 = new FpxxAdd(c.fpxxConfig, pipeStages = 5)
+    val u_t1 = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_t1.io.op_vld <> tca_delayed_vld
     u_t1.io.op_a   <> tca_delayed
     u_t1.io.op_b   <> thc_delayed
