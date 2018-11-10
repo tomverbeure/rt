@@ -39,7 +39,7 @@ class CamSweep(c: RTConfig) extends Component {
     .elsewhen(io.pixel_in.req){
         when(io.pixel_in.eol){
             pix_x   := S(-width/2, 12 bits)
-            pix_y   := pix_y + 1
+            pix_y   := pix_y - 1
         }
         .otherwise{
             pix_x   := pix_x + 1
