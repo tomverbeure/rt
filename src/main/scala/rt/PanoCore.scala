@@ -157,13 +157,6 @@ class PanoCore extends Component {
         u_plane_intersect.io.result_t               <> plane_intersect_t
         u_plane_intersect.io.result_intersection    <> plane_intersection
 
-//        io.led_blue := plane_intersect_vld |
-//                       plane_intersects |
-//                       plane_intersect_t.toVec().orR |
-//                       plane_intersection.x.toVec().orR |
-//                       plane_intersection.y.toVec().orR |
-//                       plane_intersection.z.toVec().orR
-
         //============================================================
         // Final color
         //============================================================
