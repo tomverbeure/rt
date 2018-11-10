@@ -1,0 +1,132 @@
+[*]
+[*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
+[*] Sat Nov 10 05:14:12 2018
+[*]
+[dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
+[dumpfile_mtime] "Sat Nov 10 04:59:26 2018"
+[dumpfile_size] 2813476122
+[savefile] "/home/tom/projects/rt/CamSweep.gtkw"
+[timestart] 150000
+[size] 2064 916
+[pos] 534 -1193
+*-15.580980 353820 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] TOP.
+[treeopen] TOP.PanoCoreDut.
+[treeopen] TOP.PanoCoreDut.u_pano_core.
+[treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.
+[sst_width] 413
+[signals_width] 392
+[sst_expanded] 1
+[sst_vpaned_height] 271
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_in_vsync
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_in_req
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_in_eof
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_in_eol
+@200
+-
+@420
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_x[11:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_y[10:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_fp_vld
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_x_fp_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_x_fp_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_x_fp_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_y_fp_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_y_fp_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.pix_y_fp_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.step_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.step_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.step_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_x_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_x_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_mant[12:0]
+@200
+-
+@c00200
+-ray_origin
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_x_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_y_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_z_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_z_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_origin_z_mant[12:0]
+@1401200
+-ray_origin
+@c00200
+-ray_dir
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_x_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_y_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_z_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_z_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_z_mant[12:0]
+@1401200
+-ray_dir
+@201
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_out_vsync
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_out_req
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_out_eof
+TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_out_eol
+[pattern_trace] 1
+[pattern_trace] 0

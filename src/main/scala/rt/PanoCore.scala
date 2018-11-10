@@ -31,41 +31,32 @@ class PanoCore extends Component {
         io.led_green    := led_cntr.msb
     }
 
-    val video = new Area {
-        val timings = VideoTimings()
-        timings.h_active        := 640
-        timings.h_fp            := 16
-        timings.h_sync          := 96
-        timings.h_bp            := 48
-        timings.h_sync_positive := False
-        timings.h_total_m1      := (timings.h_active + timings.h_fp + timings.h_sync + timings.h_bp -1).resize(timings.h_total_m1.getWidth)
+    val timings = VideoTimings()
+    timings.h_active        := 640
+    timings.h_fp            := 16
+    timings.h_sync          := 96
+    timings.h_bp            := 48
+    timings.h_sync_positive := False
+    timings.h_total_m1      := (timings.h_active + timings.h_fp + timings.h_sync + timings.h_bp -1).resize(timings.h_total_m1.getWidth)
 
-        timings.v_active        := 480
-        timings.v_fp            := 11
-        timings.v_sync          := 2
-        timings.v_bp            := 31
-        timings.v_sync_positive := False
-        timings.v_total_m1      := (timings.v_active + timings.v_fp + timings.v_sync + timings.v_bp -1).resize(timings.v_total_m1.getWidth)
+    timings.v_active        := 480
+    timings.v_fp            := 11
+    timings.v_sync          := 2
+    timings.v_bp            := 31
+    timings.v_sync_positive := False
+    timings.v_total_m1      := (timings.v_active + timings.v_fp + timings.v_sync + timings.v_bp -1).resize(timings.v_total_m1.getWidth)
 
-        val vi_gen = new VideoTimingGen()
-        vi_gen.io.timings := timings
-
-        val vo = new VideoOut()
-        vo.io.timings := timings
-        vo.io.pixel_in <> vi_gen.io.pixel_out
-        vo.io.vga_out <> io.vo
-    }
-
-    val rtConfig = RTConfig()
-
+    val vi_gen = new VideoTimingGen()
+    vi_gen.io.timings := timings
 
     val rt = new Area {
+        val rtConfig = RTConfig()
 
         val cam_sweep_pixel = PixelStream()
         val ray             = Ray(rtConfig)
 
         val u_cam_sweep = new CamSweep(rtConfig)
-        u_cam_sweep.io.pixel_in     <> video.vi_gen.io.pixel_out
+        u_cam_sweep.io.pixel_in     <> vi_gen.io.pixel_out
         u_cam_sweep.io.pixel_out    <> cam_sweep_pixel
         u_cam_sweep.io.ray          <> ray
 
@@ -166,12 +157,66 @@ class PanoCore extends Component {
         u_plane_intersect.io.result_t               <> plane_intersect_t
         u_plane_intersect.io.result_intersection    <> plane_intersection
 
-        io.led_blue := plane_intersect_vld |
-                       plane_intersects |
-                       plane_intersect_t.toVec().orR |
-                       plane_intersection.x.toVec().orR |
-                       plane_intersection.y.toVec().orR |
-                       plane_intersection.z.toVec().orR
+//        io.led_blue := plane_intersect_vld |
+//                       plane_intersects |
+//                       plane_intersect_t.toVec().orR |
+//                       plane_intersection.x.toVec().orR |
+//                       plane_intersection.y.toVec().orR |
+//                       plane_intersection.z.toVec().orR
+
+        //============================================================
+        // Final color
+        //============================================================
+
+        val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_intersects_delayed_0) = MatchLatency(
+                                                                sphere_result_vld,
+                                                                sphere_result_vld,   sphere_intersects,
+                                                                plane_intersect_vld, plane_intersects)
+
+        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_intersects_delayed_1) = MatchLatency(
+                                                                cam_sweep_pixel.req,
+                                                                cam_sweep_pixel.req, cam_sweep_pixel,
+                                                                plane_intersect_vld, plane_intersects)
+
+
+        var red = Pixel()
+        red.setColor(1.0, 0.0, 0.0)
+
+        var green = Pixel()
+        green.setColor(0.0, 1.0, 0.0)
+
+        var blue = Pixel()
+        blue.setColor(0.0, 0.0, 1.0)
+
+        var yellow = Pixel()
+        yellow.setColor(1.0, 1.0, 0.0)
+
+        var cyan = Pixel()
+        cyan.setColor(0.0, 1.0, 1.0)
+
+        val rt_pixel = PixelStream()
+        rt_pixel := cam_sweep_pixel_delayed
+        when(sphere_intersects_delayed && !plane_intersects){
+            rt_pixel.pixel := yellow
+        }
+        .elsewhen(sphere_intersects_delayed && plane_intersects){
+            rt_pixel.pixel := cyan
+        }
+        .elsewhen(plane_intersects){
+            rt_pixel.pixel := green
+        }
+        .otherwise{
+            rt_pixel.pixel := blue
+        }
+
     }
 
+    val vo = new VideoOut()
+    vo.io.timings := timings
+    vo.io.pixel_in <> rt.rt_pixel
+    vo.io.vga_out <> io.vo
+
+    io.led_blue := True
 }
+
+

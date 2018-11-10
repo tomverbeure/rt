@@ -1,15 +1,15 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Thu Nov  8 06:46:47 2018
+[*] Fri Nov  9 04:54:17 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Thu Nov  8 05:35:03 2018"
-[dumpfile_size] 2314958
+[dumpfile_mtime] "Fri Nov  9 04:53:47 2018"
+[dumpfile_size] 5079536
 [savefile] "/home/tom/projects/rt/PanoCore.gtkw"
 [timestart] 0
-[size] 2403 1294
+[size] 2654 1294
 [pos] -1 -1
-*-8.484355 1249 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-8.484355 1269 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -266,8 +266,9 @@ TOP.PanoCoreDut.u_pano_core.rt_u_normalize_ray.io_result_z_mant[12:0]
 -ray_normalize
 @200
 -
-@c00200
+@800200
 -sphere_intersect
+@c00200
 -c0r0
 -inputs
 @28
@@ -690,7 +691,7 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_origin_z
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_origin_z_mant[12:0]
 @1401200
 -reflect_ray_origin
-@c00200
+@800200
 -reflect_ray_dir
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_direction_x_sign
@@ -708,10 +709,11 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_directio
 -
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_direction_z_sign
-@24
+@25
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_direction_z_exp[5:0]
+@24
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_reflect_ray_direction_z_mant[12:0]
-@1401200
+@1000200
 -reflect_ray_dir
 @c00200
 -ray_origin
@@ -738,11 +740,10 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.io_result_ray_origin_z_mant[12
 -ray_origin
 @1000200
 -result
-@1401200
 -sphere_intersect
-@201
+@200
 -
-@800200
+@c00200
 -plane_ray_origin
 @28
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_origin_x_sign
@@ -763,9 +764,9 @@ TOP.PanoCoreDut.u_pano_core.rt_plane_ray_origin_z_sign
 @420
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_origin_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_origin_z_mant[12:0]
-@1000200
+@1401200
 -plane_ray_origin
-@800200
+@c00200
 -play_ray_dir
 @28
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_direction_x_sign
@@ -786,14 +787,12 @@ TOP.PanoCoreDut.u_pano_core.rt_plane_ray_direction_z_sign
 @24
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_direction_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_plane_ray_direction_z_mant[12:0]
-@1000200
+@1401200
 -play_ray_dir
 @200
 -
--
-@c00200
--plane_intersect
 @800200
+-plane_intersect
 -input
 @c00200
 -plane_normal
@@ -864,7 +863,7 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_origin_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_origin_z_mant[12:0]
 @1401200
 -ray_origin
-@800200
+@c00200
 -ray_direction
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_direction_x_sign
@@ -885,8 +884,9 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_direction_z_sign
 @24
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_direction_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_ray_direction_z_mant[12:0]
-@1000200
+@1401200
 -ray_direction
+@1000200
 -input
 @200
 -
@@ -990,7 +990,7 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.intersection_z_mant[12:0]
 -intersection
 @200
 -
-@c00200
+@800200
 -result
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_vld
@@ -1027,7 +1027,7 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_t_sign
 @24
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_t_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_t_mant[12:0]
-@1401200
+@1000200
 -result
 -plane_intersect
 [pattern_trace] 1
