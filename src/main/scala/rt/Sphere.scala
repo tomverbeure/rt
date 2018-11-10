@@ -64,7 +64,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     u_dot_tca.io.result     <> tca
 
     val intersects_tca_vld = tca_vld
-    val intersects_tca = !tca.sign
+    val intersects_tca = !tca.sign && !tca.is_nan() && !tca.is_infinite()
 
     //============================================================
     // c0r0_c0r0
@@ -116,9 +116,6 @@ class SphereIntersect(c: RTConfig) extends Component {
     u_d2.io.result_vld <> d2_vld
     u_d2.io.result     <> d2
 
-    val intersects_d2_vld = d2_vld
-    val intersects_d2 = (d2.toVec().asSInt <= io.sphere.radius2.toVec().asSInt)
-
     //============================================================
     // radius2_m_d2
     //============================================================
@@ -133,6 +130,9 @@ class SphereIntersect(c: RTConfig) extends Component {
 
     u_radius2_m_d2.io.result_vld <> radius2_m_d2_vld
     u_radius2_m_d2.io.result     <> radius2_m_d2
+
+    val intersects_d2_vld = radius2_m_d2_vld
+    val intersects_d2     = !radius2_m_d2.sign && !radius2_m_d2.is_nan() && !radius2_m_d2.is_infinite()
 
     //============================================================
     // thc
