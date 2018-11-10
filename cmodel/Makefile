@@ -4,10 +4,10 @@ all: rt.ppm rt_rs.ppm
 	feh rt.ppm rt_rs.ppm
 
 rt_rs.ppm: rt.ppm
-	convert $< -filter box -resize 320x200 $@
+	convert $< -filter box -resize 320x240 $@
 
 rt.ppm: rt
-	./rt 640 400 10 > rt.ppm
+	./rt 640 480 10 > rt.ppm
 
 display_string := -Ddisplay_string
 
