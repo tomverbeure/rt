@@ -31,8 +31,15 @@ class PanoTester extends FunSuite {
             dut.clockDomain.forkStimulus(period = 10)
             dut.clockDomain.forkSimSpeedPrinter(0.2)
 
-            dut.clockDomain.waitSampling()
-            dut.clockDomain.waitSampling(1000)
+            var i = 0;
+            while(i<500){
+                dut.clockDomain.waitSampling(1000)
+                printf("*")
+                if (i%10==9){
+                    printf("%d\n", i)
+                }
+                i = i +1
+            }
         }
     }
 
