@@ -83,8 +83,8 @@ class DotProduct(c: RTConfig) extends Component {
     xx_yy_vld := u_xx_yy.io.result_vld
     xx_yy := u_xx_yy.io.result
 
-    val xx_yy_latency = LatencyAnalysis(xx.sign, xx_yy.sign)
-    val zz_delayed = Delay(zz, cycleCount = xx_yy_latency)
+    val xx_yy_latency = LatencyAnalysis(xx_vld, xx_yy_vld)
+    val zz_delayed    = Delay(zz, cycleCount = xx_yy_latency)
 
     val u_xx_yy_zz = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
     u_xx_yy_zz.io.op_vld := xx_yy_vld
@@ -237,7 +237,7 @@ class Normalize(c: RTConfig) extends Component {
     u_rsqrt.io.result     <> denom
 
     val denom_latency = LatencyAnalysis(io.op_vld, denom_vld)
-    val op_delayed = Delay(io.op, cycleCount = denom_latency)
+    val op_delayed    = Delay(io.op,     cycleCount = denom_latency)
 
     val u_vec_adj = new MulVecScalar(c)
     u_vec_adj.io.op_vld    <> denom_vld
