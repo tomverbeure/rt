@@ -44,8 +44,8 @@ class PlaneIntersect(c: RTConfig) extends Component {
     u_dot_norm_dir.io.result     <> denom
 
     // Some random very small number
-    val intersects_vld = RegNext(denom_vld)
-    val intersects = (RegNext(denom.exp) >= 3)
+    val intersects_par_vld = RegNext(denom_vld)
+    val intersects_par     = (RegNext(denom.exp) >= 3)
 
     //============================================================
     // p0r0
@@ -119,6 +119,21 @@ class PlaneIntersect(c: RTConfig) extends Component {
     u_div_p0r0_dot_norm_denom.io.result_vld <> t_vld
     u_div_p0r0_dot_norm_denom.io.result     <> t
 
+    val t_vld_p1 = RegNext(t_vld)
+    val t_p1 = RegNext(t)
+
+    //============================================================
+    // intersects t>=0
+    //============================================================
+
+    val (intersects_par_delayed_vld, intersects_par_delayed, t_p1_delayed) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersects_par_vld, intersects_par,
+                                                        t_vld_p1, t_p1)
+
+    val intersects_t_gt0_vld = t_vld_p1
+    val intersects_t_gt0     = intersects_par_delayed && (!t_p1.sign && !t_p1.is_nan() && !t_p1.is_infinite())
+
     //============================================================
     // intersection
     //============================================================
@@ -155,14 +170,14 @@ class PlaneIntersect(c: RTConfig) extends Component {
                                                         t_vld, t,
                                                         intersection_vld, intersection)
 
-    val (intersects_delayed_vld, intersects_delayed, intersection_delayed_1) = MatchLatency(
+    val (intersects_t_gt0_delayed_vld, intersects_t_gt0_delayed, intersection_delayed_1) = MatchLatency(
                                                         io.op_vld,
-                                                        intersects_vld, intersects,
+                                                        intersects_t_gt0_vld, intersects_t_gt0,
                                                         intersection_vld, intersection)
 
 
     io.result_vld           := intersection_vld
-    io.result_intersects    := intersects_delayed && !t_delayed.sign && !t_delayed.is_nan()
+    io.result_intersects    := intersects_t_gt0_delayed
     io.result_t             := t_delayed
     io.result_intersection  := intersection
 }
