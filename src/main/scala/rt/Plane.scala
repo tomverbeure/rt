@@ -162,7 +162,7 @@ class PlaneIntersect(c: RTConfig) extends Component {
 
 
     io.result_vld           := intersection_vld
-    io.result_intersects    := intersects_delayed
+    io.result_intersects    := intersects_delayed && !t_delayed.sign && !t_delayed.is_nan()
     io.result_t             := t_delayed
     io.result_intersection  := intersection
 }

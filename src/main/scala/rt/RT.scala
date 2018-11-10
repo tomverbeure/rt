@@ -34,8 +34,8 @@ object MatchLatency {
 object Constants {
     def fpxxAddConfig   = FpxxAddConfig(pipeStages = 3)
     def fpxxMulConfig   = FpxxMulConfig(pipeStages = 5)
-    def fpxxSqrtConfig  = FpxxSqrtConfig (pipeStages = 5, tableSizeBits = 11, lutMantBits = 12)
-    def fpxxRSqrtConfig = FpxxRSqrtConfig(pipeStages = 5, tableSizeBits = 11, lutMantBits = 12)
+    def fpxxSqrtConfig  = FpxxSqrtConfig (pipeStages = 5, tableSizeBits = 12, lutMantBits = 12)
+    def fpxxRSqrtConfig = FpxxRSqrtConfig(pipeStages = 5, tableSizeBits = 12, lutMantBits = 12)
 }
 
 
