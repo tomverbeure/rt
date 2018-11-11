@@ -91,7 +91,7 @@ class PanoCore extends Component {
             ray.origin.x.fromDouble(  0.0)
             ray.origin.y.fromDouble( 10.0)
             ray.origin.z.fromDouble(-10.0)
-    
+
             ray.direction.x.fromDouble(0.125)
             ray.direction.y.fromDouble(-0.0749969482)
             ray.direction.z.fromDouble(1.0)
@@ -187,13 +187,27 @@ class PanoCore extends Component {
         u_plane_z_int.io.result_vld <> plane_z_int_vld
         u_plane_z_int.io.result     <> plane_z_int
 
-        val checker_color = plane_x_int(14) ^ plane_z_int(14)
-
         //============================================================
-        // plane_in_bounds color
+        // plane color
         //============================================================
 
-        val (plane_intersect_vld_delayed, plane_intersects_delayed, plane_x_int_delayed_0) = MatchLatency(
+        val (plane_intersection_x_vld_delayed, plane_intersection_x_sign_delayed, plane_x_int_delayed_0) = MatchLatency(
+                                                                plane_intersect_vld,
+                                                                plane_intersect_vld, plane_intersection.x.sign,
+                                                                plane_x_int_vld,     plane_x_int)
+
+        val (plane_intersection_z_vld_delayed, plane_intersection_z_sign_delayed, plane_z_int_delayed_0) = MatchLatency(
+                                                                plane_intersect_vld,
+                                                                plane_intersect_vld, plane_intersection.z.sign,
+                                                                plane_z_int_vld,     plane_z_int)
+
+        val checker_color = plane_x_int(14) ^ plane_z_int(14) ^ plane_intersection_x_sign_delayed ^ plane_intersection_z_sign_delayed
+
+        //============================================================
+        // plane_in_bounds
+        //============================================================
+
+        val (plane_intersect_vld_delayed, plane_intersects_delayed, plane_x_int_delayed_1) = MatchLatency(
                                                                 plane_intersect_vld,
                                                                 plane_intersect_vld, plane_intersects,
                                                                 plane_x_int_vld,     plane_x_int)
@@ -206,12 +220,12 @@ class PanoCore extends Component {
         //============================================================
 
 
-        val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_x_int_delayed_1) = MatchLatency(
+        val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_x_int_delayed_2) = MatchLatency(
                                                                 sphere_result_vld,
                                                                 sphere_result_vld,   sphere_intersects,
                                                                 plane_x_int_vld,     plane_x_int)
 
-        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_x_int_delayed_2) = MatchLatency(
+        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_x_int_delayed_3) = MatchLatency(
                                                                 cam_sweep_pixel.req,
                                                                 cam_sweep_pixel.req, cam_sweep_pixel,
                                                                 plane_x_int_vld,     plane_x_int)
