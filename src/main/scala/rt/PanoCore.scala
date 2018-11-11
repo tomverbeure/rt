@@ -80,7 +80,11 @@ class PanoCore extends Component {
         val calc_sphere_pos = new Area {
             // Sphere center y location is a parabola from 3 -> 10 -> 0 in 90 frames.
             // y = a*x*(x-90)+3 -> a = -7/(45*45) = -0.0034567901
-    
+            val cycle_time = 90.0
+            val min_height = 3.0
+            val max_height = 10.0
+            val a = -(max_height - min_height)/(cycle_time/2)/(cycle_time/2)
+
             val s_time = Reg(SInt(8 bits)) init (45)
     
             when(vi_gen_pixel_out.req && vi_gen_pixel_out.eof){
@@ -109,7 +113,7 @@ class PanoCore extends Component {
             u_s_time_q_fp.io.result        <> s_time_q_fp
     
             val const_a = Fpxx(rtConfig.fpxxConfig)
-            const_a.fromDouble(-0.0034567901)
+            const_a.fromDouble(a)
     
             val a_term_vld = Bool
             val a_term     = Fpxx(rtConfig.fpxxConfig)
@@ -123,7 +127,7 @@ class PanoCore extends Component {
             u_a_term.io.result       <> a_term
 
             val const_min_y = Fpxx(rtConfig.fpxxConfig)
-            const_min_y.fromDouble(3.0)
+            const_min_y.fromDouble(min_height)
 
             val sphere_y_vld = Bool
             val sphere_y     = Fpxx(rtConfig.fpxxConfig)
