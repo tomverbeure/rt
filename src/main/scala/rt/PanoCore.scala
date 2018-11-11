@@ -74,10 +74,69 @@ class PanoCore extends Component {
         plane.normal.y.fromDouble(1.0)
         plane.normal.z.fromDouble(0.0)
 
+        val calc_sphere_pos = new Area {
+            // Sphere center y location is a parabola from 3 -> 10 -> 0 in 90 frames.
+            // y = a*x*(x-90)+3 -> a = -7/(45*45) = -0.0034567901
+    
+            val s_time = Reg(UInt(7 bits)) init (45)
+    
+            when(vi_gen.io.pixel_out.req && vi_gen.io.pixel_out.eof){
+
+                when(s_time === U(89, 7 bits)){
+                    s_time := 0
+                }
+                .otherwise{
+                    s_time := s_time + 1
+                }
+            }
+    
+            val s_time_s_time = Reg(UInt((s_time.getWidth*2) bits))
+            s_time_s_time := s_time * s_time
+    
+            val s_time_s_time_s = (U"0" @@ s_time_s_time).asSInt
+    
+            val s_time_s_time_fp_vld = Bool
+            val s_time_s_time_fp     = Fpxx(rtConfig.fpxxConfig)
+    
+            val u_s_time_s_time_fp = new SInt2Fpxx(s_time_s_time.getWidth+1, rtConfig.fpxxConfig)
+            u_s_time_s_time_fp.io.op_vld        <> (cam_sweep_pixel.req && cam_sweep_pixel.eof)
+            u_s_time_s_time_fp.io.op            <> s_time_s_time_s
+            u_s_time_s_time_fp.io.result_vld    <> s_time_s_time_fp_vld
+            u_s_time_s_time_fp.io.result        <> s_time_s_time_fp
+    
+            val const_a = Fpxx(rtConfig.fpxxConfig)
+            const_a.fromDouble(-0.0034567901)
+    
+            val a_term_vld = Bool
+            val a_term     = Fpxx(rtConfig.fpxxConfig)
+    
+            val u_a_term = new FpxxMul(rtConfig.fpxxConfig, Constants.fpxxMulConfig)
+            u_a_term.io.op_vld       <> s_time_s_time_fp_vld
+            u_a_term.io.op_a         <> s_time_s_time_fp
+            u_a_term.io.op_b         <> const_a
+        
+            u_a_term.io.result_vld   <> a_term_vld
+            u_a_term.io.result       <> a_term
+
+            val const_min_y = Fpxx(rtConfig.fpxxConfig)
+            const_min_y.fromDouble(3.0)
+
+            val sphere_y_vld = Bool
+            val sphere_y     = Fpxx(rtConfig.fpxxConfig)
+
+            val u_sphere_y = new FpxxAdd(rtConfig.fpxxConfig, Constants.fpxxAddConfig)
+            u_sphere_y.io.op_vld     <> a_term_vld
+            u_sphere_y.io.op_a       <> a_term
+            u_sphere_y.io.op_b       <> const_min_y
+        
+            u_sphere_y.io.result_vld <> sphere_y_vld
+            u_sphere_y.io.result     <> sphere_y
+        }
+
         val sphere = new Sphere(rtConfig)
 
         sphere.center.x.fromDouble(3.0)
-        sphere.center.y.fromDouble(10.0)
+        sphere.center.y := calc_sphere_pos.sphere_y
         sphere.center.z.fromDouble(10.0)
 
         sphere.radius2.fromDouble(9.0)
