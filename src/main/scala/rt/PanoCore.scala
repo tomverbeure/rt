@@ -158,19 +158,70 @@ class PanoCore extends Component {
         u_plane_intersect.io.result_intersection    <> plane_intersection
 
         //============================================================
+        // Plane Checker Board
+        //============================================================
+
+        val plane_intersection_x_abs = Fpxx(rtConfig.fpxxConfig)
+        val plane_intersection_z_abs = Fpxx(rtConfig.fpxxConfig)
+
+        plane_intersection_x_abs := plane_intersection.x.abs()
+        plane_intersection_z_abs := plane_intersection.z.abs()
+
+        val plane_x_int_vld = Bool
+        val plane_x_int     = SInt(20 bits)
+
+        val u_plane_x_int = new Fpxx2SInt(8, 12, rtConfig.fpxxConfig)
+        u_plane_x_int.io.op_vld     <> plane_intersect_vld
+        u_plane_x_int.io.op         <> plane_intersection_x_abs
+
+        u_plane_x_int.io.result_vld <> plane_x_int_vld
+        u_plane_x_int.io.result     <> plane_x_int
+
+        val plane_z_int_vld = Bool
+        val plane_z_int     = SInt(20 bits)
+
+        val u_plane_z_int = new Fpxx2SInt(8, 12, rtConfig.fpxxConfig)
+        u_plane_z_int.io.op_vld     <> plane_intersect_vld
+        u_plane_z_int.io.op         <> plane_intersection_z_abs
+
+        u_plane_z_int.io.result_vld <> plane_z_int_vld
+        u_plane_z_int.io.result     <> plane_z_int
+
+        val checker_color = plane_x_int(14) ^ plane_z_int(14)
+
+        //============================================================
+        // plane_in_bounds color
+        //============================================================
+
+        val (plane_intersect_vld_delayed, plane_intersects_delayed, plane_x_int_delayed_0) = MatchLatency(
+                                                                plane_intersect_vld,
+                                                                plane_intersect_vld, plane_intersects,
+                                                                plane_x_int_vld,     plane_x_int)
+
+        val plane_in_bounds = plane_x_int(12, 8 bits) < 16 && plane_z_int(12, 8 bits) < 28
+        val plane_intersects_final = plane_in_bounds && plane_intersects_delayed
+
+        //============================================================
         // Final color
         //============================================================
 
-        val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_intersects_delayed_0) = MatchLatency(
+
+        val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_x_int_delayed_1) = MatchLatency(
                                                                 sphere_result_vld,
                                                                 sphere_result_vld,   sphere_intersects,
-                                                                plane_intersect_vld, plane_intersects)
+                                                                plane_x_int_vld,     plane_x_int)
 
-        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_intersects_delayed_1) = MatchLatency(
+        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_x_int_delayed_2) = MatchLatency(
                                                                 cam_sweep_pixel.req,
                                                                 cam_sweep_pixel.req, cam_sweep_pixel,
-                                                                plane_intersect_vld, plane_intersects)
+                                                                plane_x_int_vld,     plane_x_int)
 
+
+        var sky = Pixel()
+        sky.setColor(0.0, 0.0, 0.9)
+
+        var yellow = Pixel()
+        yellow.setColor(0.9, 0.9, 0.0)
 
         var red = Pixel()
         red.setColor(1.0, 0.0, 0.0)
@@ -178,28 +229,30 @@ class PanoCore extends Component {
         var green = Pixel()
         green.setColor(0.0, 1.0, 0.0)
 
-        var blue = Pixel()
-        blue.setColor(0.0, 0.0, 1.0)
+        var yellow_red = Pixel()
+        yellow_red.setColor(0.95, 0.7, 0.0)
 
-        var yellow = Pixel()
-        yellow.setColor(1.0, 1.0, 0.0)
+        var yellow_green = Pixel()
+        yellow_green.setColor(0.95, 0.0, 0.7)
+
 
         var cyan = Pixel()
         cyan.setColor(0.0, 1.0, 1.0)
 
         val rt_pixel = PixelStream()
         rt_pixel := cam_sweep_pixel_delayed
-        when(sphere_intersects_delayed && !plane_intersects){
+
+        when(sphere_intersects_delayed && !plane_intersects_final){
             rt_pixel.pixel := yellow
         }
-        .elsewhen(sphere_intersects_delayed && plane_intersects){
-            rt_pixel.pixel := cyan
+        .elsewhen(sphere_intersects_delayed && plane_intersects_final){
+            rt_pixel.pixel := checker_color ? yellow_red | yellow_green
         }
-        .elsewhen(plane_intersects){
-            rt_pixel.pixel := green
+        .elsewhen(plane_intersects_final){
+            rt_pixel.pixel := checker_color ? red | green
         }
         .otherwise{
-            rt_pixel.pixel := blue
+            rt_pixel.pixel := sky
         }
 
     }
