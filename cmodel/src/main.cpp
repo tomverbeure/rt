@@ -186,7 +186,7 @@ sphere_t sphere = {
     .radius = { 3 }
 };
 
-vec_t light_dir = { .s={ {1, 0, 0}, {5, 0, 0}, {-1, 0, 0} } };     // Coming from behind, from left to right and from top to bottom, but inverse!!!
+vec_t light_dir = { .s={ {1, 0, 0}, {4, 0, 0}, {-1, 0, 0} } };     // Coming from behind, from left to right and from top to bottom, but inverse!!!
 
 scalar_t negate_scalar(scalar_t a)
 {
@@ -585,16 +585,12 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
+    // Calculate shadow of sphere
+    ray_t reverse_light_ray;
+    reverse_light_ray.origin    = plane_intersection;
+    reverse_light_ray.direction = light_dir;
 
-    bool light_intersects = false;
-    if (iteration == 0){
-        // Direct hit onto plane. Check if we're in the sphere shadow.
-        ray_t reverse_light_ray;
-        reverse_light_ray.origin    = plane_intersection;
-        reverse_light_ray.direction = light_dir;
-
-        light_intersects = sphere_intersect(sphere, reverse_light_ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray);
-    }
+    bool light_intersects = sphere_intersect(sphere, reverse_light_ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray);
 
     //int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
     int checker = ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4) ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4) ^ plane_intersection.s[0].fpxx.sign;
