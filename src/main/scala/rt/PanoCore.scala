@@ -46,8 +46,11 @@ class PanoCore extends Component {
     timings.v_sync_positive := False
     timings.v_total_m1      := (timings.v_active + timings.v_fp + timings.v_sync + timings.v_bp -1).resize(timings.v_total_m1.getWidth)
 
+    val vi_gen_pixel_out = PixelStream()
+
     val vi_gen = new VideoTimingGen()
-    vi_gen.io.timings := timings
+    vi_gen.io.timings       <> timings
+    vi_gen.io.pixel_out     <> vi_gen_pixel_out
 
     val rt = new Area {
         val rtConfig = RTConfig()
@@ -56,7 +59,7 @@ class PanoCore extends Component {
         val ray             = Ray(rtConfig)
 
         val u_cam_sweep = new CamSweep(rtConfig)
-        u_cam_sweep.io.pixel_in     <> vi_gen.io.pixel_out
+        u_cam_sweep.io.pixel_in     <> vi_gen_pixel_out
         u_cam_sweep.io.pixel_out    <> cam_sweep_pixel
         u_cam_sweep.io.ray          <> ray
 
@@ -78,31 +81,32 @@ class PanoCore extends Component {
             // Sphere center y location is a parabola from 3 -> 10 -> 0 in 90 frames.
             // y = a*x*(x-90)+3 -> a = -7/(45*45) = -0.0034567901
     
-            val s_time = Reg(UInt(7 bits)) init (45)
+            val s_time = Reg(SInt(8 bits)) init (45)
     
-            when(vi_gen.io.pixel_out.req && vi_gen.io.pixel_out.eof){
+            when(vi_gen_pixel_out.req && vi_gen_pixel_out.eof){
 
-                when(s_time === U(89, 7 bits)){
+                when(s_time === S(89, 8 bits)){
                     s_time := 0
                 }
                 .otherwise{
                     s_time := s_time + 1
                 }
             }
+
+            val s_time_m90 = SInt(8 bits)
+            s_time_m90 := s_time - 90
     
-            val s_time_s_time = Reg(UInt((s_time.getWidth*2) bits))
-            s_time_s_time := s_time * s_time
+            val s_time_q = Reg(SInt((s_time.getWidth*2) bits))
+            s_time_q := s_time * s_time_m90
     
-            val s_time_s_time_s = (U"0" @@ s_time_s_time).asSInt
+            val s_time_q_fp_vld = Bool
+            val s_time_q_fp     = Fpxx(rtConfig.fpxxConfig)
     
-            val s_time_s_time_fp_vld = Bool
-            val s_time_s_time_fp     = Fpxx(rtConfig.fpxxConfig)
-    
-            val u_s_time_s_time_fp = new SInt2Fpxx(s_time_s_time.getWidth+1, rtConfig.fpxxConfig)
-            u_s_time_s_time_fp.io.op_vld        <> (cam_sweep_pixel.req && cam_sweep_pixel.eof)
-            u_s_time_s_time_fp.io.op            <> s_time_s_time_s
-            u_s_time_s_time_fp.io.result_vld    <> s_time_s_time_fp_vld
-            u_s_time_s_time_fp.io.result        <> s_time_s_time_fp
+            val u_s_time_q_fp = new SInt2Fpxx(s_time_q.getWidth, rtConfig.fpxxConfig)
+            u_s_time_q_fp.io.op_vld        <> (vi_gen_pixel_out.req && vi_gen_pixel_out.eof)
+            u_s_time_q_fp.io.op            <> s_time_q
+            u_s_time_q_fp.io.result_vld    <> s_time_q_fp_vld
+            u_s_time_q_fp.io.result        <> s_time_q_fp
     
             val const_a = Fpxx(rtConfig.fpxxConfig)
             const_a.fromDouble(-0.0034567901)
@@ -111,8 +115,8 @@ class PanoCore extends Component {
             val a_term     = Fpxx(rtConfig.fpxxConfig)
     
             val u_a_term = new FpxxMul(rtConfig.fpxxConfig, Constants.fpxxMulConfig)
-            u_a_term.io.op_vld       <> s_time_s_time_fp_vld
-            u_a_term.io.op_a         <> s_time_s_time_fp
+            u_a_term.io.op_vld       <> s_time_q_fp_vld
+            u_a_term.io.op_a         <> s_time_q_fp
             u_a_term.io.op_b         <> const_a
         
             u_a_term.io.result_vld   <> a_term_vld
