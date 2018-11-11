@@ -186,6 +186,8 @@ sphere_t sphere = {
     .radius = { 3 }
 };
 
+vec_t light_dir = { .s={ {1, 0, 0}, {5, 0, 0}, {-1, 0, 0} } };     // Coming from behind, from left to right and from top to bottom, but inverse!!!
+
 scalar_t negate_scalar(scalar_t a)
 {
     scalar_t r;
@@ -583,6 +585,17 @@ color_t trace(ray_t ray, int iteration)
         return c;
     }
 
+
+    bool light_intersects = false;
+    if (iteration == 0){
+        // Direct hit onto plane. Check if we're in the sphere shadow.
+        ray_t reverse_light_ray;
+        reverse_light_ray.origin    = plane_intersection;
+        reverse_light_ray.direction = light_dir;
+
+        light_intersects = sphere_intersect(sphere, reverse_light_ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray);
+    }
+
     //int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
     int checker = ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4) ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4) ^ plane_intersection.s[0].fpxx.sign;
 
@@ -590,14 +603,18 @@ color_t trace(ray_t ray, int iteration)
         c.r = 1.0;
         c.g = 0;
         c.b = 0;
-
-        return c;
+    }
+    else{
+        c.r = 0;
+        c.g = 1.0;
+        c.b = 0;
     }
 
-    c.r = 0;
-    c.g = 1.0;
-    c.b = 0;
-
+    if (light_intersects){
+        c.r *= 0.7;
+        c.g *= 0.7;
+        c.b *= 0.7;
+    }
 
     return c;
 }
@@ -630,6 +647,8 @@ int main(int argc, char **argv)
     sphere.radius = float2fixed_scalar(sphere.radius);
 
     plane.normal = normalize_vec(plane.normal);
+
+    light_dir = normalize_vec(float2fixed_vec(light_dir));
 
     float stepX = 1.0/height;           // Assume height < width
     float stepY = 1.0/height;
