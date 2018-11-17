@@ -579,7 +579,7 @@ color_t trace(ray_t ray, int iteration)
         if (c.r >= 1.0){ c.r = 1.0; }
         if (c.g >= 1.0){ c.g = 1.0; }
         if (c.b >= 1.0){ c.b = 1.0; }
-        
+
 #ifndef GEN_IMAGE
         print_counters();
         assert(0);
