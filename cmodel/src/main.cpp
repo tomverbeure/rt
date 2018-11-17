@@ -186,7 +186,7 @@ sphere_t sphere = {
     .radius = { 3 }
 };
 
-vec_t light_dir = { .s={ {1, 0, 0}, {4, 0, 0}, {-1, 0, 0} } };     // Coming from behind, from left to right and from top to bottom, but inverse!!!
+vec_t light_dir = { .s={ {1, 0, 0}, {2, 0, 0}, {-1, 0, 0} } };     // Coming from behind, from left to right and from top to bottom, but inverse!!!
 
 scalar_t negate_scalar(scalar_t a)
 {
@@ -565,6 +565,21 @@ color_t trace(ray_t ray, int iteration)
         c.g = c.g * alpha + 0.9 * (1-alpha);
         c.b = c.b * alpha;
 
+        scalar_t spot_light    = dot_product(reflect_ray.direction, light_dir);
+        scalar_t spot_light_e2 = mul_scalar_scalar(spot_light, spot_light);
+        scalar_t spot_light_e4 = mul_scalar_scalar(spot_light_e2, spot_light_e2);
+        scalar_t spot_light_e8 = mul_scalar_scalar(spot_light_e4, spot_light_e4);
+
+        if (spot_light.fpxx.to_float() > 0){
+            c.r = c.r + spot_light_e4.fpxx.to_float()/2;
+            c.g = c.g + spot_light_e4.fpxx.to_float()/2;
+            c.b = c.b + spot_light_e4.fpxx.to_float()/2;
+        }
+
+        if (c.r >= 1.0){ c.r = 1.0; }
+        if (c.g >= 1.0){ c.g = 1.0; }
+        if (c.b >= 1.0){ c.b = 1.0; }
+        
 #ifndef GEN_IMAGE
         print_counters();
         assert(0);
@@ -607,9 +622,9 @@ color_t trace(ray_t ray, int iteration)
     }
 
     if (light_intersects){
-        c.r *= 0.7;
-        c.g *= 0.7;
-        c.b *= 0.7;
+        c.r *= 0.5;
+        c.g *= 0.5;
+        c.b *= 0.5;
     }
 
     return c;
