@@ -1,16 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sat Nov 10 20:24:29 2018
+[*] Sat Nov 17 19:57:39 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sat Nov 10 20:24:19 2018"
-[dumpfile_size] 4412796290
+[dumpfile_mtime] "Sat Nov 17 19:54:40 2018"
+[dumpfile_size] 6376336173
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 789450
-[size] 2313 1235
+[timestart] 0
+[size] 2338 1166
 [pos] -1 -1
-*-4.321636 789520 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-20.338978 4192180 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -19,9 +19,9 @@
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.
 [sst_width] 400
-[signals_width] 392
+[signals_width] 479
 [sst_expanded] 1
-[sst_vpaned_height] 825
+[sst_vpaned_height] 772
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -84,6 +84,39 @@ TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_mant[12:0]
 @200
 -
+@c00201
+-sphere_pos
+@29
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_first_time
+@201
+-
+@29
+TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_req
+TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_eof
+@201
+-
+@421
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time[7:0]
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_m90[7:0]
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q[15:0]
+@201
+-
+@29
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_vld
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_sign
+@25
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_mant[12:0]
+@201
+-
+@29
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_vld
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_sign
+@25
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_mant[12:0]
+@1401201
+-sphere_pos
 @c00200
 -ray_origin
 @28
@@ -134,7 +167,7 @@ TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_ray_direction_z_mant[12:0]
 -
 @28
 TOP.PanoCoreDut.u_pano_core.clk
-@800200
+@c00200
 -sphere_intersect
 @200
 -
@@ -338,9 +371,6 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.mant
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.p4_vld
 @22
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.mant_add_p4[14:0]
-@28
-TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.p5_vld
-@23
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.mant_final_p5[13:0]
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.u_xx_yy.io_result_vld
@@ -375,7 +405,6 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.denom_mant[12:0]
 @800200
 -normalize_op_delayed
 @28
-TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.op_delayed_vld
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.op_delayed_x_sign
 @24
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.op_delayed_x_exp[5:0]
@@ -420,9 +449,12 @@ TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.normal_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.normal_z_mant[12:0]
 @1000200
 -normal
+@1401200
 -sphere_intersect
 @200
 -
+@c00200
+-plane_intersect
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_op_vld
 @800200
@@ -532,6 +564,8 @@ TOP.PanoCoreDut.u_pano_core.rt_plane_intersect_t_sign
 @24
 TOP.PanoCoreDut.u_pano_core.rt_plane_intersect_t_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_plane_intersect_t_mant[12:0]
+@1401200
+-plane_intersect
 @200
 -
 @28

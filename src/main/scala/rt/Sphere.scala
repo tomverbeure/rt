@@ -21,6 +21,9 @@ class SphereIntersect(c: RTConfig) extends Component {
         val sphere          = in(Sphere(c))
         val ray             = in(Ray(c))
 
+        val early_intersects_vld = out(Bool)
+        val early_intersects     = out(Bool)
+
         val result_vld          = out(Bool)
         val result_intersects   = out(Bool)
         val result_t            = out(Fpxx(c.fpxxConfig))
@@ -115,6 +118,16 @@ class SphereIntersect(c: RTConfig) extends Component {
 
     u_d2.io.result_vld <> d2_vld
     u_d2.io.result     <> d2
+
+    val (intersects_tca_delayed_early_vld, intersects_tca_delayed_early, d2_delayed) = MatchLatency(
+                                                        io.op_vld,
+                                                        intersects_tca_vld,    intersects_tca,
+                                                        d2_vld,                d2)
+
+    val radius2_ge_d2 = (io.sphere.radius2.toVec().asSInt >= d2.toVec().asSInt)
+
+    io.early_intersects_vld := RegNext(d2_vld)
+    io.early_intersects     := RegNext(radius2_ge_d2 && intersects_tca_delayed_early)
 
     //============================================================
     // radius2_m_d2

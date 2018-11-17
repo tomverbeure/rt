@@ -86,8 +86,9 @@ class PanoCore extends Component {
             val a = -(max_height - min_height)/(cycle_time/2)/(cycle_time/2)
 
             val s_time = Reg(SInt(8 bits)) init (45)
-    
-            when(vi_gen_pixel_out.req && vi_gen_pixel_out.eof){
+            val first_time = Reg(Bool) init True
+
+            when((vi_gen_pixel_out.req && vi_gen_pixel_out.eof) || first_time){
 
                 when(s_time === S(89, 8 bits)){
                     s_time := 0
@@ -95,34 +96,36 @@ class PanoCore extends Component {
                 .otherwise{
                     s_time := s_time + 1
                 }
+
+                first_time := False
             }
 
             val s_time_m90 = SInt(8 bits)
             s_time_m90 := s_time - 90
-    
+
             val s_time_q = Reg(SInt((s_time.getWidth*2) bits))
             s_time_q := s_time * s_time_m90
-    
+
             val s_time_q_fp_vld = Bool
             val s_time_q_fp     = Fpxx(rtConfig.fpxxConfig)
-    
+
             val u_s_time_q_fp = new SInt2Fpxx(s_time_q.getWidth, rtConfig.fpxxConfig)
-            u_s_time_q_fp.io.op_vld        <> (vi_gen_pixel_out.req && vi_gen_pixel_out.eof)
+            u_s_time_q_fp.io.op_vld        <> ((vi_gen_pixel_out.req && vi_gen_pixel_out.eof) || RegNext(first_time))
             u_s_time_q_fp.io.op            <> s_time_q
             u_s_time_q_fp.io.result_vld    <> s_time_q_fp_vld
             u_s_time_q_fp.io.result        <> s_time_q_fp
-    
+
             val const_a = Fpxx(rtConfig.fpxxConfig)
             const_a.fromDouble(a)
-    
+
             val a_term_vld = Bool
             val a_term     = Fpxx(rtConfig.fpxxConfig)
-    
+
             val u_a_term = new FpxxMul(rtConfig.fpxxConfig, Constants.fpxxMulConfig)
             u_a_term.io.op_vld       <> s_time_q_fp_vld
             u_a_term.io.op_a         <> s_time_q_fp
             u_a_term.io.op_b         <> const_a
-        
+
             u_a_term.io.result_vld   <> a_term_vld
             u_a_term.io.result       <> a_term
 
@@ -136,7 +139,7 @@ class PanoCore extends Component {
             u_sphere_y.io.op_vld     <> a_term_vld
             u_sphere_y.io.op_a       <> a_term
             u_sphere_y.io.op_b       <> const_min_y
-        
+
             u_sphere_y.io.result_vld <> sphere_y_vld
             u_sphere_y.io.result     <> sphere_y
         }
@@ -148,6 +151,25 @@ class PanoCore extends Component {
         sphere.center.z.fromDouble(10.0)
 
         sphere.radius2.fromDouble(9.0)
+
+        // Shadow rays are going the opposite way of the light
+        val shadow_ray_direction = Vec3(rtConfig)
+
+        {
+            var light_dir_x = 1.0
+            var light_dir_y = 4.0
+            var light_dir_z = -1.0
+
+            val length = scala.math.sqrt((light_dir_x * light_dir_x) + (light_dir_y * light_dir_y) + (light_dir_z * light_dir_z))
+
+            light_dir_x = light_dir_x / length
+            light_dir_y = light_dir_y / length
+            light_dir_z = light_dir_z / length
+
+            shadow_ray_direction.x.fromDouble(light_dir_x)
+            shadow_ray_direction.y.fromDouble(light_dir_y)
+            shadow_ray_direction.z.fromDouble(light_dir_z)
+        }
 
         //============================================================
         // Ray definition
@@ -268,7 +290,8 @@ class PanoCore extends Component {
                                                                 plane_intersect_vld, plane_intersection.z.sign,
                                                                 plane_z_int_vld,     plane_z_int)
 
-        val checker_color = plane_x_int(14) ^ plane_z_int(14) ^ plane_intersection_x_sign_delayed ^ plane_intersection_z_sign_delayed
+        val checker_color_vld = plane_x_int_vld
+        val checker_color     = plane_x_int(14) ^ plane_z_int(14) ^ plane_intersection_x_sign_delayed ^ plane_intersection_z_sign_delayed
 
         //============================================================
         // plane_in_bounds
@@ -283,57 +306,138 @@ class PanoCore extends Component {
         val plane_intersects_final = plane_in_bounds && plane_intersects_delayed
 
         //============================================================
+        // sphere shadow
+        //============================================================
+
+        val shadow_ray = Ray(rtConfig)
+        shadow_ray.origin       := plane_intersection
+        shadow_ray.direction    := shadow_ray_direction
+
+        val shadow_sphere_intersects_vld   = Bool
+        val shadow_sphere_intersects       = Bool
+
+        val u_shadow_sphere_intersect = new SphereIntersect(rtConfig)
+        u_shadow_sphere_intersect.io.op_vld    <> plane_intersect_vld
+        u_shadow_sphere_intersect.io.sphere    <> sphere
+        u_shadow_sphere_intersect.io.ray       <> shadow_ray
+
+        u_shadow_sphere_intersect.io.early_intersects_vld <> shadow_sphere_intersects_vld
+        u_shadow_sphere_intersect.io.early_intersects     <> shadow_sphere_intersects
+
+        //============================================================
         // Final color
         //============================================================
 
+        // Need 4 parameters to define final color:
+        // plane_intersects_final, checker_color, shadow_sphere_intersects, sphere_intersects, and cam_sweep_pixel
+
+        val (plane_intersects_final_vld_delayed, plane_intersects_final_delayed, shadow_sphere_intersects_delayed_0) = MatchLatency(
+                                                                plane_intersect_vld,
+                                                                plane_x_int_vld,              plane_intersects_final,
+                                                                shadow_sphere_intersects_vld, shadow_sphere_intersects)
+
+        val (checker_color_delayed_vld, checker_color_delayed, shadow_sphere_intersects_delayed_1) = MatchLatency(
+                                                                plane_intersect_vld,
+                                                                checker_color_vld,            checker_color,
+                                                                shadow_sphere_intersects_vld, shadow_sphere_intersects)
 
         val (sphere_result_delayed_vld, sphere_intersects_delayed, plane_x_int_delayed_2) = MatchLatency(
                                                                 sphere_result_vld,
-                                                                sphere_result_vld,   sphere_intersects,
-                                                                plane_x_int_vld,     plane_x_int)
+                                                                sphere_result_vld,                   sphere_intersects,
+                                                                plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
-        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_x_int_delayed_3) = MatchLatency(
+        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_intersects_final_delayed_0) = MatchLatency(
                                                                 cam_sweep_pixel.req,
                                                                 cam_sweep_pixel.req, cam_sweep_pixel,
-                                                                plane_x_int_vld,     plane_x_int)
+                                                                plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
+        val sky_s    = (0.0, 0.0, 0.9)
+        val red_s    = (0.9, 0.0, 0.0)
+        val green_s  = (0.0, 0.9, 0.0)
+        val yellow_s = (0.9, 0.9, 0.0)
 
-        var sky = Pixel()
-        sky.setColor(0.0, 0.0, 0.9)
+        val shadow_factor = 0.7
+        val shadow_red_s   = (red_s._1   * shadow_factor, red_s._2   * shadow_factor, red_s._3   * shadow_factor)
+        val shadow_green_s = (green_s._1 * shadow_factor, green_s._2 * shadow_factor, green_s._3 * shadow_factor)
 
-        var yellow = Pixel()
-        yellow.setColor(0.9, 0.9, 0.0)
+        val sky = Pixel()
+        sky.setColor(sky_s._1, sky_s._2, sky_s._3)
 
-        var red = Pixel()
-        red.setColor(1.0, 0.0, 0.0)
+        val yellow = Pixel()
+        yellow.setColor(yellow_s._1,yellow_s._2, yellow_s._3)
 
-        var green = Pixel()
-        green.setColor(0.0, 1.0, 0.0)
+        val red = Pixel()
+        red.setColor(red_s._1,red_s._2, red_s._3)
 
-        var yellow_red = Pixel()
-        yellow_red.setColor(0.95, 0.7, 0.0)
+        val green = Pixel()
+        green.setColor(green_s._1,green_s._2, green_s._3)
 
-        var yellow_green = Pixel()
-        yellow_green.setColor(0.95, 0.0, 0.7)
+        val shadow_red = Pixel()
+        shadow_red.setColor(shadow_red_s._1,shadow_red_s._2, shadow_red_s._3)
 
+        val shadow_green = Pixel()
+        shadow_green.setColor(shadow_green_s._1,shadow_green_s._2, shadow_green_s._3)
 
-        var cyan = Pixel()
-        cyan.setColor(0.0, 1.0, 1.0)
+        val sphere_alpha = 0.5
+
+        val yellow_red = Pixel()
+        yellow_red.setColor(
+                yellow_s._1 * (1-sphere_alpha) + red_s._1 * sphere_alpha,
+                yellow_s._2 * (1-sphere_alpha) + red_s._2 * sphere_alpha,
+                yellow_s._3 * (1-sphere_alpha) + red_s._3 * sphere_alpha)
+
+        val yellow_green = Pixel()
+        yellow_green.setColor(
+                yellow_s._1 * (1-sphere_alpha) + green_s._1 * sphere_alpha,
+                yellow_s._2 * (1-sphere_alpha) + green_s._2 * sphere_alpha,
+                yellow_s._3 * (1-sphere_alpha) + green_s._3 * sphere_alpha)
+
+        val yellow_shadow_red = Pixel()
+        yellow_shadow_red.setColor(
+                yellow_s._1 * (1-sphere_alpha) + shadow_red_s._1 * sphere_alpha,
+                yellow_s._2 * (1-sphere_alpha) + shadow_red_s._2 * sphere_alpha,
+                yellow_s._3 * (1-sphere_alpha) + shadow_red_s._3 * sphere_alpha)
+
+        val yellow_shadow_green = Pixel()
+        yellow_shadow_green.setColor(
+                yellow_s._1 * (1-sphere_alpha) + shadow_green_s._1 * sphere_alpha,
+                yellow_s._1 * (1-sphere_alpha) + shadow_green_s._2 * sphere_alpha,
+                yellow_s._1 * (1-sphere_alpha) + shadow_green_s._3 * sphere_alpha)
+
+        val yellow_sky = Pixel()
+        yellow_sky.setColor(
+                yellow_s._1 * (1-sphere_alpha) + sky_s._1 * sphere_alpha,
+                yellow_s._1 * (1-sphere_alpha) + sky_s._2 * sphere_alpha,
+                yellow_s._1 * (1-sphere_alpha) + sky_s._3 * sphere_alpha)
 
         val rt_pixel = PixelStream()
         rt_pixel := cam_sweep_pixel_delayed
 
-        when(sphere_intersects_delayed && !plane_intersects_final){
-            rt_pixel.pixel := yellow
+        when(plane_intersects_final_vld_delayed || sphere_result_delayed_vld || cam_sweep_pixel_delayed_vld || checker_color_delayed_vld) {
+
+        when(sphere_intersects_delayed && !plane_intersects_final_delayed){
+            rt_pixel.pixel := yellow_sky
         }
-        .elsewhen(sphere_intersects_delayed && plane_intersects_final){
-            rt_pixel.pixel := checker_color ? yellow_red | yellow_green
+        .elsewhen(sphere_intersects_delayed && plane_intersects_final_delayed){
+            when(shadow_sphere_intersects){
+                rt_pixel.pixel := checker_color_delayed ? yellow_shadow_red | yellow_shadow_green
+            }.
+            otherwise{
+                rt_pixel.pixel := checker_color_delayed ? yellow_red | yellow_green
+            }
         }
-        .elsewhen(plane_intersects_final){
-            rt_pixel.pixel := checker_color ? red | green
+        .elsewhen(plane_intersects_final_delayed){
+            when(shadow_sphere_intersects){
+                rt_pixel.pixel := checker_color_delayed ? shadow_red | shadow_green
+            }.
+            otherwise{
+                rt_pixel.pixel := checker_color_delayed ? red | green
+            }
         }
         .otherwise{
             rt_pixel.pixel := sky
+        }
+
         }
 
     }

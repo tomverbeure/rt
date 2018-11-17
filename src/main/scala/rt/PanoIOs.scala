@@ -32,6 +32,7 @@ case class Pixel() extends Bundle {
         this.g := U( (g * ((1 <<this.g.getWidth)-1)).toInt, this.g.getWidth bits)
         this.b := U( (b * ((1 <<this.b.getWidth)-1)).toInt, this.b.getWidth bits)
     }
+
 }
 
 case class PixelStream() extends Bundle {
