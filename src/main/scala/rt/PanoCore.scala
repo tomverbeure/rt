@@ -210,11 +210,16 @@ class PanoCore extends Component {
         val sphere_intersects   = Bool
         val sphere_reflect_ray  = Ray(rtConfig)
         val sphere_ray          = Ray(rtConfig)
+        val sphere_normal_vld   = Bool
+        val sphere_normal       = Vec3(rtConfig)
 
         val u_sphere_intersect = new SphereIntersect(rtConfig)
         u_sphere_intersect.io.op_vld    <> ray_normalized_vld
         u_sphere_intersect.io.sphere    <> sphere
         u_sphere_intersect.io.ray       <> ray_normalized
+
+        u_sphere_intersect.io.early_normal_vld <> sphere_normal_vld
+        u_sphere_intersect.io.early_normal     <> sphere_normal
 
         u_sphere_intersect.io.result_vld            <> sphere_result_vld
         u_sphere_intersect.io.result_intersects     <> sphere_intersects
@@ -325,11 +330,48 @@ class PanoCore extends Component {
         u_shadow_sphere_intersect.io.early_intersects     <> shadow_sphere_intersects
 
         //============================================================
+        // sphere light spot
+        //============================================================
+
+        val spot_light_vld  = Bool
+        val spot_light      = Fpxx(rtConfig.fpxxConfig)
+
+        val u_dot_spot_light = new DotProduct(rtConfig)
+        u_dot_spot_light.io.op_vld <> sphere_normal_vld
+        u_dot_spot_light.io.op_a   <> sphere_normal
+        u_dot_spot_light.io.op_b   <> shadow_ray_direction
+
+        u_dot_spot_light.io.result_vld <> spot_light_vld
+        u_dot_spot_light.io.result     <> spot_light
+
+        val spot_light_int_full_vld = Bool
+        val spot_light_int_full     = SInt(20 bits)
+
+        val u_spot_light_int = new Fpxx2SInt(8, 12, rtConfig.fpxxConfig)
+        u_spot_light_int.io.op_vld     <> spot_light_vld
+        u_spot_light_int.io.op         <> spot_light.abs()
+
+        u_spot_light_int.io.result_vld <> spot_light_int_full_vld
+        u_spot_light_int.io.result     <> spot_light_int_full
+
+        val spot_light_int_vld = spot_light_int_full_vld
+        val spot_light_int     = !spot_light.sign ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
+
+        val spot_light_e2_vld  = RegNext(spot_light_int_vld)
+        val spot_light_e2      = RegNext(spot_light_int * spot_light_int >> 8)
+
+        val spot_light_e4_vld  = RegNext(spot_light_e2_vld)
+        val spot_light_e4      = RegNext(spot_light_e2 * spot_light_e2 >> 8)
+
+        val spot_light_e8_vld  = RegNext(spot_light_e4_vld)
+        val spot_light_e8      = RegNext(spot_light_e4 * spot_light_e4 >> 8)
+
+        //============================================================
         // Final color
         //============================================================
 
         // Need 4 parameters to define final color:
-        // plane_intersects_final, checker_color, shadow_sphere_intersects, sphere_intersects, and cam_sweep_pixel
+        // plane_intersects_final, checker_color, shadow_sphere_intersects, sphere_intersects, spot_light, and cam_sweep_pixel
 
         val (plane_intersects_final_vld_delayed, plane_intersects_final_delayed, shadow_sphere_intersects_delayed_0) = MatchLatency(
                                                                 plane_intersect_vld,
@@ -346,7 +388,19 @@ class PanoCore extends Component {
                                                                 sphere_result_vld,                   sphere_intersects,
                                                                 plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
-        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_intersects_final_delayed_0) = MatchLatency(
+//        val (spot_light_e8_delayed_vld, spot_light_e8_delayed, plane_intersects_final_delayed_0) = MatchLatency(
+//                                                                ray_normalized_vld,
+//                                                                spot_light_e8_vld,                   spot_light_e8_vld,
+//                                                                plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
+
+        val (spot_light_e8_delayed_vld, spot_light_e8_delayed) = MatchLatency(
+                                                                ray_normalized_vld,
+                                                                spot_light_e8_vld, spot_light_e8,
+                                                                plane_intersects_final_vld_delayed)
+
+
+
+        val (cam_sweep_pixel_delayed_vld, cam_sweep_pixel_delayed, plane_intersects_final_delayed_1) = MatchLatency(
                                                                 cam_sweep_pixel.req,
                                                                 cam_sweep_pixel.req, cam_sweep_pixel,
                                                                 plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
@@ -413,30 +467,65 @@ class PanoCore extends Component {
         val rt_pixel = PixelStream()
         rt_pixel := cam_sweep_pixel_delayed
 
+
         when(plane_intersects_final_vld_delayed || sphere_result_delayed_vld || cam_sweep_pixel_delayed_vld || checker_color_delayed_vld) {
 
+        val color = Pixel()
+
         when(sphere_intersects_delayed && !plane_intersects_final_delayed){
-            rt_pixel.pixel := yellow_sky
+            color := yellow_sky
         }
         .elsewhen(sphere_intersects_delayed && plane_intersects_final_delayed){
             when(shadow_sphere_intersects){
-                rt_pixel.pixel := checker_color_delayed ? yellow_shadow_red | yellow_shadow_green
+                color := checker_color_delayed ? yellow_shadow_red | yellow_shadow_green
             }.
             otherwise{
-                rt_pixel.pixel := checker_color_delayed ? yellow_red | yellow_green
+                color := checker_color_delayed ? yellow_red | yellow_green
             }
+        }
+
+
+        when(sphere_intersects_delayed){
+
+            val sphere_color = Pixel()
+
+            when(!plane_intersects_final_delayed){
+                sphere_color := yellow_sky
+            }
+            .otherwise{
+                when(shadow_sphere_intersects){
+                    sphere_color := checker_color_delayed ? yellow_shadow_red | yellow_shadow_green
+                }
+                .otherwise{
+                    sphere_color := checker_color_delayed ? yellow_red | yellow_green
+                }
+            }
+
+            val r = UInt(9 bits)
+            val g = UInt(9 bits)
+            val b = UInt(9 bits)
+
+            r := sphere_color.r.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
+            g := sphere_color.g.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
+            b := sphere_color.b.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
+
+            color.r := r.msb ? U(255, 8 bits) | r.resize(8)
+            color.g := g.msb ? U(255, 8 bits) | g.resize(8)
+            color.b := b.msb ? U(255, 8 bits) | b.resize(8)
         }
         .elsewhen(plane_intersects_final_delayed){
             when(shadow_sphere_intersects){
-                rt_pixel.pixel := checker_color_delayed ? shadow_red | shadow_green
+                color := checker_color_delayed ? shadow_red | shadow_green
             }.
             otherwise{
-                rt_pixel.pixel := checker_color_delayed ? red | green
+                color := checker_color_delayed ? red | green
             }
         }
         .otherwise{
-            rt_pixel.pixel := sky
+            color:= sky
         }
+
+        rt_pixel.pixel := color
 
         }
 

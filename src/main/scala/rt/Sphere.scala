@@ -24,6 +24,9 @@ class SphereIntersect(c: RTConfig) extends Component {
         val early_intersects_vld = out(Bool)
         val early_intersects     = out(Bool)
 
+        val early_normal_vld     = out(Bool)
+        val early_normal         = out(Vec3(c))
+
         val result_vld          = out(Bool)
         val result_intersects   = out(Bool)
         val result_t            = out(Fpxx(c.fpxxConfig))
@@ -262,6 +265,9 @@ class SphereIntersect(c: RTConfig) extends Component {
 
     u_normalize.io.result_vld  <> normal_vld
     u_normalize.io.result      <> normal
+
+    io.early_normal_vld    := normal_vld
+    io.early_normal        := normal
 
     //============================================================
     // dir_dot_normal

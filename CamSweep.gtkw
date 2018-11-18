@@ -1,16 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sat Nov 17 19:57:39 2018
+[*] Sun Nov 18 04:49:21 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sat Nov 17 19:54:40 2018"
-[dumpfile_size] 6376336173
+[dumpfile_mtime] "Sun Nov 18 04:25:55 2018"
+[dumpfile_size] 6394796174
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 0
-[size] 2338 1166
-[pos] -1 -1
-*-20.338978 4192180 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[timestart] 353152
+[size] 2356 1192
+[pos] -392 45
+*-10.338978 357823 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -21,7 +21,7 @@
 [sst_width] 400
 [signals_width] 479
 [sst_expanded] 1
-[sst_vpaned_height] 772
+[sst_vpaned_height] 790
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -84,38 +84,38 @@ TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_mant[12:0]
 @200
 -
-@c00201
+@c00200
 -sphere_pos
-@29
+@28
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_first_time
-@201
+@200
 -
-@29
+@28
 TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_req
 TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_eof
-@201
+@200
 -
-@421
+@420
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time[7:0]
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_m90[7:0]
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q[15:0]
-@201
+@200
 -
-@29
+@28
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_vld
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_sign
-@25
+@24
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_mant[12:0]
-@201
+@200
 -
-@29
+@28
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_vld
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_sign
-@25
+@24
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_mant[12:0]
-@1401201
+@1401200
 -sphere_pos
 @c00200
 -ray_origin
@@ -578,6 +578,97 @@ TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.io_pixel_out_eol
 @28
 TOP.PanoCoreDut.u_pano_core.rt_sphere_intersects_delayed
 TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_intersects
+@200
+-
+-
+@c00201
+-spot_light
+@28
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_vld
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.p0_vld
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.sign_p0
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.op_p0_exp[5:0]
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.op_p0_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.ge0_p0
+@24
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.shift_p0[7:0]
+@22
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_full_p0[14:0]
+@c00022
+TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+@28
+(0)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(1)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(2)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(3)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(4)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(5)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(6)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(7)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(8)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(9)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(10)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(11)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(12)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(13)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+(14)TOP.PanoCoreDut.u_pano_core.rt_u_spot_light_int.mant_2c_p0[14:0]
+@1401200
+-group_end
+@200
+-
+@c00022
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+@28
+(0)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(1)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(2)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(3)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(4)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(5)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(6)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(7)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(8)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(9)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(10)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(11)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(12)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(13)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(14)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(15)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(16)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(17)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(18)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+(19)TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
+@1401200
+-group_end
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_vld
+@22
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_int[7:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_e2_vld
+@22
+TOP.PanoCoreDut.u_pano_core.rt_spot_light_e2[7:0]
+@200
+-
+@1401201
+-spot_light
 @200
 -
 @28
