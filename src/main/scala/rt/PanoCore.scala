@@ -355,7 +355,7 @@ class PanoCore extends Component {
         u_spot_light_int.io.result     <> spot_light_int_full
 
         val spot_light_int_vld = spot_light_int_full_vld
-        val spot_light_int     = !spot_light.sign ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
+        val spot_light_int     = !RegNext(spot_light.sign) ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
 
         val spot_light_e2_vld  = RegNext(spot_light_int_vld)
         val spot_light_e2      = RegNext(spot_light_int * spot_light_int >> 8)
