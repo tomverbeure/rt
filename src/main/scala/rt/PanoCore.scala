@@ -211,7 +211,7 @@ class PanoCore extends Component {
         {
             var light_dir_x = 1.0
             var light_dir_y = 2.0
-            var light_dir_z = -1.0
+            var light_dir_z = 0.5
 
             val length = scala.math.sqrt((light_dir_x * light_dir_x) + (light_dir_y * light_dir_y) + (light_dir_z * light_dir_z))
 
