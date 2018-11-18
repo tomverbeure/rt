@@ -571,9 +571,9 @@ color_t trace(ray_t ray, int iteration)
         scalar_t spot_light_e8 = mul_scalar_scalar(spot_light_e4, spot_light_e4);
 
         if (spot_light.fpxx.to_float() > 0){
-            c.r = c.r + spot_light_e4.fpxx.to_float()/2;
-            c.g = c.g + spot_light_e4.fpxx.to_float()/2;
-            c.b = c.b + spot_light_e4.fpxx.to_float()/2;
+            c.r = c.r + spot_light_e8.fpxx.to_float()/2;
+            c.g = c.g + spot_light_e8.fpxx.to_float()/2;
+            c.b = c.b + spot_light_e8.fpxx.to_float()/2;
         }
 
         if (c.r >= 1.0){ c.r = 1.0; }
