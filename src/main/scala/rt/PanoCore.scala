@@ -210,24 +210,16 @@ class PanoCore extends Component {
         val sphere_intersects   = Bool
         val sphere_reflect_ray  = Ray(rtConfig)
         val sphere_ray          = Ray(rtConfig)
-        val sphere_normal_vld   = Bool
-        val sphere_normal       = Vec3(rtConfig)
 
         val u_sphere_intersect = new SphereIntersect(rtConfig)
         u_sphere_intersect.io.op_vld    <> ray_normalized_vld
         u_sphere_intersect.io.sphere    <> sphere
         u_sphere_intersect.io.ray       <> ray_normalized
 
-        u_sphere_intersect.io.early_normal_vld <> sphere_normal_vld
-        u_sphere_intersect.io.early_normal     <> sphere_normal
-
         u_sphere_intersect.io.result_vld            <> sphere_result_vld
         u_sphere_intersect.io.result_intersects     <> sphere_intersects
         u_sphere_intersect.io.result_reflect_ray    <> sphere_reflect_ray
         u_sphere_intersect.io.result_ray            <> sphere_ray
-        // u_sphere_intersect.io.result_t
-        // u_sphere_intersect.io.result_intersection
-        // u_sphere_intersect.io.result_normal
 
         //============================================================
         // plane intersect
@@ -337,8 +329,8 @@ class PanoCore extends Component {
         val spot_light      = Fpxx(rtConfig.fpxxConfig)
 
         val u_dot_spot_light = new DotProduct(rtConfig)
-        u_dot_spot_light.io.op_vld <> sphere_normal_vld
-        u_dot_spot_light.io.op_a   <> sphere_normal
+        u_dot_spot_light.io.op_vld <> sphere_result_vld
+        u_dot_spot_light.io.op_a   <> sphere_reflect_ray.direction
         u_dot_spot_light.io.op_b   <> shadow_ray_direction
 
         u_dot_spot_light.io.result_vld <> spot_light_vld
@@ -349,13 +341,13 @@ class PanoCore extends Component {
 
         val u_spot_light_int = new Fpxx2SInt(8, 12, rtConfig.fpxxConfig)
         u_spot_light_int.io.op_vld     <> spot_light_vld
-        u_spot_light_int.io.op         <> spot_light.abs()
+        u_spot_light_int.io.op         <> spot_light
 
         u_spot_light_int.io.result_vld <> spot_light_int_full_vld
         u_spot_light_int.io.result     <> spot_light_int_full
 
         val spot_light_int_vld = spot_light_int_full_vld
-        val spot_light_int     = !RegNext(spot_light.sign) ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
+        val spot_light_int     = RegNext(spot_light.sign) ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
 
         val spot_light_e2_vld  = RegNext(spot_light_int_vld)
         val spot_light_e2      = RegNext(spot_light_int * spot_light_int >> 8)
