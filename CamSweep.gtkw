@@ -1,27 +1,27 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sun Nov 18 04:49:21 2018
+[*] Sun Nov 18 06:17:20 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sun Nov 18 04:25:55 2018"
-[dumpfile_size] 6394796174
+[dumpfile_mtime] "Sun Nov 18 06:13:48 2018"
+[dumpfile_size] 6390988556
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 353152
+[timestart] 430563
 [size] 2356 1192
-[pos] -392 45
-*-10.338978 357823 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -134 112
+*-5.338978 430669 430710 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.
-[treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.
+[treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_dot_spot_light.
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.
 [sst_width] 400
 [signals_width] 479
 [sst_expanded] 1
-[sst_vpaned_height] 790
+[sst_vpaned_height] 659
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -581,8 +581,36 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_intersects
 @200
 -
 -
-@c00201
+@800200
 -spot_light
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_sphere_result_vld
+TOP.PanoCoreDut.u_pano_core.rt_sphere_intersects
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_x_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_x_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_x_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_y_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_z_sign
+@24
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_z_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.rt_sphere_reflect_ray_direction_z_mant[12:0]
+@200
+-
 @28
 TOP.PanoCoreDut.u_pano_core.rt_spot_light_vld
 TOP.PanoCoreDut.u_pano_core.rt_spot_light_sign
@@ -657,17 +685,7 @@ TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_full[19:0]
 -
 @28
 TOP.PanoCoreDut.u_pano_core.rt_spot_light_int_vld
-@22
-TOP.PanoCoreDut.u_pano_core.rt_spot_light_int[7:0]
-@200
--
-@28
-TOP.PanoCoreDut.u_pano_core.rt_spot_light_e2_vld
-@22
-TOP.PanoCoreDut.u_pano_core.rt_spot_light_e2[7:0]
-@200
--
-@1401201
+@1000200
 -spot_light
 @200
 -

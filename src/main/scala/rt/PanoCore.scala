@@ -347,16 +347,19 @@ class PanoCore extends Component {
         u_spot_light_int.io.result     <> spot_light_int_full
 
         val spot_light_int_vld = spot_light_int_full_vld
-        val spot_light_int     = RegNext(spot_light.sign) ? U(0, 8 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 8 bits).asUInt
+        val spot_light_int     = RegNext(spot_light.sign) ? U(0, 9 bits) | spot_light_int_full(spot_light_int_full.getWidth-8-8, 9 bits).asUInt
 
         val spot_light_e2_vld  = RegNext(spot_light_int_vld)
-        val spot_light_e2      = RegNext(spot_light_int * spot_light_int >> 8)
+        val spot_light_e2      = RegNext((spot_light_int * spot_light_int >> 8).resize(9))
 
         val spot_light_e4_vld  = RegNext(spot_light_e2_vld)
-        val spot_light_e4      = RegNext(spot_light_e2 * spot_light_e2 >> 8)
+        val spot_light_e4      = RegNext((spot_light_e2 * spot_light_e2 >> 8).resize(9))
 
         val spot_light_e8_vld  = RegNext(spot_light_e4_vld)
-        val spot_light_e8      = RegNext(spot_light_e4 * spot_light_e4 >> 8)
+        val spot_light_e8      = RegNext((spot_light_e4 * spot_light_e4 >> 8).resize(9))
+
+        val spot_light_final_vld = spot_light_e8_vld
+        val spot_light_final     = spot_light_e8.msb ? U(255, 8 bits) | spot_light_e8.resize(8)
 
         //============================================================
         // Final color
@@ -380,14 +383,14 @@ class PanoCore extends Component {
                                                                 sphere_result_vld,                   sphere_intersects,
                                                                 plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
-//        val (spot_light_e8_delayed_vld, spot_light_e8_delayed, plane_intersects_final_delayed_0) = MatchLatency(
+//        val (spot_light_final_delayed_vld, spot_light_final_delayed, plane_intersects_final_delayed_0) = MatchLatency(
 //                                                                ray_normalized_vld,
-//                                                                spot_light_e8_vld,                   spot_light_e8_vld,
+//                                                                spot_light_final_vld,                   spot_light_final_vld,
 //                                                                plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
-        val (spot_light_e8_delayed_vld, spot_light_e8_delayed) = MatchLatency(
+        val (spot_light_final_delayed_vld, spot_light_final_delayed) = MatchLatency(
                                                                 ray_normalized_vld,
-                                                                spot_light_e8_vld, spot_light_e8,
+                                                                spot_light_final_vld, spot_light_final,
                                                                 plane_intersects_final_vld_delayed)
 
 
@@ -497,9 +500,9 @@ class PanoCore extends Component {
             val g = UInt(9 bits)
             val b = UInt(9 bits)
 
-            r := sphere_color.r.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
-            g := sphere_color.g.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
-            b := sphere_color.b.resize(9) + (spot_light_e8_delayed >> 1).resize(9)
+            r := sphere_color.r.resize(9) + (spot_light_final_delayed >> 1).resize(9)
+            g := sphere_color.g.resize(9) + (spot_light_final_delayed >> 1).resize(9)
+            b := sphere_color.b.resize(9) + (spot_light_final_delayed >> 1).resize(9)
 
             color.r := r.msb ? U(255, 8 bits) | r.resize(8)
             color.g := g.msb ? U(255, 8 bits) | g.resize(8)
