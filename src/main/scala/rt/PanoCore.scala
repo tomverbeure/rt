@@ -78,6 +78,11 @@ class PanoCore extends Component {
         plane.normal.z.fromDouble(0.0)
 
         val calc_sphere_pos = new Area {
+
+            //============================================================
+            // Sphere Y
+            //============================================================
+
             // Sphere center y location is a parabola from 3 -> 10 -> 0 in 90 frames.
             // y = a*x*(x-90)+3 -> a = -7/(45*45) = -0.0034567901
             val cycle_time = 90.0
@@ -142,11 +147,59 @@ class PanoCore extends Component {
 
             u_sphere_y.io.result_vld <> sphere_y_vld
             u_sphere_y.io.result     <> sphere_y
+
+            //============================================================
+            // Sphere X
+            //============================================================
+
+            val sphere_x_vld = Reg(Bool) init(False)
+            val sphere_x     = Reg(Fpxx(rtConfig.fpxxConfig)) init
+
+            val sphere_x_nxt = Fpxx(rtConfig.fpxxConfig)
+            val dir_x        = Reg(Bool) init(False)
+
+            val x_incr  = Fpxx(rtConfig.fpxxConfig)
+            x_incr.fromDouble(24.0/60.0/4.0)            // Bounce in 4 seconds across the X axis of the plane.
+
+            val x_incr_final = Fpxx(rtConfig.fpxxConfig)
+            x_incr_final.sign := x_incr.sign ^ dir_x
+            x_incr_final.exp  := x_incr.exp
+            x_incr_final.mant := x_incr.mant
+
+            val u_sphere_x_nxt = new FpxxAdd(rtConfig.fpxxConfig, Constants.fpxxAddConfig)
+            u_sphere_x_nxt.io.op_vld     <> sphere_x_vld
+            u_sphere_x_nxt.io.op_a       <> sphere_x
+            u_sphere_x_nxt.io.op_b       <> x_incr_final
+
+            u_sphere_x_nxt.io.result     <> sphere_x_nxt
+
+            val x_boundary = Fpxx(rtConfig.fpxxConfig)
+            x_boundary.fromDouble(12.0)
+
+            when(first_time){
+                sphere_x_vld := True
+                sphere_x.fromDouble(3.0)
+            }
+            .elsewhen(vi_gen_pixel_out.req && vi_gen_pixel_out.eof){
+
+                when(sphere_x_nxt.abs().toVec().asSInt > x_boundary.toVec().asSInt){
+                    dir_x := !dir_x
+                }
+                .otherwise{
+                    sphere_x := sphere_x_nxt
+                }
+
+                sphere_x_vld := True
+            } 
+            .otherwise{
+                sphere_x_vld := False
+            }
+
         }
 
         val sphere = new Sphere(rtConfig)
 
-        sphere.center.x.fromDouble(3.0)
+        sphere.center.x := calc_sphere_pos.sphere_x
         sphere.center.y := calc_sphere_pos.sphere_y
         sphere.center.z.fromDouble(10.0)
 
