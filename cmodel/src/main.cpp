@@ -665,6 +665,24 @@ scalar_t calc_sin(int angle_int)
     return result;
 }
 
+vec_t rotate_x(vec_t input, int angle_int)
+{
+    double sin_f = sin(angle_int/1024.0 * 2 * M_PI);
+    double cos_f = cos(angle_int/1024.0 * 2 * M_PI);
+
+    scalar_t sin_s = calc_sin(angle_int);
+    scalar_t cos_s = calc_sin((angle_int+256) & 0x3ff);
+
+    vec_t result;
+
+    result.s[0] =  input.s[0];
+    result.s[1] =  sub_scalar_scalar(mul_scalar_scalar(cos_s, input.s[1]), mul_scalar_scalar(sin_s, input.s[2]));
+    result.s[2] =  add_scalar_scalar(mul_scalar_scalar(sin_s, input.s[1]), mul_scalar_scalar(cos_s, input.s[2]));
+
+    return result;
+}
+
+
 vec_t rotate_y(vec_t input, int angle_int)
 {
     double sin_f = sin(angle_int/1024.0 * 2 * M_PI);
@@ -717,7 +735,8 @@ int main(int argc, char **argv)
     float stepY = 1.0/height;
 
     float xLeft = -width/2 * stepX;
-    float yTop  = height/2 * stepY - 0.4;   // -0.4: look down
+//    float yTop  = height/2 * stepY - 0.4;   // -0.4: look down
+    float yTop  = height/2 * stepY;
 
     float dirX, dirY;
     dirY = yTop;
@@ -760,7 +779,8 @@ int main(int argc, char **argv)
             print_vec(ray.direction);
             ray.direction = normalize_vec(ray.direction);
 
-            ray.direction = rotate_y(ray.direction, (int)(30/360.0*1024)&0x3ff);
+            ray.direction = rotate_x(ray.direction, (int)(20/360.0*1024)&0x3ff);
+            ray.direction = rotate_y(ray.direction, (int)(10/360.0*1024)&0x3ff);
 
             c = trace(ray, 0);
 
