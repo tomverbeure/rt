@@ -245,6 +245,29 @@ class PanoCore extends Component {
         }
 
         //============================================================
+        // Rotate ray into place
+        //============================================================
+
+        val rot_x_sin   = Fpxx(rtConfig.fpxxConfig)
+        val rot_x_cos   = Fpxx(rtConfig.fpxxConfig)
+
+        // 20 degrees
+        rot_x_sin.fromDouble(0.33688985339222005)
+        rot_x_cos.fromDouble(0.94154406518302081)
+
+        val ray_dir_rot_x_vld   = Bool
+        val ray_dir_rot_x       = Vec3(rtConfig)
+
+        val u_ray_dir_rot_x = new RotateX(rtConfig, Constants.rotateHwMulConfig)
+        u_ray_dir_rot_x.io.op_vld       <> cam_sweep_pixel.req
+        u_ray_dir_rot_x.io.op           <> ray.direction
+        u_ray_dir_rot_x.io.sin          <> rot_x_sin
+        u_ray_dir_rot_x.io.cos          <> rot_x_cos
+
+        u_ray_dir_rot_x.io.result_vld   <> ray_dir_rot_x_vld
+        u_ray_dir_rot_x.io.result       <> ray_dir_rot_x
+
+        //============================================================
         // ray_normalized
         //============================================================
 
@@ -254,8 +277,8 @@ class PanoCore extends Component {
         ray_normalized.origin := ray.origin
 
         val u_normalize_ray = new Normalize(rtConfig)
-        u_normalize_ray.io.op_vld      <> cam_sweep_pixel.req
-        u_normalize_ray.io.op          <> ray.direction
+        u_normalize_ray.io.op_vld      <> ray_dir_rot_x_vld
+        u_normalize_ray.io.op          <> ray_dir_rot_x
 
         u_normalize_ray.io.result_vld  <> ray_normalized_vld
         u_normalize_ray.io.result      <> ray_normalized.direction

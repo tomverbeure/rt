@@ -308,3 +308,105 @@ class Intersection(c: RTConfig) extends Component {
 
 }
 
+case class RotateConfig(
+    hwMul           : Boolean = false
+    ){
+}
+
+class RotateX(c: RTConfig, rotateConfig: RotateConfig = null) extends Component {
+
+    def hwMul = if (rotateConfig == null) false else rotateConfig.hwMul
+
+    val io = new Bundle {
+        val op_vld      = in(Bool)
+        val op          = in(Vec3(c))
+        val sin         = in(Fpxx(c.fpxxConfig))
+        val cos         = in(Fpxx(c.fpxxConfig))
+
+        val result_vld  = out(Bool)
+        val result      = out(Vec3(c))
+    }
+
+    // (cos, sin) x (y, z)
+
+    val cy_vld          = Bool
+    val cy              = Fpxx(c.fpxxConfig)
+
+    val sy_vld          = Bool
+    val sy              = Fpxx(c.fpxxConfig)
+
+    val cz_vld          = Bool
+    val cz              = Fpxx(c.fpxxConfig)
+
+    val sz_vld          = Bool
+    val sz              = Fpxx(c.fpxxConfig)
+
+    val u_cy = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
+    u_cy.io.op_vld      <> io.op_vld
+    u_cy.io.op_a        <> io.op.y
+    u_cy.io.op_b        <> io.cos
+
+    u_cy.io.result_vld  <> cy_vld
+    u_cy.io.result      <> cy
+
+    val u_sy = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
+    u_sy.io.op_vld      <> io.op_vld
+    u_sy.io.op_a        <> io.op.y
+    u_sy.io.op_b        <> io.sin
+
+    u_sy.io.result_vld  <> sy_vld
+    u_sy.io.result      <> sy
+
+
+    val u_cz = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
+    u_cz.io.op_vld      <> io.op_vld
+    u_cz.io.op_a        <> io.op.z
+    u_cz.io.op_b        <> io.cos
+
+    u_cz.io.result_vld  <> cz_vld
+    u_cz.io.result      <> cz
+
+    val u_sz = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
+    u_sz.io.op_vld      <> io.op_vld
+    u_sz.io.op_a        <> io.op.z
+    u_sz.io.op_b        <> io.sin
+
+    u_sz.io.result_vld  <> sz_vld
+    u_sz.io.result      <> sz
+
+    // Calc y, z
+
+    val cy_sz_vld   = Bool
+    val sy_cz_vld   = Bool
+
+    val cy_sz       = Fpxx(c.fpxxConfig)
+    val sy_cz       = Fpxx(c.fpxxConfig)
+
+    val u_cy_sz = new FpxxSub(c.fpxxConfig, Constants.fpxxAddConfig)
+    u_cy_sz.io.op_vld       <> cy_vld
+    u_cy_sz.io.op_a         <> cy
+    u_cy_sz.io.op_b         <> sz
+
+    u_cy_sz.io.result_vld   <> cy_sz_vld
+    u_cy_sz.io.result       <> cy_sz
+
+    val u_sy_cz = new FpxxAdd(c.fpxxConfig, Constants.fpxxAddConfig)
+    u_sy_cz.io.op_vld       <> sy_vld
+    u_sy_cz.io.op_a         <> sy
+    u_sy_cz.io.op_b         <> cz
+
+    u_sy_cz.io.result_vld   <> sy_cz_vld
+    u_sy_cz.io.result       <> sy_cz
+
+    val (x_delayed_vld, x_delayed, cy_delayed) = MatchLatency(
+                                                            io.op_vld,
+                                                            io.op_vld, io.op.x,
+                                                            cy_vld,    cy)
+
+
+    io.result_vld   <> x_delayed_vld
+    io.result.x     <> x_delayed
+    io.result.y     <> cy_sz
+    io.result.z     <> sy_cz
+}
+
