@@ -245,7 +245,7 @@ class PanoCore extends Component {
         }
 
         //============================================================
-        // Rotate ray into place
+        // Tilt camera up or down
         //============================================================
 
         val rot_x_sin   = Fpxx(rtConfig.fpxxConfig)
@@ -268,6 +268,30 @@ class PanoCore extends Component {
         u_ray_dir_rot_x.io.result       <> ray_dir_rot_x
 
         //============================================================
+        // Pan camera left or right
+        //============================================================
+
+        val rot_y_sin   = Fpxx(rtConfig.fpxxConfig)
+        val rot_y_cos   = Fpxx(rtConfig.fpxxConfig)
+
+        // 10 degrees
+        rot_y_sin.fromDouble(0.17096188876030122)
+        rot_y_cos.fromDouble(0.98527764238894122)
+
+        val ray_dir_rot_y_vld   = Bool
+        val ray_dir_rot_y       = Vec3(rtConfig)
+
+        val u_ray_dir_rot_y = new RotateY(rtConfig, Constants.rotateHwMulConfig)
+        u_ray_dir_rot_y.io.op_vld       <> ray_dir_rot_x_vld
+        u_ray_dir_rot_y.io.op           <> ray_dir_rot_x
+        u_ray_dir_rot_y.io.sin          <> rot_y_sin
+        u_ray_dir_rot_y.io.cos          <> rot_y_cos
+
+        u_ray_dir_rot_y.io.result_vld   <> ray_dir_rot_y_vld
+        u_ray_dir_rot_y.io.result       <> ray_dir_rot_y
+
+
+        //============================================================
         // ray_normalized
         //============================================================
 
@@ -277,8 +301,8 @@ class PanoCore extends Component {
         ray_normalized.origin := ray.origin
 
         val u_normalize_ray = new Normalize(rtConfig)
-        u_normalize_ray.io.op_vld      <> ray_dir_rot_x_vld
-        u_normalize_ray.io.op          <> ray_dir_rot_x
+        u_normalize_ray.io.op_vld      <> ray_dir_rot_y_vld
+        u_normalize_ray.io.op          <> ray_dir_rot_y
 
         u_normalize_ray.io.result_vld  <> ray_normalized_vld
         u_normalize_ray.io.result      <> ray_normalized.direction
