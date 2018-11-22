@@ -5,7 +5,9 @@ import spinal.core._
 import spinal.lib.Counter
 import spinal.lib.CounterFreeRun
 import spinal.lib.GrayCounter
+
 import math._
+import mr1._
 
 
 class PanoCore extends Component {
@@ -30,6 +32,11 @@ class PanoCore extends Component {
 
         io.led_green    := led_cntr.msb
     }
+
+    val mr1Config = MR1Config()
+    val u_mr1_top = new MR1Top(mr1Config)
+    u_mr1_top.io.led1       <> io.led_blue
+    u_mr1_top.io.switch_    <> True
 
     val timings = VideoTimings()
     timings.h_active        := 640
@@ -635,8 +642,6 @@ class PanoCore extends Component {
     vo.io.timings := timings
     vo.io.pixel_in <> rt.rt_pixel
     vo.io.vga_out <> io.vo
-
-    io.led_blue := True
 }
 
 

@@ -7,10 +7,11 @@ lazy val root = (project in file(".")).
       version      := "0.1.0-SNAPSHOT"
     )),
     name := "rt"
-  ).dependsOn(vexRiscv,math)
+  ).dependsOn(math)
 lazy val vexRiscv = RootProject(uri("git://github.com/SpinalHDL/VexRiscv.git"))
 //lazy val math = RootProject(uri("git://github.com/tomverbeure/math.git"))
-lazy val math = RootProject(file("/home/ubuntu/projects/math"))
+//lazy val math = RootProject(file("/home/ubuntu/projects/math"))
+lazy val math = RootProject(file("/home/tom/projects/math"))
 
 //If you want a specific git commit : 
 //lazy val vexRiscv = RootProject(uri("git://github.com/SpinalHDL/VexRiscv.git#commitHash"))
