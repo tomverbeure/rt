@@ -26,7 +26,15 @@ case class Vec3(c: RTConfig) extends Bundle {
     }
 }
 
-class DotProduct(c: RTConfig) extends Component {
+case class DotProductConfig(
+    hwMul           : Boolean = false
+    ){
+}
+
+
+class DotProduct(c: RTConfig, dotConfig : DotProductConfig = null) extends Component {
+
+    def hwMul = if (dotConfig == null) false else dotConfig.hwMul
 
     val io = new Bundle {
         val op_vld      = in(Bool)
@@ -45,7 +53,7 @@ class DotProduct(c: RTConfig) extends Component {
     val yy  = Fpxx(c.fpxxConfig)
     val zz  = Fpxx(c.fpxxConfig)
 
-    val u_xx = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
+    val u_xx = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
     u_xx.io.op_vld := io.op_vld
     u_xx.io.op_a   := io.op_a.x
     u_xx.io.op_b   := io.op_b.x
@@ -53,7 +61,7 @@ class DotProduct(c: RTConfig) extends Component {
     xx_vld := u_xx.io.result_vld
     xx := u_xx.io.result
 
-    val u_yy = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
+    val u_yy = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
     u_yy.io.op_vld := io.op_vld
     u_yy.io.op_a   := io.op_a.y
     u_yy.io.op_b   := io.op_b.y
@@ -61,7 +69,7 @@ class DotProduct(c: RTConfig) extends Component {
     yy_vld := u_yy.io.result_vld
     yy := u_yy.io.result
 
-    val u_zz = new FpxxMul(c.fpxxConfig, Constants.fpxxMulConfig)
+    val u_zz = new FpxxMul(c.fpxxConfig, if (hwMul) Constants.fpxxHwMulConfig else Constants.fpxxMulConfig)
     u_zz.io.op_vld := io.op_vld
     u_zz.io.op_a   := io.op_a.z
     u_zz.io.op_b   := io.op_b.z

@@ -239,6 +239,11 @@ class PanoCore extends Component {
             ray.direction.z.fromDouble(1.0)
         }
 
+        when(True){
+            ray.origin.x := RegNext(sphere.center.x)
+            ray.origin.y := RegNext(sphere.center.y)
+        }
+
         //============================================================
         // ray_normalized
         //============================================================
@@ -381,7 +386,7 @@ class PanoCore extends Component {
         val spot_light_vld  = Bool
         val spot_light      = Fpxx(rtConfig.fpxxConfig)
 
-        val u_dot_spot_light = new DotProduct(rtConfig)
+        val u_dot_spot_light = new DotProduct(rtConfig, Constants.dotHwMulConfig)
         u_dot_spot_light.io.op_vld <> sphere_result_vld
         u_dot_spot_light.io.op_a   <> sphere_reflect_ray.direction
         u_dot_spot_light.io.op_b   <> shadow_ray_direction

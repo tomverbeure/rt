@@ -111,7 +111,7 @@ class PlaneIntersect(c: RTConfig) extends Component {
     val t_vld = Bool
     val t = Fpxx(c.fpxxConfig)
 
-    val u_div_p0r0_dot_norm_denom = new FpxxDiv(c.fpxxConfig, FpxxDivConfig(pipeStages = 5))
+    val u_div_p0r0_dot_norm_denom = new FpxxDiv(c.fpxxConfig, Constants.fpxxDivConfig)
     u_div_p0r0_dot_norm_denom.io.op_vld     <> denom_delayed_vld
     u_div_p0r0_dot_norm_denom.io.op_a       <> p0r0_dot_norm_delayed
     u_div_p0r0_dot_norm_denom.io.op_b       <> denom_delayed

@@ -61,7 +61,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val tca_vld = Bool
     val tca     = Fpxx(c.fpxxConfig)
 
-    val u_dot_tca = new DotProduct(c)
+    val u_dot_tca = new DotProduct(c, Constants.dotHwMulConfig)
     u_dot_tca.io.op_vld     <> c0r0_vld
     u_dot_tca.io.op_a       <> c0r0
     u_dot_tca.io.op_b       <> dir_delayed_c0r0
@@ -79,7 +79,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val c0r0_c0r0_vld = Bool
     val c0r0_c0r0     = Fpxx(c.fpxxConfig)
 
-    val u_dot_c0r0_c0r0 = new DotProduct(c)
+    val u_dot_c0r0_c0r0 = new DotProduct(c, Constants.dotHwMulConfig)
     u_dot_c0r0_c0r0.io.op_vld     <> c0r0_vld
     u_dot_c0r0_c0r0.io.op_a       <> c0r0
     u_dot_c0r0_c0r0.io.op_b       <> c0r0
@@ -281,7 +281,7 @@ class SphereIntersect(c: RTConfig) extends Component {
     val dir_dot_normal_vld = Bool
     val dir_dot_normal     = Fpxx(c.fpxxConfig)
 
-    val u_dir_dot_normal = new DotProduct(c)
+    val u_dir_dot_normal = new DotProduct(c, Constants.dotHwMulConfig)
     u_dir_dot_normal.io.op_vld     <> normal_vld
     u_dir_dot_normal.io.op_a       <> normal
     u_dir_dot_normal.io.op_b       <> dir_delayed_dot_normal
