@@ -777,10 +777,11 @@ int main(int argc, char **argv)
             reset_counters();
 
             print_vec(ray.direction);
-            ray.direction = normalize_vec(ray.direction);
 
             ray.direction = rotate_x(ray.direction, (int)(20/360.0*1024)&0x3ff);
             ray.direction = rotate_y(ray.direction, (int)(10/360.0*1024)&0x3ff);
+
+            ray.direction = normalize_vec(ray.direction);
 
             c = trace(ray, 0);
 
