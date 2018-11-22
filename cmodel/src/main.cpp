@@ -214,6 +214,13 @@ scalar_t add_scalar_scalar(scalar_t a, scalar_t b)
     return r;
 }
 
+scalar_t sub_scalar_scalar(scalar_t a, scalar_t b)
+{
+    scalar_t b_neg = negate_scalar(b);
+    scalar_t r;
+
+    return add_scalar_scalar(a, b_neg);
+}
 
 scalar_t subtract_scalar_scalar(scalar_t a, scalar_t b)
 {
@@ -608,7 +615,10 @@ color_t trace(ray_t ray, int iteration)
     bool light_intersects = sphere_intersect(sphere, reverse_light_ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray);
 
     //int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
-    int checker = ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4) ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4) ^ plane_intersection.s[0].fpxx.sign;
+    int checker =   ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4)
+                  ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4)
+                  ^ plane_intersection.s[0].fpxx.sign
+                  ^ plane_intersection.s[2].fpxx.sign;
 
     if ( checker){
         c.r = 1.0;
@@ -628,6 +638,48 @@ color_t trace(ray_t ray, int iteration)
     }
 
     return c;
+}
+
+// Angle is a number [0, 1024[ that represents a rotation from [0, 360] degrees.
+scalar_t calc_sin(int angle_int)
+{
+    // Get sin from [0,90] degrees.
+    int quadrant = (angle_int >> 8);
+    int angle90 = angle_int & 0xff;
+
+    // Quadrant 0: + and (      angle[7:0] & 0xff)
+    // Quadrant 1: - and (0x100-angle[7:0] & 0xff)
+    // Quadrant 2: - and (0x100-angle[7:0] & 0xff)
+    // Quadrant 3: + and (      angle[7:0] & 0xff)
+
+    angle90 = ((quadrant == 1 || quadrant == 3) ?  0x100-angle90 : angle90) & 0xff;
+    float sin90_fp32 = ((quadrant & 1) && angle90==0) ? 1.0 : sin((angle90) / 1024.0 * 2 * M_PI);
+    float sin_fp32 = (quadrant == 2 || quadrant == 3) ?  -sin90_fp32 : sin90_fp32;
+
+    scalar_t result;
+
+    result.fp32  = sin_fp32;
+    result.fpxx  = sin_fp32;
+    result.fixed = float2fixed(sin_fp32);
+
+    return result;
+}
+
+vec_t rotate_y(vec_t input, int angle_int)
+{
+    double sin_f = sin(angle_int/1024.0 * 2 * M_PI);
+    double cos_f = cos(angle_int/1024.0 * 2 * M_PI);
+
+    scalar_t sin_s = calc_sin(angle_int);
+    scalar_t cos_s = calc_sin((angle_int+256) & 0x3ff);
+
+    vec_t result;
+
+    result.s[0] =  add_scalar_scalar(mul_scalar_scalar(cos_s, input.s[0]), mul_scalar_scalar(sin_s, input.s[2]));
+    result.s[1] =  input.s[1];
+    result.s[2] =  sub_scalar_scalar(mul_scalar_scalar(cos_s, input.s[2]), mul_scalar_scalar(sin_s, input.s[0]));
+
+    return result;
 }
 
 int main(int argc, char **argv)
@@ -707,6 +759,8 @@ int main(int argc, char **argv)
 
             print_vec(ray.direction);
             ray.direction = normalize_vec(ray.direction);
+
+            ray.direction = rotate_y(ray.direction, (int)(30/360.0*1024)&0x3ff);
 
             c = trace(ray, 0);
 
