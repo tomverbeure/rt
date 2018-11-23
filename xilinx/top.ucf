@@ -1,10 +1,9 @@
 
-#INST "u_soc/memory/Mram_mem0" LOC="RAMB16_X0Y0";
-#INST "u_soc/memory/Mram_mem1" LOC="RAMB16_X0Y1";
-#INST "u_soc/memory/Mram_mem2" LOC="RAMB16_X0Y2";
-#INST "u_soc/memory/Mram_mem3" LOC="RAMB16_X0Y3";
 NET "osc_clk" TNM_NET = osc_clk;
 TIMESPEC TS_osc_clk = PERIOD "osc_clk" 10 ns HIGH 50%;
+
+NET "resetCtrl_clk251" TNM_NET = resetCtrl_clk251;
+TIMESPEC TS_resetCtrl_clk251 = PERIOD "resetCtrl_clk251" 40 ns HIGH 50%;
 
 #NET "u_cpu_pll/cntr_11" TNM_NET = u_cpu_pll/cntr_11;
 #TIMESPEC TS_clk = PERIOD "u_cpu_pll/cntr_11" TS_osc_clk * 4 HIGH 50%;
@@ -14,6 +13,11 @@ TIMESPEC TS_osc_clk = PERIOD "osc_clk" 10 ns HIGH 50%;
 #
 # 100MHZ Oscillator
 NET "osc_clk" LOC = U10 |IOSTANDARD = LVCMOS33;
+
+INST "core_u_pano_core/u_mr1_top/Mram_ram_cpu_ram_symbol0" LOC = RAMB16_X0Y17;
+INST "core_u_pano_core/u_mr1_top/Mram_ram_cpu_ram_symbol1" LOC = RAMB16_X0Y16;
+INST "core_u_pano_core/u_mr1_top/Mram_ram_cpu_ram_symbol2" LOC = RAMB16_X0Y15;
+INST "core_u_pano_core/u_mr1_top/Mram_ram_cpu_ram_symbol3" LOC = RAMB16_X0Y14;
 
 #============================================================
 # IDT ICS307 Clock Generator
@@ -211,6 +215,4 @@ NET "vo_b[0]" LOC = A6  |IOSTANDARD = LVCMOS33;    # B2
 #NET "b2b_a[18]"  LOC = E5  | IOSTANDARD = LVCMOS33;          # B2B A[18]
 #NET "b2b_aa[8]"  LOC = R7  | IOSTANDARD = LVCMOS33;          # B2B A'[8]
 #NET "b2b_aa[16]" LOC = B7  | IOSTANDARD = LVCMOS33;          # B2B A'[16]
-#Created by Constraints Editor (xc3s1600e-fg320-5) - 2018/11/03
-NET "resetCtrl_clk251" TNM_NET = resetCtrl_clk251;
-TIMESPEC TS_resetCtrl_clk251 = PERIOD "resetCtrl_clk251" 40 ns HIGH 50%;
+
