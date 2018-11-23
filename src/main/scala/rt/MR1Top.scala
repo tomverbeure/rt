@@ -1,6 +1,8 @@
 
 package mr1
 
+import java.nio.file.{Files, Paths}
+
 import spinal.core._
 
 class MR1Top(config: MR1Config) extends Component {
@@ -16,6 +18,7 @@ class MR1Top(config: MR1Config) extends Component {
     val mr1 = new MR1(config)
 
     val wmask = mr1.io.data_req.size.mux(
+
                     B"00"   -> B"0001",
                     B"01"   -> B"0011",
                     default -> B"1111") |<< mr1.io.data_req.addr(1 downto 0)
@@ -26,8 +29,16 @@ class MR1Top(config: MR1Config) extends Component {
     mr1.io.data_req.ready := True
     mr1.io.data_rsp.valid := RegNext(mr1.io.data_req.valid && !mr1.io.data_req.wr) init(False)
 
-    if (true){
-        val cpu_ram = Mem(Bits(32 bits), 4096/4)
+    val ramSize = 8192
+
+    val ram = if (true) new Area{
+
+        val byteArray = Files.readAllBytes(Paths.get("sw/progmem8k.bin"))
+        val cpuRamContent = for(i <- 0 until ramSize/4) yield {
+                B( (byteArray(4*i).toLong & 0xff) + ((byteArray(4*i+1).toLong & 0xff)<<8) + ((byteArray(4*i+2).toLong & 0xff)<<16) + ((byteArray(4*i+3).toLong & 0xff)<<24), 32 bits)
+        }
+
+        val cpu_ram = Mem(Bits(32 bits), initialContent = cpuRamContent)
 
         mr1.io.instr_rsp.data := cpu_ram.readSync(
                 enable  = mr1.io.instr_req.valid,
@@ -42,7 +53,7 @@ class MR1Top(config: MR1Config) extends Component {
                 mask    = wmask
             )
     }
-    else {
+    else new Area{
         val cpu_ram = new cpu_ram()
 
         cpu_ram.io.address_a     := (mr1.io.instr_req.addr >> 2).resized
