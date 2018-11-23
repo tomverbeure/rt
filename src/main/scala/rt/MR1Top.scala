@@ -2,15 +2,26 @@
 package mr1
 
 import java.nio.file.{Files, Paths}
-
 import spinal.core._
 
-class MR1Top(config: MR1Config) extends Component {
+import rt._
+import math._
+
+class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
 
     val io = new Bundle {
         val led1    = out(Bool)
         val led2    = out(Bool)
         val led3    = out(Bool)
+
+        val camera_pos_x = out(Fpxx(rtConfig.fpxxConfig))
+        val camera_pos_y = out(Fpxx(rtConfig.fpxxConfig))
+        val camera_pos_z = out(Fpxx(rtConfig.fpxxConfig))
+
+        val rot_x_sin  = out(Fpxx(rtConfig.fpxxConfig))
+        val rot_x_cos  = out(Fpxx(rtConfig.fpxxConfig))
+        val rot_y_sin  = out(Fpxx(rtConfig.fpxxConfig))
+        val rot_y_cos  = out(Fpxx(rtConfig.fpxxConfig))
 
         val switch_ = in(Bool)
     }
@@ -69,13 +80,31 @@ class MR1Top(config: MR1Config) extends Component {
         mr1.io.data_rsp.data     := cpu_ram.io.q_b
     }
 
-    val update_leds = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"00080000")
+    val update_leds = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080000")
 
     io.led1 := RegNextWhen(mr1.io.data_req.data(0), update_leds) init(False)
     io.led2 := RegNextWhen(mr1.io.data_req.data(1), update_leds) init(False)
     io.led3 := RegNextWhen(mr1.io.data_req.data(2), update_leds) init(False)
 
-    val update_camera_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"00080000")
+    val update_camera_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080010")
+    val update_camera_pos_y = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080014")
+    val update_camera_pos_z = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080018")
+
+    io.camera_pos_x.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_x.toVec().getWidth bits), update_camera_pos_x))
+    io.camera_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_y.toVec().getWidth bits), update_camera_pos_y))
+    io.camera_pos_z.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_z.toVec().getWidth bits), update_camera_pos_z))
+    
+    val update_rot_x_sin = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080020")
+    val update_rot_x_cos = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080024")
+
+    io.rot_x_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_x_sin.toVec().getWidth bits), update_rot_x_sin))
+    io.rot_x_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_x_cos.toVec().getWidth bits), update_rot_x_cos))
+
+    val update_rot_y_sin = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080030")
+    val update_rot_y_cos = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080034")
+
+    io.rot_y_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_sin.toVec().getWidth bits), update_rot_y_sin))
+    io.rot_y_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_cos.toVec().getWidth bits), update_rot_y_cos))
 
 }
 

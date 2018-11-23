@@ -33,8 +33,10 @@ class PanoCore extends Component {
         io.led_green    := led_cntr.msb
     }
 
-    val mr1Config = MR1Config()
-    val u_mr1_top = new MR1Top(mr1Config)
+    val rtConfig = RTConfig()
+
+    val mr1Config = MR1Config(supportMul = true)
+    val u_mr1_top = new MR1Top(mr1Config, rtConfig)
     u_mr1_top.io.led1       <> io.led_blue
     u_mr1_top.io.switch_    <> True
 
@@ -60,7 +62,6 @@ class PanoCore extends Component {
     vi_gen.io.pixel_out     <> vi_gen_pixel_out
 
     val rt = new Area {
-        val rtConfig = RTConfig()
 
         val cam_sweep_pixel = PixelStream()
         val ray             = Ray(rtConfig)
@@ -247,8 +248,12 @@ class PanoCore extends Component {
         }
 
         when(True){
-            ray.origin.x := RegNext(sphere.center.x)
-            ray.origin.y := RegNext(sphere.center.y)
+            //ray.origin.x := RegNext(sphere.center.x)
+            //ray.origin.y := RegNext(sphere.center.y)
+
+            ray.origin.x := u_mr1_top.io.camera_pos_x
+            ray.origin.y := u_mr1_top.io.camera_pos_y
+            ray.origin.z := u_mr1_top.io.camera_pos_z
         }
 
         //============================================================
@@ -259,8 +264,14 @@ class PanoCore extends Component {
         val rot_x_cos   = Fpxx(rtConfig.fpxxConfig)
 
         // 20 degrees
-        rot_x_sin.fromDouble(0.33688985339222005)
-        rot_x_cos.fromDouble(0.94154406518302081)
+        if (false){
+            rot_x_sin.fromDouble(0.33688985339222005)
+            rot_x_cos.fromDouble(0.94154406518302081)
+        }
+        else{
+            rot_x_sin := u_mr1_top.io.rot_x_sin
+            rot_x_cos := u_mr1_top.io.rot_x_cos
+        }
 
         val ray_dir_rot_x_vld   = Bool
         val ray_dir_rot_x       = Vec3(rtConfig)
@@ -282,8 +293,14 @@ class PanoCore extends Component {
         val rot_y_cos   = Fpxx(rtConfig.fpxxConfig)
 
         // 10 degrees
-        rot_y_sin.fromDouble(0.17096188876030122)
-        rot_y_cos.fromDouble(0.98527764238894122)
+        if (false){
+            rot_y_sin.fromDouble(0.17096188876030122)
+            rot_y_cos.fromDouble(0.98527764238894122)
+        }
+        else{
+            rot_y_sin := u_mr1_top.io.rot_y_sin
+            rot_y_cos := u_mr1_top.io.rot_y_cos
+        }
 
         val ray_dir_rot_y_vld   = Bool
         val ray_dir_rot_y       = Vec3(rtConfig)
