@@ -1,4 +1,6 @@
 
+MEM_WORDS       = 2048
+
 TOOLS_PREFIX    = /opt/riscv32i/bin
 TARGET          = $(TOOLS_PREFIX)/riscv32-unknown-elf
 AS              = $(TARGET)-as
@@ -15,34 +17,34 @@ OBJDUMP         = $(TARGET)-objdump
 .PHONY: all clean syntax time stat flash
 
 #all: progmem.dis progmem.bin progmem0.coe progmem0.mif progmem0.hex progmem.mem
-all: progmem.dis progmem.bin progmem8k.bin progmem.mif 
+all: progmem.dis progmem.bin progmem8k.bin progmem.mem 
 
 progmem.dis: progmem.elf
 	$(OBJDUMP) -s -D $< > $@
 
 progmem0.hex: progmem.bin
-	../misc/create_mif.rb -f hex -d 1024 -w 8 -o 0 -i 4 $< > progmem0.hex
-	../misc/create_mif.rb -f hex -d 1024 -w 8 -o 1 -i 4 $< > progmem1.hex
-	../misc/create_mif.rb -f hex -d 1024 -w 8 -o 2 -i 4 $< > progmem2.hex
-	../misc/create_mif.rb -f hex -d 1024 -w 8 -o 3 -i 4 $< > progmem3.hex
+	../misc/create_mif.rb -f hex -d $(MEM_WORDS) -w 8 -o 0 -i 4 $< > progmem0.hex
+	../misc/create_mif.rb -f hex -d $(MEM_WORDS) -w 8 -o 1 -i 4 $< > progmem1.hex
+	../misc/create_mif.rb -f hex -d $(MEM_WORDS) -w 8 -o 2 -i 4 $< > progmem2.hex
+	../misc/create_mif.rb -f hex -d $(MEM_WORDS) -w 8 -o 3 -i 4 $< > progmem3.hex
 
 progmem0.coe: progmem.bin
-	../misc/create_mif.rb -f coe -d 1024 -w 8 -o 0 -i 4 $< > progmem0.coe
-	../misc/create_mif.rb -f coe -d 1024 -w 8 -o 1 -i 4 $< > progmem1.coe
-	../misc/create_mif.rb -f coe -d 1024 -w 8 -o 2 -i 4 $< > progmem2.coe
-	../misc/create_mif.rb -f coe -d 1024 -w 8 -o 3 -i 4 $< > progmem3.coe
+	../misc/create_mif.rb -f coe -d $(MEM_WORDS) -w 8 -o 0 -i 4 $< > progmem0.coe
+	../misc/create_mif.rb -f coe -d $(MEM_WORDS) -w 8 -o 1 -i 4 $< > progmem1.coe
+	../misc/create_mif.rb -f coe -d $(MEM_WORDS) -w 8 -o 2 -i 4 $< > progmem2.coe
+	../misc/create_mif.rb -f coe -d $(MEM_WORDS) -w 8 -o 3 -i 4 $< > progmem3.coe
 
 progmem0.mif: progmem.bin
-	../misc/create_mif.rb -f mif -d 1024 -w 8 -o 0 -i 4 $< > progmem0.mif
-	../misc/create_mif.rb -f mif -d 1024 -w 8 -o 1 -i 4 $< > progmem1.mif
-	../misc/create_mif.rb -f mif -d 1024 -w 8 -o 2 -i 4 $< > progmem2.mif
-	../misc/create_mif.rb -f mif -d 1024 -w 8 -o 3 -i 4 $< > progmem3.mif
+	../misc/create_mif.rb -f mif -d $(MEM_WORDS) -w 8 -o 0 -i 4 $< > progmem0.mif
+	../misc/create_mif.rb -f mif -d $(MEM_WORDS) -w 8 -o 1 -i 4 $< > progmem1.mif
+	../misc/create_mif.rb -f mif -d $(MEM_WORDS) -w 8 -o 2 -i 4 $< > progmem2.mif
+	../misc/create_mif.rb -f mif -d $(MEM_WORDS) -w 8 -o 3 -i 4 $< > progmem3.mif
 
 progmem.mif: progmem.bin
-	../misc/create_mif.rb -f mif -d 1024 -w 32 $< > progmem.mif
+	../misc/create_mif.rb -f mif -d $(MEM_WORDS) -w 32 $< > progmem.mif
 
 progmem.mem: progmem.bin
-	../misc/create_mif.rb -f mem -d 1024 -w 32 $< > progmem.mem
+	../misc/create_mif.rb -f mem -d $(MEM_WORDS) -w 32 $< > progmem.mem
 
 progmem.bin: progmem.elf
 	$(OBJCOPY) -O binary $< $@
