@@ -69,11 +69,13 @@ class MR1Top(config: MR1Config) extends Component {
         mr1.io.data_rsp.data     := cpu_ram.io.q_b
     }
 
-    val update_leds = mr1.io.data_req.valid && mr1.io.data_req.wr && mr1.io.data_req.addr(19)
+    val update_leds = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"00080000")
 
     io.led1 := RegNextWhen(mr1.io.data_req.data(0), update_leds) init(False)
     io.led2 := RegNextWhen(mr1.io.data_req.data(1), update_leds) init(False)
     io.led3 := RegNextWhen(mr1.io.data_req.data(2), update_leds) init(False)
+
+    val update_camera_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"00080000")
 
 }
 

@@ -48,15 +48,18 @@ object MatchLatency {
 }
 
 object Constants {
+
+    val hwMulGlobal = false
+
     def fpxxAddConfig   = FpxxAddConfig(pipeStages = 2)
     def fpxxMulConfig   = FpxxMulConfig(pipeStages = 5)
-    def fpxxHwMulConfig = FpxxMulConfig(pipeStages = 1, hwMul = true)
+    def fpxxHwMulConfig = FpxxMulConfig(pipeStages = 1, hwMul = hwMulGlobal)
     def fpxxDivConfig   = FpxxDivConfig(pipeStages = 5)
     def fpxxSqrtConfig  = FpxxSqrtConfig (pipeStages = 5, tableSizeBits = 12, lutMantBits = 12)
     def fpxxRSqrtConfig = FpxxRSqrtConfig(pipeStages = 5, tableSizeBits = 12, lutMantBits = 12)
 
-    def dotHwMulConfig      = DotProductConfig(hwMul = true)
-    def rotateHwMulConfig   = RotateConfig(hwMul = true)
+    def dotHwMulConfig      = DotProductConfig(hwMul = hwMulGlobal)
+    def rotateHwMulConfig   = RotateConfig(hwMul = hwMulGlobal)
 }
 
 
