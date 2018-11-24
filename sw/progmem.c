@@ -182,13 +182,13 @@ int main() {
     fpxx_t sphere_pos_x = int2fpxx(0);
     fpxx_t sphere_pos_z = int2fpxx(0);
 
-    fpxx_t sphere_min_x = fpxx_neg(int2fpxx(14));
-    fpxx_t sphere_max_x = int2fpxx(14);
+    fpxx_t sphere_min_x = int2fpxx(-16);
+    fpxx_t sphere_max_x = int2fpxx(16);
 
-    fpxx_t sphere_min_z = int2fpxx(-14);
-    fpxx_t sphere_max_z = int2fpxx(14);
+    fpxx_t sphere_min_z = int2fpxx(-16);
+    fpxx_t sphere_max_z = int2fpxx(16);
 
-    fpxx_t sphere_incr_x = fpxx_shr(int2fpxx(3), 4);
+    fpxx_t sphere_incr_x = fpxx_shr(int2fpxx(7), 5);
     fpxx_t sphere_incr_z = fpxx_shr(int2fpxx(1), 4);
 
     int sphere_dir_x = 1;
@@ -287,6 +287,7 @@ int main() {
 
             cam_pos_x = fpxx_add(fpxx_mul(cam_pos_sin, int2fpxx(8)), int2fpxx(-3));
             cam_pos_y = fpxx_add(fpxx_mul(cam_pos_cos, int2fpxx(8)), int2fpxx(10));
+            cam_pos_z = fpxx_add(fpxx_mul(cam_pos_cos, int2fpxx(5)), int2fpxx(-25));
 
             REG_WR(CAMERA_POS_X, cam_pos_x);
             REG_WR(CAMERA_POS_Y, cam_pos_y);
