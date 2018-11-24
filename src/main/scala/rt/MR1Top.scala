@@ -14,6 +14,8 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
         val led2    = out(Bool)
         val led3    = out(Bool)
 
+        val switch_ = in(Bool)
+
         val camera_pos_x = out(Fpxx(rtConfig.fpxxConfig))
         val camera_pos_y = out(Fpxx(rtConfig.fpxxConfig))
         val camera_pos_z = out(Fpxx(rtConfig.fpxxConfig))
@@ -23,7 +25,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
         val rot_y_sin  = out(Fpxx(rtConfig.fpxxConfig))
         val rot_y_cos  = out(Fpxx(rtConfig.fpxxConfig))
 
-        val switch_ = in(Bool)
+        val eof         = in(Bool)
     }
 
     val mr1 = new MR1(config)
@@ -37,8 +39,13 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     mr1.io.instr_req.ready := True
     mr1.io.instr_rsp.valid := RegNext(mr1.io.instr_req.valid) init(False)
 
+    val cpu_ram_rd_data = Bits(32 bits)
+    val reg_rd_data     = Bits(32 bits)
+
     mr1.io.data_req.ready := True
     mr1.io.data_rsp.valid := RegNext(mr1.io.data_req.valid && !mr1.io.data_req.wr) init(False)
+    mr1.io.data_rsp.data  := mr1.io.data_req.addr(19) ? reg_rd_data | cpu_ram_rd_data
+
 
     val ramSize = 8192
 
@@ -56,7 +63,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
                 address = (mr1.io.instr_req.addr >> 2).resized
             )
 
-        mr1.io.data_rsp.data := cpu_ram.readWriteSync(
+        cpu_ram_rd_data := cpu_ram.readWriteSync(
                 enable  = mr1.io.data_req.valid && !mr1.io.data_req.addr(19),
                 address = (mr1.io.data_req.addr >> 2).resized,
                 write   = mr1.io.data_req.wr,
@@ -105,6 +112,13 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
 
     io.rot_y_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_sin.toVec().getWidth bits), update_rot_y_sin))
     io.rot_y_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_cos.toVec().getWidth bits), update_rot_y_cos))
+
+    val update_eof_sticky = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080040")
+
+    val eof_sticky = Reg(Bool) init(False)
+    eof_sticky := io.eof ? True | (eof_sticky && !update_eof_sticky)
+
+    reg_rd_data := B(0, 31 bits) ## eof_sticky
 
 }
 

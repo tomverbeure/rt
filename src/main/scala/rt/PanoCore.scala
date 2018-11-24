@@ -35,10 +35,13 @@ class PanoCore extends Component {
 
     val rtConfig = RTConfig()
 
+    val eof_final = Bool
+
     val mr1Config = MR1Config(supportMul = true)
     val u_mr1_top = new MR1Top(mr1Config, rtConfig)
     u_mr1_top.io.led1       <> io.led_blue
     u_mr1_top.io.switch_    <> True
+    u_mr1_top.io.eof        <> eof_final
 
     val timings = VideoTimings()
     timings.h_active        := 640
@@ -653,7 +656,9 @@ class PanoCore extends Component {
 
         }
 
+        eof_final := rt_pixel.eof
     }
+
 
     val vo = new VideoOut()
     vo.io.timings := timings
