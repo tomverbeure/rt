@@ -147,11 +147,24 @@ fpxx_t fpxx_cos(int angle_int)
     return cos_s;
 }
 
+int fpxx_ge(fpxx_t op_a, fpxx_t op_b)
+{
+    int op_a_sign = (op_a & (1<<19)) != 0;
+    int op_b_sign = (op_b & (1<<19)) != 0;
+
+    int32_t op_a_abs = op_a & ((1<<19)-1);
+    int32_t op_b_abs = op_b & ((1<<19)-1);
+
+    return ( op_a_sign && !op_b_sign) ? 0  :
+           (!op_a_sign &&  op_b_sign) ? 1  :
+           ( op_a_abs  >=  op_b_abs ) ^ op_a_sign;
+}
+
 int main() {
 
     REG_WR_FP32(CAMERA_POS_X, 0.0);
     REG_WR_FP32(CAMERA_POS_Y, 10.0);
-    REG_WR_FP32(CAMERA_POS_Z, -10.0);
+    REG_WR_FP32(CAMERA_POS_Z, -25.0);
 
     REG_WR_FP32(SPHERE_POS_X, 0.0);
     REG_WR_FP32(SPHERE_POS_Y, 10.0);
@@ -167,9 +180,25 @@ int main() {
 
     int cam_cntr = 0;
     int frame_cntr = 0;
-    int sphere_time = 64;
+
+    int bounce_time = 0;
 
     int angle = 1;
+
+    fpxx_t sphere_pos_x = int2fpxx(0);
+    fpxx_t sphere_pos_z = int2fpxx(0);
+
+    fpxx_t sphere_min_x = fpxx_neg(int2fpxx(14));
+    fpxx_t sphere_max_x = int2fpxx(14);
+
+    fpxx_t sphere_min_z = int2fpxx(-14);
+    fpxx_t sphere_max_z = int2fpxx(14);
+
+    fpxx_t sphere_incr_x = fpxx_shr(int2fpxx(3), 4);
+    fpxx_t sphere_incr_z = fpxx_shr(int2fpxx(1), 4);
+
+    int sphere_dir_x = 1;
+    int sphere_dir_z = 1;
 
     while(1){
         // Wait until end of frame...
@@ -198,23 +227,69 @@ int main() {
             //============================================================
             int min_height = 3;
             int max_height = 10;
-            int cycle_time = 128;
+            int cycle_time = 64;
 
-            fpxx_t a = fpxx_neg(fpxx_shr(fpxx_sub(int2fpxx(max_height),int2fpxx(min_height)),12));
+            fpxx_t a = fpxx_neg(fpxx_shr(fpxx_sub(int2fpxx(max_height),int2fpxx(min_height)),10));
 
-            fpxx_t s_time     = int2fpxx(sphere_time);
-            fpxx_t s_time_m_c = int2fpxx(sphere_time-cycle_time);
+            fpxx_t s_time     = int2fpxx(bounce_time);
+            fpxx_t s_time_m_c = int2fpxx(bounce_time-cycle_time);
             fpxx_t s_time_q   = fpxx_mul(s_time, s_time_m_c);
             fpxx_t a_term     = fpxx_mul(s_time_q, a);
             fpxx_t pos_y      = fpxx_add(a_term, int2fpxx(min_height));
 
             REG_WR(SPHERE_POS_Y, pos_y);
 
-            ++sphere_time;
-            if (sphere_time == cycle_time){
-                sphere_time = 0;
+            ++bounce_time;
+            if (bounce_time == cycle_time){
+                bounce_time = 0;
             }
 
+            //============================================================
+            // Move ball around
+            //============================================================
+
+            fpxx_t sphere_pos_x_nxt = fpxx_add(sphere_pos_x, sphere_dir_x ? sphere_incr_x : fpxx_neg(sphere_incr_x));
+            fpxx_t sphere_pos_z_nxt = fpxx_add(sphere_pos_z, sphere_dir_z ? sphere_incr_z : fpxx_neg(sphere_incr_z));
+
+            if (sphere_dir_x){
+                if (fpxx_ge(sphere_pos_x_nxt, sphere_max_x)){
+                    sphere_dir_x = 0;
+                    sphere_pos_x = sphere_max_x;
+                }
+                else{
+                    sphere_pos_x = sphere_pos_x_nxt;
+                }
+            }
+            else{
+                if (fpxx_ge(sphere_min_x, sphere_pos_x_nxt)){
+                    sphere_dir_x = 1;
+                    sphere_pos_x = sphere_min_x;
+                }
+                else{
+                    sphere_pos_x = sphere_pos_x_nxt;
+                }
+            }
+
+            REG_WR(SPHERE_POS_X, sphere_pos_x);
+
+            if (sphere_dir_z){
+                if (fpxx_ge(sphere_pos_z_nxt, sphere_max_z)){
+                    sphere_dir_z = 0;
+                }
+                else{
+                    sphere_pos_z = sphere_pos_z_nxt;
+                }
+            }
+            else{
+                if (fpxx_ge(sphere_min_z, sphere_pos_z_nxt)){
+                    sphere_dir_z = 1;
+                }
+                else{
+                    sphere_pos_z = sphere_pos_z_nxt;
+                }
+            }
+
+            REG_WR(SPHERE_POS_Z, sphere_pos_z);
         }
 
         //angle = (angle+1) & 0x3ff;
