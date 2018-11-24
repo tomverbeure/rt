@@ -44,7 +44,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
 
     mr1.io.data_req.ready := True
     mr1.io.data_rsp.valid := RegNext(mr1.io.data_req.valid && !mr1.io.data_req.wr) init(False)
-    mr1.io.data_rsp.data  := mr1.io.data_req.addr(19) ? reg_rd_data | cpu_ram_rd_data
+    mr1.io.data_rsp.data  := RegNext(mr1.io.data_req.addr(19)) ? reg_rd_data | cpu_ram_rd_data
 
 
     val ramSize = 8192
@@ -100,7 +100,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.camera_pos_x.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_x.toVec().getWidth bits), update_camera_pos_x))
     io.camera_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_y.toVec().getWidth bits), update_camera_pos_y))
     io.camera_pos_z.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_z.toVec().getWidth bits), update_camera_pos_z))
-    
+
     val update_rot_x_sin = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080020")
     val update_rot_x_cos = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080024")
 
@@ -113,12 +113,46 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.rot_y_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_sin.toVec().getWidth bits), update_rot_y_sin))
     io.rot_y_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_cos.toVec().getWidth bits), update_rot_y_cos))
 
-    val update_eof_sticky = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080040")
+    val eof_addr  = (mr1.io.data_req.addr === U"32'h00080040")
+    val update_eof_sticky = mr1.io.data_req.valid && mr1.io.data_req.wr && eof_addr
 
     val eof_sticky = Reg(Bool) init(False)
     eof_sticky := io.eof ? True | (eof_sticky && !update_eof_sticky)
 
-    reg_rd_data := B(0, 31 bits) ## eof_sticky
+    // Fpxx add and multiply
+
+    val fpxx_op_a_addr  = (mr1.io.data_req.addr === U"32'h00080050")
+    val fpxx_op_b_addr  = (mr1.io.data_req.addr === U"32'h00080054")
+    val fpxx_mul_addr   = (mr1.io.data_req.addr === U"32'h00080058")
+    val fpxx_add_addr   = (mr1.io.data_req.addr === U"32'h0008005a")
+
+    val update_fpxx_op_a = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_a_addr
+    val update_fpxx_op_b = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_b_addr
+
+    val fpxx_op_a = Fpxx(rtConfig.fpxxConfig)
+    val fpxx_op_b = Fpxx(rtConfig.fpxxConfig)
+    val fpxx_add  = Fpxx(rtConfig.fpxxConfig)
+    val fpxx_mul  = Fpxx(rtConfig.fpxxConfig)
+
+    fpxx_op_a.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_a))
+    fpxx_op_b.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_b))
+
+    val u_fpxx_add = new FpxxAdd(rtConfig.fpxxConfig, Constants.fpxxAddConfig)
+    u_fpxx_add.io.op_vld <> True
+    u_fpxx_add.io.op_a   <> fpxx_op_a
+    u_fpxx_add.io.op_b   <> fpxx_op_b
+    u_fpxx_add.io.result <> fpxx_add
+
+    val u_fpxx_mul = new FpxxMul(rtConfig.fpxxConfig, Constants.fpxxHwMulConfig)
+    u_fpxx_mul.io.op_vld <> True
+    u_fpxx_mul.io.op_a   <> fpxx_op_a
+    u_fpxx_mul.io.op_b   <> fpxx_op_b
+    u_fpxx_mul.io.result <> fpxx_mul
+
+    reg_rd_data :=   (eof_addr      ? (B(0, 31 bits) ## eof_sticky) |
+                     (fpxx_mul_addr ? fpxx_mul.toVec().resize(32)   |
+                     (fpxx_add_addr ? fpxx_add.toVec().resize(32)   |
+                                      B(0, 32 bits))))
 
 }
 
