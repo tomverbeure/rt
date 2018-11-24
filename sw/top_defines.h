@@ -10,3 +10,6 @@
 
 #define ROT_Y_SIN_ADDR      0x00000030
 #define ROT_Y_COS_ADDR      0x00000034
+
+#define EOF_ADDR            0x00000040
+

@@ -6,7 +6,7 @@
 #define LED_CONFIG                  *((volatile uint32_t *)(0x00080000 | LED_CONFIG_ADDR  ))
 
 #define REG_WR(reg_name, wr_data)   (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)) = (wr_data))
-#define REG_RD(reg_name)            (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR))
+#define REG_RD(reg_name)            (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)))
 
 #define REG_WR_FP32(reg_name, wr_data)   (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)) = float_to_fpxx(wr_data))
 //#define REG_RD_FP32(reg_name)            (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR))
@@ -307,10 +307,10 @@ inline uint32_t float_to_fpxx(float f)
     } fi;
 
     fi.f = f;
-    
+
     uint32_t sign = fi.i>>31;
     uint32_t exp  = (fi.i>>23) & 0xff;
-    uint32_t mant = fi.i & ((1<<23)-1); 
+    uint32_t mant = fi.i & ((1<<23)-1);
 
     exp  = (exp == 0) ? 0 : exp-127+((1<<(6-1))-1);
     mant = mant >> (23-13);
@@ -333,12 +333,26 @@ int main() {
 
     REG_WR(LED_CONFIG, 0x00);
 
-    for (;;) {
-        wait(WAIT_CYCLES);
-        LED_CONFIG = ~0x01;
-        wait(WAIT_CYCLES);
-        LED_CONFIG = ~0x02;
-        wait(WAIT_CYCLES);
-        LED_CONFIG = ~0x04;
+    int cam_cntr = 0;
+    int frame_cntr = 0;
+
+
+    while(1){
+        // Wait until end of frame...
+        while(!REG_RD(EOF));
+        REG_WR(EOF, 1);
+
+        // Blink every 60 frames.
+        REG_WR(LED_CONFIG, (frame_cntr & 64)==0 && 0x7);
+
+        //float z_pos;
+        //z_pos = cam_cntr/64.0 * 5 -10;
+        //REG_WR_FP32(CAMERA_POS_Z, z_pos);
+
+        ++cam_cntr;
+        if (cam_cntr == 60)
+            cam_cntr = 0;
+
+        ++frame_cntr;
     }
 }

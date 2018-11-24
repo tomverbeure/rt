@@ -52,7 +52,7 @@ progmem.bin: progmem.elf
 progmem8k.bin: progmem.elf
 	$(OBJCOPY) --pad-to=8192 -O binary $< $@
 
-progmem.elf: progmem.o start.o sections.lds Makefile
+progmem.elf: progmem.o top_defines.h start.o sections.lds Makefile
 	$(LD) $(LDFLAGS) -o $@ start.o progmem.o > progmem.map
 
 clean:
