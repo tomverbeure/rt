@@ -6,7 +6,7 @@ TARGET          = $(TOOLS_PREFIX)/riscv32-unknown-elf
 AS              = $(TARGET)-as
 ASFLAGS         = -march=rv32i -mabi=ilp32
 LD              = $(TARGET)-gcc
-LDFLAGS         = -march=rv32i -mabi=ilp32 -Wl,-Tsections.lds,-Map,progmem.map -ffreestanding -nostartfiles -s
+LDFLAGS         = -march=rv32i -mabi=ilp32 -Wl,-Tsections.lds,-Map,progmem.map -ffreestanding -nostartfiles
 CC              = $(TARGET)-gcc
 CFLAGS          = -march=rv32i -mabi=ilp32 -Wall -Wextra -pedantic -DFREQ=$(FREQ_PLL)000000 -O2
 OBJCOPY         = $(TARGET)-objcopy
@@ -19,7 +19,7 @@ OBJDUMP         = $(TARGET)-objdump
 #all: progmem.dis progmem.bin progmem0.coe progmem0.mif progmem0.hex progmem.mem
 all: progmem.dis progmem.bin progmem8k.bin progmem.mem 
 
-progmem.dis: progmem.elf
+progmem.dis: progmem_dis.elf
 	$(OBJDUMP) -s -D $< > $@
 
 progmem0.hex: progmem.bin
@@ -52,8 +52,17 @@ progmem.bin: progmem.elf
 progmem8k.bin: progmem.elf
 	$(OBJCOPY) --pad-to=8192 -O binary $< $@
 
-progmem.elf: progmem.o top_defines.h start.o sections.lds Makefile
+progmem.elf: fpxx_sin_table.h progmem.o top_defines.h start.o sections.lds Makefile
+	$(LD) $(LDFLAGS) -s -o $@ start.o progmem.o > progmem.map
+
+progmem_dis.elf: fpxx_sin_table.h progmem.o top_defines.h start.o sections.lds Makefile
 	$(LD) $(LDFLAGS) -o $@ start.o progmem.o > progmem.map
 
+fpxx_sin_table.h: create_sin_table Makefile
+	./create_sin_table > $@
+
+create_sin_table: create_sin_table.c
+	gcc -o $@ $< -lm
+
 clean:
-	\rm -fr *.o *.hex *.elf *.dis *.bin *.coe *.map *.mif *.mem
+	\rm -fr *.o *.hex *.elf *.dis *.bin *.coe *.map *.mif *.mem create_sin_table fpxx_sin_table.h

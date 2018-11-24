@@ -13,3 +13,8 @@
 
 #define EOF_ADDR            0x00000040
 
+#define FPXX_OP_A_ADDR      0x00000050
+#define FPXX_OP_B_ADDR      0x00000054
+#define FPXX_OP_MUL_ADDR    0x00000058
+#define FPXX_OP_ADD_ADDR    0x0000005a
+
