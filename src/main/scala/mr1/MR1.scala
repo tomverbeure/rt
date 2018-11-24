@@ -12,7 +12,8 @@ case class MR1Config(
                 supportAsyncReg : Boolean = false,
                 supportRegInit  : Boolean = false,
                 pcSize          : Int     = 32,
-                dataAddrSize    : Int     = 32
+                dataAddrSize    : Int     = 32,
+                reflopDataRsp   : Boolean = true
                 ) {
 
     def hasMul      = supportMul
@@ -24,6 +25,14 @@ case class MR1Config(
     def hasRegInit  = supportRegInit
 
     def hasFormal   = supportFormal
+}
+
+case class RegRdUpdate(config: MR1Config) extends Bundle {
+
+    val rd_waddr_valid  = Bool
+    val rd_waddr        = UInt(5 bits)
+    val rd_wdata_valid  = Bool
+    val rd_wdata        = Bits(32 bits)
 }
 
 case class RVFI(config: MR1Config) extends Bundle {
@@ -141,32 +150,36 @@ class MR1(config: MR1Config) extends Component {
     }
 
     val fetch = new Fetch(config)
-
-    io.instr_req <> fetch.io.instr_req
-    io.instr_rsp <> fetch.io.instr_rsp
+    fetch.io.instr_req <> io.instr_req
+    fetch.io.instr_rsp <> io.instr_rsp
 
     val decode = new Decode(config)
-    fetch.io.f2d <> decode.io.f2d
-    fetch.io.d2f <> decode.io.d2f
+    decode.io.f2d       <> fetch.io.f2d
+    decode.io.d2f       <> fetch.io.d2f
+    decode.io.rd_update <> fetch.io.d_rd_update
 
     val execute = new Execute(config)
-    decode.io.d2e <> execute.io.d2e
-    decode.io.e2d <> execute.io.e2d
-
-    fetch.io.e2f  <> execute.io.e2f
-
-    io.data_req <> execute.io.data_req
-    io.data_rsp <> execute.io.data_rsp
+    execute.io.d2e          <> decode.io.d2e
+    execute.io.e2d          <> decode.io.e2d
+    execute.io.rd_update    <> fetch.io.e_rd_update
+    execute.io.data_req     <> io.data_req
 
     val reg_file = new RegFile(config)
-
-    fetch.io.rd2r  <> reg_file.io.rd2r
-    fetch.io.r2rd  <> reg_file.io.r2rd
+    reg_file.io.rd2r <> fetch.io.rd2r
+    reg_file.io.r2rd <> fetch.io.r2rd
     reg_file.io.r2rr <> decode.io.r2rr
-    reg_file.io.w2r  <> execute.io.w2r
+
+    val wb = new Writeback(config)
+    wb.io.e2w       <> execute.io.e2w
+    wb.io.w2e       <> execute.io.w2e
+    wb.io.rd_update <> fetch.io.w_rd_update
+    wb.io.data_rsp  <> io.data_rsp
+    wb.io.w2r       <> reg_file.io.w2r
 
     if (config.hasFormal){
-        io.rvfi <> execute.io.rvfi
+        decode.io.d2e_rvfi  <> execute.io.d2e_rvfi
+        execute.io.e2w_rvfi <> wb.io.e2w_rvfi
+        wb.io.rvfi          <> io.rvfi
     }
 }
 

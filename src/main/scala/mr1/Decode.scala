@@ -14,12 +14,10 @@ case class Decode2Execute(config: MR1Config) extends Bundle {
     val op1_op2_lsb     = Bits(9 bits)
     val rs2_imm         = Bits(32 bits)
     val rd_valid        = Bool
-
-    val rvfi = if (config.hasFormal) RVFI(config) else null
+    val rd_addr         = UInt(5 bits)
 
     def init() : Decode2Execute = {
         valid init(False)
-        if (config.hasFormal) rvfi init()
         this
     }
 
@@ -31,9 +29,6 @@ case class Execute2Decode(config: MR1Config) extends Bundle {
 
     val pc_jump_valid = Bool                // FIXME: This is probably redundant with stall, but let's leave it for now.
     val pc_jump       = UInt(config.pcSize bits)
-
-    val rd_addr_valid = Bool
-    val rd_addr       = UInt(5 bits)
 }
 
 class Decode(config: MR1Config) extends Component {
@@ -47,10 +42,14 @@ class Decode(config: MR1Config) extends Component {
         val f2d         = in(Fetch2Decode(config))
         val d2f         = out(Decode2Fetch(config))
 
+        val rd_update   = out(RegRdUpdate(config))
+
         val r2rr        = in(RegFile2ReadResult(config))
 
         val d2e         = out(Reg(Decode2Execute(config)) init).addAttribute("keep")
         val e2d         = in(Execute2Decode(config))
+
+        val d2e_rvfi    = if (config.hasFormal) out(Reg(RVFI(config)) init).setName("io_d2e_rvfi") else null
     }
 
     val instr       = io.f2d.instr
@@ -237,21 +236,28 @@ class Decode(config: MR1Config) extends Component {
     io.d2f.pc_jump_valid := io.e2d.pc_jump_valid
     io.d2f.pc_jump       := io.e2d.pc_jump
 
-    val rs1_valid =  (decode.iformat === InstrFormat.R) ||
-                     (decode.iformat === InstrFormat.I) ||
-                     (decode.iformat === InstrFormat.S) ||
-                     (decode.iformat === InstrFormat.B) ||
-                     (decode.iformat === InstrFormat.Shamt)
+    val trap = (decode.itype === InstrType.Undef)
 
-    val rs2_valid =  (decode.iformat === InstrFormat.R) ||
-                     (decode.iformat === InstrFormat.S) ||
-                     (decode.iformat === InstrFormat.B)
+    val rs1_valid =  ((decode.iformat === InstrFormat.R) ||
+                      (decode.iformat === InstrFormat.I) ||
+                      (decode.iformat === InstrFormat.S) ||
+                      (decode.iformat === InstrFormat.B) ||
+                      (decode.iformat === InstrFormat.Shamt)) && !trap
 
-    val rd_valid =   (decode.iformat === InstrFormat.R) ||
-                     (decode.iformat === InstrFormat.I) ||
-                     (decode.iformat === InstrFormat.U) ||
-                     (decode.iformat === InstrFormat.J) ||
-                     (decode.iformat === InstrFormat.Shamt)
+    val rs2_valid =  ((decode.iformat === InstrFormat.R) ||
+                      (decode.iformat === InstrFormat.S) ||
+                      (decode.iformat === InstrFormat.B)    ) && !trap
+
+    // trap is NOT included in this term because it would get up into the critical
+    // path inside Fetch. So illegal instructions will result in an incorrect RAW stall, but that's
+    // OK.
+    val rd_valid =   ((decode.iformat === InstrFormat.R) ||
+                      (decode.iformat === InstrFormat.I) ||
+                      (decode.iformat === InstrFormat.U) ||
+                      (decode.iformat === InstrFormat.J) ||
+                      (decode.iformat === InstrFormat.Shamt))
+
+    val rd_addr_final = rd_valid ? decode.rd_addr | U"5'd0"
 
     val rs1_33 = decode.unsigned ? B(U(io.r2rr.rs1_data).resize(33)) | B(S(io.r2rr.rs1_data).resize(33))
     val rs2_33 = decode.unsigned ? B(U(io.r2rr.rs2_data).resize(33)) | B(S(io.r2rr.rs2_data).resize(33))
@@ -287,12 +293,15 @@ class Decode(config: MR1Config) extends Component {
             )
 
     io.d2f.stall         := io.e2d.stall
-    io.d2f.rd_addr_valid := decode_end && rd_valid
-    io.d2f.rd_addr       := decode.rd_addr
+
+    io.rd_update.rd_waddr_valid := decode_end && rd_valid
+    io.rd_update.rd_waddr       := rd_addr_final
+    io.rd_update.rd_wdata_valid := False
+    io.rd_update.rd_wdata       := 0
 
     val formal = if (config.hasFormal) new Area {
 
-        val rvfi = RVFI(config)
+        val rvfi = io.d2e_rvfi
 
         val order = Reg(UInt(64 bits)) init(0)
         when(decode_end){
@@ -300,24 +309,27 @@ class Decode(config: MR1Config) extends Component {
         }
 
         rvfi.valid      := decode_end
-        rvfi.order      := order
-        rvfi.insn       := io.f2d.instr
-        rvfi.trap       := (decode.itype === InstrType.Undef)
-        rvfi.halt       := False
-        rvfi.intr       := False
-        rvfi.rs1_addr   := rs1_valid ? decode.rs1_addr | 0
-        rvfi.rs2_addr   := rs2_valid ? decode.rs2_addr | 0
-        rvfi.rs1_rdata  := rs1_valid ? io.r2rr.rs1_data | 0
-        rvfi.rs2_rdata  := rs2_valid ? io.r2rr.rs2_data | 0
-        rvfi.rd_addr    := rd_valid ?  decode.rd_addr | 0
-        rvfi.rd_wdata   := 0
-        rvfi.pc_rdata   := io.f2d.pc.resize(32)
-        rvfi.pc_wdata   := 0
-        rvfi.mem_addr   := 0
-        rvfi.mem_rmask  := 0
-        rvfi.mem_wmask  := 0
-        rvfi.mem_rdata  := 0
-        rvfi.mem_wdata  := 0
+
+        when(decode_end){
+            rvfi.order      := order
+            rvfi.insn       := io.f2d.instr
+            rvfi.trap       := trap
+            rvfi.halt       := False
+            rvfi.intr       := False
+            rvfi.rs1_addr   := rs1_valid ? decode.rs1_addr  | 0
+            rvfi.rs2_addr   := rs2_valid ? decode.rs2_addr  | 0
+            rvfi.rs1_rdata  := rs1_valid ? io.r2rr.rs1_data | 0
+            rvfi.rs2_rdata  := rs2_valid ? io.r2rr.rs2_data | 0
+            rvfi.rd_addr    := !trap     ? rd_addr_final    | 0
+            rvfi.rd_wdata   := 0
+            rvfi.pc_rdata   := io.f2d.pc.resize(32)
+            rvfi.pc_wdata   := 0
+            rvfi.mem_addr   := 0
+            rvfi.mem_rmask  := 0
+            rvfi.mem_wmask  := 0
+            rvfi.mem_rdata  := 0
+            rvfi.mem_wdata  := 0
+        }
     } else null
 
     val d2e = new Area {
@@ -331,10 +343,8 @@ class Decode(config: MR1Config) extends Component {
         d2e_nxt.op2_33          := op2_33
         d2e_nxt.op1_op2_lsb     := op1_op2_lsb
         d2e_nxt.rs2_imm         := rs2_imm
-        d2e_nxt.rd_valid        := rd_valid
-
-        if (config.hasFormal)
-            d2e_nxt.rvfi            := formal.rvfi
+        d2e_nxt.rd_valid        := !trap && rd_valid
+        d2e_nxt.rd_addr         := rd_addr_final
 
         when(io.f2d.valid && !io.e2d.stall){
             io.d2e          := d2e_nxt

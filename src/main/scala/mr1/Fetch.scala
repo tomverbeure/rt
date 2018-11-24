@@ -23,14 +23,6 @@ case class Decode2Fetch(config: MR1Config) extends Bundle {
 
     val pc_jump_valid       = Bool
     val pc_jump             = UInt(config.pcSize bits)
-
-    val rd_addr_valid       = Bool
-    val rd_addr             = UInt(5 bits)
-}
-
-case class Execute2Fetch(config: MR1Config) extends Bundle {
-    val rd_addr_valid       = Bool
-    val rd_addr             = UInt(5 bits)
 }
 
 class Fetch(config: MR1Config) extends Component {
@@ -41,7 +33,10 @@ class Fetch(config: MR1Config) extends Component {
 
         val f2d             =  out(Reg(Fetch2Decode(config)) init)
         val d2f             =  in(Decode2Fetch(config))
-        val e2f             =  in(Execute2Fetch(config))
+
+        val d_rd_update     = in(RegRdUpdate(config))
+        val e_rd_update     = in(RegRdUpdate(config))
+        val w_rd_update     = in(RegRdUpdate(config))
 
         val rd2r            = out(Read2RegFile(config))
         val r2rd            = in(RegFile2Read(config))
@@ -210,10 +205,12 @@ class Fetch(config: MR1Config) extends Component {
         val rs1_addr    = U(instr_final(19 downto 15))
         val rs2_addr    = U(instr_final(24 downto 20))
 
-        val raw_stall = (rs1_valid && ((io.d2f.rd_addr_valid && (rs1_addr === io.d2f.rd_addr && io.d2f.rd_addr =/= 0)) ||
-                                       (io.e2f.rd_addr_valid && (rs1_addr === io.e2f.rd_addr && io.e2f.rd_addr =/= 0))    )) ||
-                        (rs2_valid && ((io.d2f.rd_addr_valid && (rs2_addr === io.d2f.rd_addr && io.d2f.rd_addr =/= 0)) ||
-                                       (io.e2f.rd_addr_valid && (rs2_addr === io.e2f.rd_addr && io.e2f.rd_addr =/= 0))    ))
+        val raw_stall = (rs1_valid && ((io.d_rd_update.rd_waddr_valid && (rs1_addr === io.d_rd_update.rd_waddr && io.d_rd_update.rd_waddr =/= 0)) ||
+                                       (io.e_rd_update.rd_waddr_valid && (rs1_addr === io.e_rd_update.rd_waddr && io.e_rd_update.rd_waddr =/= 0)) ||
+                                       (io.w_rd_update.rd_waddr_valid && (rs1_addr === io.w_rd_update.rd_waddr && io.w_rd_update.rd_waddr =/= 0))    )) ||
+                        (rs2_valid && ((io.d_rd_update.rd_waddr_valid && (rs2_addr === io.d_rd_update.rd_waddr && io.d_rd_update.rd_waddr =/= 0)) ||
+                                       (io.e_rd_update.rd_waddr_valid && (rs2_addr === io.e_rd_update.rd_waddr && io.e_rd_update.rd_waddr =/= 0)) ||
+                                       (io.w_rd_update.rd_waddr_valid && (rs2_addr === io.w_rd_update.rd_waddr && io.w_rd_update.rd_waddr =/= 0))    ))
     
         io.rd2r.rs1_rd := rs1_valid && !(down_stall || raw_stall)
         io.rd2r.rs2_rd := rs2_valid && !(down_stall || raw_stall)
