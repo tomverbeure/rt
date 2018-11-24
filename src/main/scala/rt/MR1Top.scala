@@ -25,6 +25,10 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
         val rot_y_sin  = out(Fpxx(rtConfig.fpxxConfig))
         val rot_y_cos  = out(Fpxx(rtConfig.fpxxConfig))
 
+        val sphere_pos_x = out(Fpxx(rtConfig.fpxxConfig))
+        val sphere_pos_y = out(Fpxx(rtConfig.fpxxConfig))
+        val sphere_pos_z = out(Fpxx(rtConfig.fpxxConfig))
+
         val eof         = in(Bool)
     }
 
@@ -93,6 +97,10 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.led2 := RegNextWhen(mr1.io.data_req.data(1), update_leds) init(False)
     io.led3 := RegNextWhen(mr1.io.data_req.data(2), update_leds) init(False)
 
+    //============================================================
+    // Camera Pos
+    //============================================================
+
     val update_camera_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080010")
     val update_camera_pos_y = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080014")
     val update_camera_pos_z = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080018")
@@ -101,11 +109,19 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.camera_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_y.toVec().getWidth bits), update_camera_pos_y))
     io.camera_pos_z.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.camera_pos_z.toVec().getWidth bits), update_camera_pos_z))
 
+    //============================================================
+    // Rotate X
+    //============================================================
+
     val update_rot_x_sin = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080020")
     val update_rot_x_cos = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080024")
 
     io.rot_x_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_x_sin.toVec().getWidth bits), update_rot_x_sin))
     io.rot_x_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_x_cos.toVec().getWidth bits), update_rot_x_cos))
+
+    //============================================================
+    // Rotate Y
+    //============================================================
 
     val update_rot_y_sin = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080030")
     val update_rot_y_cos = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080034")
@@ -113,13 +129,19 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.rot_y_sin.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_sin.toVec().getWidth bits), update_rot_y_sin))
     io.rot_y_cos.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.rot_y_cos.toVec().getWidth bits), update_rot_y_cos))
 
+    //============================================================
+    // EOF
+    //============================================================
+
     val eof_addr  = (mr1.io.data_req.addr === U"32'h00080040")
     val update_eof_sticky = mr1.io.data_req.valid && mr1.io.data_req.wr && eof_addr
 
     val eof_sticky = Reg(Bool) init(False)
     eof_sticky := io.eof ? True | (eof_sticky && !update_eof_sticky)
 
+    //============================================================
     // Fpxx add and multiply
+    //============================================================
 
     val fpxx_op_a_addr  = (mr1.io.data_req.addr === U"32'h00080050")
     val fpxx_op_b_addr  = (mr1.io.data_req.addr === U"32'h00080054")
@@ -153,6 +175,19 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
                      (fpxx_mul_addr ? fpxx_mul.toVec().resize(32)   |
                      (fpxx_add_addr ? fpxx_add.toVec().resize(32)   |
                                       B(0, 32 bits))))
+
+    //============================================================
+    // Sphere Pos
+    //============================================================
+
+    val update_sphere_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080060")
+    val update_sphere_pos_y = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080064")
+    val update_sphere_pos_z = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080068")
+
+    io.sphere_pos_x.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_x.toVec().getWidth bits), update_sphere_pos_x))
+    io.sphere_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_y.toVec().getWidth bits), update_sphere_pos_y))
+    io.sphere_pos_z.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_z.toVec().getWidth bits), update_sphere_pos_z))
+
 
 }
 
