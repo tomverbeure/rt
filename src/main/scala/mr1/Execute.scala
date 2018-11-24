@@ -224,7 +224,7 @@ class Execute(config: MR1Config) extends Component {
         val lsu_addr = UInt(32 bits)
         lsu_addr    := alu.rd_wdata_alu_add
 
-        io.data_req.valid   := io.d2e.valid && (itype === InstrType.L || itype === InstrType.S)
+        io.data_req.valid   := io.d2e.valid && (itype === InstrType.L || itype === InstrType.S) && !io.w2e.stall
         io.data_req.addr    := lsu_addr.resize(config.dataAddrSize)
         io.data_req.wr      := (itype === InstrType.S)
         io.data_req.size    := size

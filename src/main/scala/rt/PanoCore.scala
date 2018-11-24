@@ -535,7 +535,7 @@ class PanoCore extends Component {
 
         }
 
-        eof_final := rt_pixel.eof
+        eof_final := rt_pixel.req && rt_pixel.eof
     }
 
 

@@ -140,13 +140,14 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     eof_sticky := io.eof ? True | (eof_sticky && !update_eof_sticky)
 
     //============================================================
-    // Fpxx add and multiply
+    // Fpxx add, multiply, int2fpxx
     //============================================================
 
     val fpxx_op_a_addr  = (mr1.io.data_req.addr === U"32'h00080050")
     val fpxx_op_b_addr  = (mr1.io.data_req.addr === U"32'h00080054")
     val fpxx_mul_addr   = (mr1.io.data_req.addr === U"32'h00080058")
-    val fpxx_add_addr   = (mr1.io.data_req.addr === U"32'h0008005a")
+    val fpxx_add_addr   = (mr1.io.data_req.addr === U"32'h0008005c")
+    val int2fpxx_addr   = (mr1.io.data_req.addr === U"32'h00080060")
 
     val update_fpxx_op_a = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_a_addr
     val update_fpxx_op_b = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_b_addr
@@ -155,6 +156,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     val fpxx_op_b = Fpxx(rtConfig.fpxxConfig)
     val fpxx_add  = Fpxx(rtConfig.fpxxConfig)
     val fpxx_mul  = Fpxx(rtConfig.fpxxConfig)
+    val int2fpxx  = Fpxx(rtConfig.fpxxConfig)
 
     fpxx_op_a.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_a))
     fpxx_op_b.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_b))
@@ -171,18 +173,24 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     u_fpxx_mul.io.op_b   <> fpxx_op_b
     u_fpxx_mul.io.result <> fpxx_mul
 
-    reg_rd_data :=   (eof_addr      ? (B(0, 31 bits) ## eof_sticky) |
-                     (fpxx_mul_addr ? fpxx_mul.toVec().resize(32)   |
-                     (fpxx_add_addr ? fpxx_add.toVec().resize(32)   |
-                                      B(0, 32 bits))))
+    val u_int2fpxx = new SInt2Fpxx(fpxx_op_a.toVec().getWidth, rtConfig.fpxxConfig)
+    u_int2fpxx.io.op_vld <> True
+    u_int2fpxx.io.op     <> fpxx_op_a.toVec().asSInt
+    u_int2fpxx.io.result <> int2fpxx
+
+    reg_rd_data :=   (RegNext(eof_addr)      ? (B(0, 31 bits) ## eof_sticky) |
+                     (RegNext(fpxx_mul_addr) ? fpxx_mul.toVec().resize(32)   |
+                     (RegNext(fpxx_add_addr) ? fpxx_add.toVec().resize(32)   |
+                     (RegNext(int2fpxx_addr) ? int2fpxx.toVec().resize(32)   |
+                                               B(0, 32 bits)))))
 
     //============================================================
     // Sphere Pos
     //============================================================
 
-    val update_sphere_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080060")
-    val update_sphere_pos_y = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080064")
-    val update_sphere_pos_z = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080068")
+    val update_sphere_pos_x = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080070")
+    val update_sphere_pos_y = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080074")
+    val update_sphere_pos_z = mr1.io.data_req.valid && mr1.io.data_req.wr && (mr1.io.data_req.addr === U"32'h00080078")
 
     io.sphere_pos_x.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_x.toVec().getWidth bits), update_sphere_pos_x))
     io.sphere_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_y.toVec().getWidth bits), update_sphere_pos_y))
