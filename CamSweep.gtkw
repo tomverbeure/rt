@@ -1,16 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sat Nov 24 04:22:10 2018
+[*] Sat Nov 24 17:52:07 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sat Nov 24 04:20:49 2018"
-[dumpfile_size] 16126036
+[dumpfile_mtime] "Sat Nov 24 17:48:06 2018"
+[dumpfile_size] 293398760
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 0
+[timestart] 2014
 [size] 2122 1211
-[pos] -2468 -661
-*-6.338978 320 430710 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[pos] -1 -1
+*-5.338978 2115 430710 5130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -19,10 +19,11 @@
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.
 [treeopen] TOP.PanoCoreDut.u_pano_core.rt_u_sphere_intersect.u_normalize.u_dot.
 [treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.
+[treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.
 [sst_width] 400
 [signals_width] 479
 [sst_expanded] 1
-[sst_vpaned_height] 804
+[sst_vpaned_height] 607
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -46,8 +47,44 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.instr_rsp_data[31:0]
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_valid
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_ready
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_wr
-@22
+@c00022
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+@28
+(0)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(1)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(2)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(3)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(4)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(5)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(6)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(7)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(8)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(9)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(10)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(11)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(12)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(13)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(14)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(15)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(16)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(17)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(18)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(19)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(20)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(21)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(22)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(23)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(24)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(25)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(26)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(27)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(28)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(29)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(30)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+(31)TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_addr[31:0]
+@1401200
+-group_end
+@22
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_data[31:0]
 @28
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_size[1:0]
@@ -60,9 +97,29 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_rsp_data[31:0]
 @200
 -
 @28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.io_data_req_valid
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.io_data_req_wr
+@22
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.io_data_req_addr[31:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.io_e2d_stall
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.lsu_lsu_stall
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.execute_1_.io_w2e_stall
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.cpu_ram_rd_data[31:0]
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.reg_rd_data[31:0]
+@200
+-
+@28
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_leds
 @200
 -
+@c00200
+-camera_pos
 @28
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_camera_pos_x_sign
 @24
@@ -82,8 +139,10 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_camera_pos_z_sign
 @24
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_camera_pos_z_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_camera_pos_z_mant[12:0]
-@200
--
+@1401200
+-camera_pos
+@c00200
+-rot_y
 @28
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_rot_y_sin_sign
 @24
@@ -96,12 +155,44 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_rot_y_cos_sign
 @24
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_rot_y_cos_exp[5:0]
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_rot_y_cos_mant[12:0]
+@1401200
+-rot_y
 @200
 -
-@29
+@28
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.eof_sticky
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_eof
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_eof_sticky
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_sphere_pos_y_sign
+@24
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_sphere_pos_y_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_sphere_pos_y_mant[12:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.eof_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.fpxx_op_a_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.fpxx_op_b_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.int2fpxx_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.fpxx_mul_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.fpxx_add_addr
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_fpxx_op_a
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_fpxx_op_b
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.int2fpxx_sign
+@24
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.int2fpxx_exp[5:0]
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.int2fpxx_mant[12:0]
+@200
+-
 @1000200
 -MR1
 @200
@@ -166,8 +257,6 @@ TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.dir_y_mant[12:0]
 -
 @c00200
 -sphere_pos
-@28
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_first_time
 @200
 -
 @28
@@ -175,26 +264,8 @@ TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_req
 TOP.PanoCoreDut.u_pano_core.vi_gen_pixel_out_eof
 @200
 -
-@420
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time[7:0]
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_m90[7:0]
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q[15:0]
-@200
 -
-@28
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_vld
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_sign
-@24
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_exp[5:0]
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_s_time_q_fp_mant[12:0]
-@200
 -
-@28
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_vld
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_sign
-@24
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_exp[5:0]
-TOP.PanoCoreDut.u_pano_core.rt_calc_sphere_pos_sphere_y_mant[12:0]
 @1401200
 -sphere_pos
 @c00200

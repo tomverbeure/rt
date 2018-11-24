@@ -93,6 +93,17 @@ fpxx_t int2fpxx(int op)
     return(REG_RD(INT2FPXX));
 }
 
+// 4 int bits, 12 fractional bits
+int fpxx2int(fpxx_t op)
+{
+    REG_WR(FPXX_OP_A, op);
+    nop();
+    nop();
+    nop();
+    return(REG_RD(FPXX2INT));
+}
+
+
 fpxx_t fpxx_neg(fpxx_t op)
 {
     return op ^ (1<<19);
@@ -162,28 +173,11 @@ int fpxx_ge(fpxx_t op_a, fpxx_t op_b)
 
 int main() {
 
-    REG_WR_FP32(CAMERA_POS_X, 0.0);
-    REG_WR_FP32(CAMERA_POS_Y, 10.0);
-    REG_WR_FP32(CAMERA_POS_Z, -25.0);
-
-    REG_WR_FP32(SPHERE_POS_X, 0.0);
-    REG_WR_FP32(SPHERE_POS_Y, 10.0);
-    REG_WR_FP32(SPHERE_POS_Z, 10.0);
-
-    REG_WR_FP32(ROT_X_SIN, 0.33688985339222005);
-    REG_WR_FP32(ROT_X_COS, 0.94154406518302081);
-
-    REG_WR_FP32(ROT_Y_SIN, 0.17096188876030122);
-    REG_WR_FP32(ROT_Y_COS, 0.98527764238894122);
-
     REG_WR(LED_CONFIG, 0x00);
 
-    int cam_cntr = 0;
+    int cam_time = 0;
     int frame_cntr = 0;
-
     int bounce_time = 0;
-
-    int angle = 1;
 
     fpxx_t sphere_pos_x = int2fpxx(0);
     fpxx_t sphere_pos_z = int2fpxx(0);
@@ -200,27 +194,19 @@ int main() {
     int sphere_dir_x = 1;
     int sphere_dir_z = 1;
 
-    while(1){
-        // Wait until end of frame...
-        while(!REG_RD(EOF));
-        REG_WR(EOF, 1);
+    fpxx_t cam_pos_x     = int2fpxx(0);
+    fpxx_t cam_pos_y     = int2fpxx(10);
+    fpxx_t cam_pos_z     = int2fpxx(-25);
 
+
+    while(1){
         // Blink every 60 frames.
         REG_WR(LED_CONFIG, (frame_cntr & 64)==0 && 0x7);
+        ++frame_cntr;
 
-
-        /*
-        float z_pos;
-        z_pos = cam_cntr/64.0 * 5 -10;
-        REG_WR_FP32(CAMERA_POS_Z, z_pos);
-        */
-
-        /*
-        fpxx_t z_pos;
-        z_pos = fpxx_add(fpxx_mul(float_to_fpxx(cam_cntr/64.0f), float_to_fpxx(5.0f)), float_to_fpxx(10.0f));
-        REG_WR(CAMERA_POS_Z, z_pos);
-        */
-
+        //============================================================
+        // Sphere movement
+        //============================================================
         {
             //============================================================
             // Bounce ball
@@ -292,14 +278,33 @@ int main() {
             REG_WR(SPHERE_POS_Z, sphere_pos_z);
         }
 
-        //angle = (angle+1) & 0x3ff;
-        REG_WR(ROT_Y_SIN, fpxx_sin(angle));
-        REG_WR(ROT_Y_COS, fpxx_cos(angle));
+        //============================================================
+        // Camera movement
+        //============================================================
+        {
+            fpxx_t cam_pos_sin = fpxx_sin((cam_time*2) & 0x3ff);
+            fpxx_t cam_pos_cos = fpxx_cos((cam_time*3) & 0x3ff);
 
-        ++cam_cntr;
-        if (cam_cntr == 60)
-            cam_cntr = 0;
+            cam_pos_x = fpxx_add(fpxx_mul(cam_pos_sin, int2fpxx(8)), int2fpxx(-3));
+            cam_pos_y = fpxx_add(fpxx_mul(cam_pos_cos, int2fpxx(8)), int2fpxx(10));
 
-        ++frame_cntr;
+            REG_WR(CAMERA_POS_X, cam_pos_x);
+            REG_WR(CAMERA_POS_Y, cam_pos_y);
+            REG_WR(CAMERA_POS_Z, cam_pos_z);
+
+            int cam_rot_y_angle = 45;
+            REG_WR(ROT_Y_SIN, fpxx_sin(cam_rot_y_angle));
+            REG_WR(ROT_Y_COS, fpxx_cos(cam_rot_y_angle));
+
+            int cam_rot_x_angle  = 10;
+            REG_WR(ROT_X_SIN, fpxx_sin((cam_rot_x_angle * 1024 / 360)&0x3ff));
+            REG_WR(ROT_X_COS, fpxx_cos((cam_rot_x_angle * 1024 / 360)&0x3ff));
+
+            cam_time += 1;
+        }
+
+        // Wait until end of frame...
+        while(!REG_RD(EOF));
+        REG_WR(EOF, 1);
     }
 }

@@ -140,7 +140,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     eof_sticky := io.eof ? True | (eof_sticky && !update_eof_sticky)
 
     //============================================================
-    // Fpxx add, multiply, int2fpxx
+    // Fpxx add, multiply, int2fpxx, fpxx2int
     //============================================================
 
     val fpxx_op_a_addr  = (mr1.io.data_req.addr === U"32'h00080050")
@@ -148,6 +148,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     val fpxx_mul_addr   = (mr1.io.data_req.addr === U"32'h00080058")
     val fpxx_add_addr   = (mr1.io.data_req.addr === U"32'h0008005c")
     val int2fpxx_addr   = (mr1.io.data_req.addr === U"32'h00080060")
+    val fpxx2int_addr   = (mr1.io.data_req.addr === U"32'h00080064")
 
     val update_fpxx_op_a = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_a_addr
     val update_fpxx_op_b = mr1.io.data_req.valid && mr1.io.data_req.wr && fpxx_op_b_addr
@@ -157,6 +158,7 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     val fpxx_add  = Fpxx(rtConfig.fpxxConfig)
     val fpxx_mul  = Fpxx(rtConfig.fpxxConfig)
     val int2fpxx  = Fpxx(rtConfig.fpxxConfig)
+    val fpxx2int  = SInt((8+12) bits)
 
     fpxx_op_a.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_a))
     fpxx_op_b.fromVec(RegNextWhen(mr1.io.data_req.data(0, fpxx_op_a.toVec().getWidth bits), update_fpxx_op_b))
@@ -178,11 +180,17 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     u_int2fpxx.io.op     <> fpxx_op_a.toVec().asSInt
     u_int2fpxx.io.result <> int2fpxx
 
+    val u_fpxx2int = new Fpxx2SInt(8,12, rtConfig.fpxxConfig)
+    u_fpxx2int.io.op_vld <> True
+    u_fpxx2int.io.op     <> fpxx_op_a
+    u_fpxx2int.io.result <> fpxx2int
+
     reg_rd_data :=   (RegNext(eof_addr)      ? (B(0, 31 bits) ## eof_sticky) |
                      (RegNext(fpxx_mul_addr) ? fpxx_mul.toVec().resize(32)   |
                      (RegNext(fpxx_add_addr) ? fpxx_add.toVec().resize(32)   |
                      (RegNext(int2fpxx_addr) ? int2fpxx.toVec().resize(32)   |
-                                               B(0, 32 bits)))))
+                     (RegNext(fpxx2int_addr) ? fpxx2int.resize(32).asBits    |
+                                               B(0, 32 bits))))))
 
     //============================================================
     // Sphere Pos
