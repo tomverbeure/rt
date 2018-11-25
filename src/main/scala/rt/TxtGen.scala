@@ -15,7 +15,7 @@ class TxtGen extends Component {
         val txt_buf_wr_data  = in(Bits(8 bits))
     }
 
-    val charWidth       = 8
+    val charWidth       = 9
     val charHeight      = 16
 
     val txtBufWidth     = 80

@@ -169,11 +169,13 @@ int main() {
     REG_WR(LED_CONFIG, 0x00);
 
     clear();
-    print("Hello World!\n");
     print("Race the Beam Ray Tracer\n");
-    print("ABCDEFGHIJKLMNOPQRSTUVWYXZ\n");
-    print("abcdefghijklmnopqrstuvwyxz\n");
-    print("0123456789!@#$%^&*()_+\n");
+    print("------------------------\n");
+    print("\n");
+    print("Real-time ray tracing without frame\n");
+    print("buffer on a small FPGA.\n");
+    print("\n");
+    print("Code at github.com/tomverbeure/rt\n");
 
     int cam_time = 0;
     int frame_cntr = 0;
