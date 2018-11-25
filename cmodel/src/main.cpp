@@ -614,11 +614,16 @@ color_t trace(ray_t ray, int iteration)
 
     bool light_intersects = sphere_intersect(sphere, reverse_light_ray, &sphere_t, &sphere_intersection, &sphere_normal, &reflect_ray);
 
-    //int checker = ( ((int)fabs((plane_intersection.s[0].fp32)) & 4) == 4) ^ ( ((int)fabs((plane_intersection.s[2].fp32)) & 4) == 4) ^ (plane_intersection.s[0].fp32 < 0);
-    int checker =   ((plane_intersection.s[0].fpxx.abs().to_int() & 4) == 4)
-                  ^ ((plane_intersection.s[2].fpxx.abs().to_int() & 4) == 4)
+    int plane_intersection_x = plane_intersection.s[0].fpxx.abs().to_int();
+    int plane_intersection_z = plane_intersection.s[2].fpxx.abs().to_int();
+
+    int checker =   ((plane_intersection_x & 4) == 4)
+                  ^ ((plane_intersection_z & 4) == 4)
                   ^ plane_intersection.s[0].fpxx.sign
                   ^ plane_intersection.s[2].fpxx.sign;
+
+    //checker = plane_intersection_z < 2 ? 1 : checker;
+
 
     if ( checker){
         c.r = 1.0;
