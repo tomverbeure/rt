@@ -394,11 +394,6 @@ class PanoCore extends Component {
                                                                 sphere_result_vld,                   sphere_intersects,
                                                                 plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
 
-//        val (spot_light_final_delayed_vld, spot_light_final_delayed, plane_intersects_final_delayed_0) = MatchLatency(
-//                                                                ray_normalized_vld,
-//                                                                spot_light_final_vld,                   spot_light_final_vld,
-//                                                                plane_intersects_final_vld_delayed,  plane_intersects_final_delayed)
-
         val (spot_light_final_delayed_vld, spot_light_final_delayed) = MatchLatency(
                                                                 ray_normalized_vld,
                                                                 spot_light_final_vld, spot_light_final,
@@ -538,10 +533,15 @@ class PanoCore extends Component {
         eof_final := rt_pixel.req && rt_pixel.eof
     }
 
+    val txt_pixel = PixelStream()
+
+    val u_txt_gen = new TxtGen
+    u_txt_gen.io.pixel_in  <> rt.rt_pixel
+    u_txt_gen.io.pixel_out <> txt_pixel
 
     val vo = new VideoOut()
     vo.io.timings := timings
-    vo.io.pixel_in <> rt.rt_pixel
+    vo.io.pixel_in <> txt_pixel
     vo.io.vga_out <> io.vo
 }
 
