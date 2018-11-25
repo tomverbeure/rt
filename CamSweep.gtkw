@@ -1,16 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sat Nov 24 17:52:07 2018
+[*] Sun Nov 25 22:28:48 2018
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sat Nov 24 17:48:06 2018"
-[dumpfile_size] 293398760
+[dumpfile_mtime] "Sun Nov 25 22:28:46 2018"
+[dumpfile_size] 511087951
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 2014
-[size] 2122 1211
+[timestart] 338000
+[size] 2345 1461
 [pos] -1 -1
-*-5.338978 2115 430710 5130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-14.338978 417400 430710 5130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -21,9 +21,9 @@
 [treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.
 [treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.
 [sst_width] 400
-[signals_width] 479
+[signals_width] 654
 [sst_expanded] 1
-[sst_vpaned_height] 607
+[sst_vpaned_height] 994
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -118,6 +118,13 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.reg_rd_data[31:0]
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_leds
 @200
 -
+@28
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_txt_buf_wr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.txt_buf_addr
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.update_txt_buf
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_txt_buf_wr_addr[10:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_txt_buf_wr_data[7:0]
 @c00200
 -camera_pos
 @28
@@ -889,5 +896,77 @@ TOP.PanoCoreDut.u_pano_core.rt_u_plane_intersect.io_result_t_mant[12:0]
 TOP.PanoCoreDut.u_pano_core.rt_rt_pixel_pixel_b[7:0]
 TOP.PanoCoreDut.u_pano_core.rt_rt_pixel_pixel_g[7:0]
 TOP.PanoCoreDut.u_pano_core.rt_rt_pixel_pixel_r[7:0]
+@200
+-
+@800200
+-TexGen
+@28
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_in_vsync
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_in_req
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_in_eof
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_in_eol
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.pix_x[11:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.pix_y[10:0]
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_x[7:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_y[6:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.txt_buf_rd_p0
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.txt_buf_rd_p1
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.txt_buf_rd_p2
+@200
+-
+@24
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.txt_buf_addr[10:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.txt_buf_addr_sol[10:0]
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.cur_char[7:0]
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_lsb_addr[11:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_msb_addr[11:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_addr[11:0]
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_byte[7:0]
+@28
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_pixel
+@24
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_sub_x_p2[2:0]
+@23
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_sub_y[3:0]
+@200
+-
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.pixel_in_p2_pixel_b[7:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.pixel_in_p2_pixel_g[7:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.pixel_in_p2_pixel_r[7:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_vsync
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_req
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_eol
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_eof
+@22
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_pixel_b[7:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_pixel_g[7:0]
+TOP.PanoCoreDut.u_pano_core.u_txt_gen.io_pixel_out_pixel_r[7:0]
+@1000200
+-TexGen
+@200
+-
+-
 [pattern_trace] 1
 [pattern_trace] 0

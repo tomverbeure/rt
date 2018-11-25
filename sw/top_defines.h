@@ -24,3 +24,5 @@
 #define SPHERE_POS_Y_ADDR   0x00000074
 #define SPHERE_POS_Z_ADDR   0x00000078
 
+#define TXT_BUF_ADDR        0x00008000
+

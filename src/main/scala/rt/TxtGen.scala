@@ -9,10 +9,14 @@ class TxtGen extends Component {
     val io = new Bundle {
         val pixel_in    = in(PixelStream())
         val pixel_out   = out(PixelStream())
+
+        val txt_buf_wr       = in(Bool)
+        val txt_buf_wr_addr  = in(UInt(11 bits))
+        val txt_buf_wr_data  = in(Bits(8 bits))
     }
 
     val charWidth       = 8
-    val charHeight      = 12
+    val charHeight      = 16
 
     val txtBufWidth     = 80
     val txtBufHeight    = 25
@@ -30,7 +34,7 @@ class TxtGen extends Component {
     val char_x = Reg(UInt(8 bits)) init(0)
     val char_y = Reg(UInt(7 bits)) init(0)
 
-    val char_sub_x = Reg(UInt(3 bits)) init(0)
+    val char_sub_x = Reg(UInt(4 bits)) init(0)
     val char_sub_y = Reg(UInt(4 bits)) init(0)
 
     var txt_buf_addr_sol = Reg(UInt(11 bits)) init(0)
@@ -80,12 +84,19 @@ class TxtGen extends Component {
 
     // Fetch character to render
     val txt_buf_addr    = txt_buf_addr_sol + char_x.resize(txt_buf_addr_sol.getWidth)
-    val txt_buf_rd_p0   = (char_x < txtBufActiveWidth) && (char_y < txtBufActiveHeight)
-    val u_txt_buf       = Mem(UInt(8 bits), txtBufWidth * txtBufHeight)
+    val txt_buf_rd_p0   = (char_x < txtBufActiveWidth) && (char_y < txtBufActiveHeight) && io.pixel_in.req
+    val u_txt_buf       = Mem(UInt(8 bits), 2048)
 
     val cur_char = u_txt_buf.readSync(
                         enable  = txt_buf_rd_p0, 
                         address = txt_buf_addr)
+
+    u_txt_buf.readWriteSync(
+                        enable  = io.txt_buf_wr,
+                        address = io.txt_buf_wr_addr,
+                        write   = io.txt_buf_wr,
+                        data    = io.txt_buf_wr_data.asUInt
+                        )
 
     val txt_buf_rd_p1 = RegNext(txt_buf_rd_p0)
     val char_sub_x_p1 = RegNext(char_sub_x)
@@ -110,7 +121,7 @@ class TxtGen extends Component {
 
     val bitmap = if (true) new Area {
         // FONT 8x12
-        bitmap_lsb_addr := (cur_char & 0xf).resize(bitmap_lsb_addr.getWidth) + (char_y(0, 4 bits) * 16).resize(bitmap_lsb_addr.getWidth)
+        bitmap_lsb_addr := (cur_char & 0xf).resize(bitmap_lsb_addr.getWidth) + (char_sub_y(0, 4 bits) * 16).resize(bitmap_lsb_addr.getWidth)
         bitmap_msb_addr := ((cur_char >> 4) * 0x100).resize(bitmap_msb_addr.getWidth)
 
         bitmap_font_file = "fonts/vga8x12_font.rgb"
@@ -137,16 +148,14 @@ class TxtGen extends Component {
     val txt_buf_rd_p2 = RegNext(txt_buf_rd_p1)
     val char_sub_x_p2 = RegNext(char_sub_x_p1)
 
-    val bitmap_pixel = (bitmap_byte >> (7 ^ char_sub_x_p2))(0)
+    val bitmap_pixel = (bitmap_byte >> (7 ^ char_sub_x_p2(0, 3 bits)))(0) && !char_sub_x_p2(3)
 
     val pixel_in_p2 = RegNext(RegNext(io.pixel_in))
 
-    when(bitmap_pixel && txt_buf_rd_p2){
-        pixel_in_p2.pixel.r := 0xff
-        pixel_in_p2.pixel.g := 0xff
-        pixel_in_p2.pixel.b := 0xff
-    }
-
     io.pixel_out := pixel_in_p2
-
+    when(bitmap_pixel && txt_buf_rd_p2){
+        io.pixel_out.pixel.r := 0xff
+        io.pixel_out.pixel.g := 0xff
+        io.pixel_out.pixel.b := 0xff
+    }
 }

@@ -1,16 +1,9 @@
 #include <stdint.h>
 #include <math.h>
 
+#include "reg.h"
 #include "top_defines.h"
-
-#define LED_CONFIG                  *((volatile uint32_t *)(0x00080000 | LED_CONFIG_ADDR  ))
-
-#define REG_WR(reg_name, wr_data)   (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)) = (wr_data))
-#define REG_RD(reg_name)            (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)))
-
-#define REG_WR_FP32(reg_name, wr_data)   (*((volatile uint32_t *)(0x00080000 | reg_name##_ADDR)) = float_to_fpxx(wr_data))
-
-#define FP32_AS_INT(fp32) (*((unsigned int *)(&fp32)))
+#include "print.h"
 
 static inline uint32_t rdcycle(void) {
     uint32_t cycle;
@@ -174,6 +167,13 @@ int fpxx_ge(fpxx_t op_a, fpxx_t op_b)
 int main() {
 
     REG_WR(LED_CONFIG, 0x00);
+
+    clear();
+    print("Hello World!\n");
+    print("Race the Beam Ray Tracer\n");
+    print("ABCDEFGHIJKLMNOPQRSTUVWYXZ\n");
+    print("abcdefghijklmnopqrstuvwyxz\n");
+    print("0123456789!@#$%^&*()_+\n");
 
     int cam_time = 0;
     int frame_cntr = 0;

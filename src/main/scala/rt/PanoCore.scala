@@ -538,6 +538,9 @@ class PanoCore extends Component {
     val u_txt_gen = new TxtGen
     u_txt_gen.io.pixel_in  <> rt.rt_pixel
     u_txt_gen.io.pixel_out <> txt_pixel
+    u_txt_gen.io.txt_buf_wr      <> u_mr1_top.io.txt_buf_wr
+    u_txt_gen.io.txt_buf_wr_addr <> u_mr1_top.io.txt_buf_wr_addr
+    u_txt_gen.io.txt_buf_wr_data <> u_mr1_top.io.txt_buf_wr_data
 
     val vo = new VideoOut()
     vo.io.timings := timings

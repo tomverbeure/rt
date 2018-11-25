@@ -29,6 +29,10 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
         val sphere_pos_y = out(Fpxx(rtConfig.fpxxConfig))
         val sphere_pos_z = out(Fpxx(rtConfig.fpxxConfig))
 
+        val txt_buf_wr      = out(Bool)
+        val txt_buf_wr_addr = out(UInt(11 bits))
+        val txt_buf_wr_data = out(Bits(8 bits))
+
         val eof         = in(Bool)
     }
 
@@ -204,6 +208,16 @@ class MR1Top(config: MR1Config, rtConfig: RTConfig) extends Component {
     io.sphere_pos_y.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_y.toVec().getWidth bits), update_sphere_pos_y))
     io.sphere_pos_z.fromVec(RegNextWhen(mr1.io.data_req.data(0, io.sphere_pos_z.toVec().getWidth bits), update_sphere_pos_z))
 
+    //============================================================
+    // Txt Buf RAM
+    //============================================================
 
+    val txt_buf_addr = (mr1.io.data_req.addr(15, 17 bits) === U"32'h00088000"(15, 17 bits))
+
+    val update_txt_buf = mr1.io.data_req.valid && mr1.io.data_req.wr && txt_buf_addr
+
+    io.txt_buf_wr       <> update_txt_buf
+    io.txt_buf_wr_addr  <> mr1.io.data_req.addr(2, 11 bits)
+    io.txt_buf_wr_data  <> mr1.io.data_req.data(0, 8 bits)
 }
 
