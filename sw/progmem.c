@@ -169,11 +169,11 @@ int main() {
     REG_WR(LED_CONFIG, 0x00);
 
     clear();
-    print("Race the Beam Ray Tracer\n");
-    print("------------------------\n");
+    print("Racing the Beam Ray Tracer\n");
+    print("--------------------------\n");
     print("\n");
     print("Real-time ray tracing without frame\n");
-    print("buffer on a small FPGA.\n");
+    print("buffer on small Spartan-3E 1600 FPGA.\n");
     print("\n");
     print("Code at github.com/tomverbeure/rt\n");
 
