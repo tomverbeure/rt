@@ -39,7 +39,7 @@ This will update the Pano.bit file with your latest binary.
 
 * Install [SpinalHDL](https://github.com/SpinalHDL/SpinalHDL).
 
-    The actual installing instructions can be found in the [VexRisc]( https://github.com/SpinalHDL/VexRiscv#dependencies)
+    The actual installation instructions can be found in the [VexRisc]( https://github.com/SpinalHDL/VexRiscv#dependencies)
     project.
 
 * Clone my [math](https://github.com/tomverbeure/math) github repository to `~/projects/math`.
@@ -115,4 +115,5 @@ The simulation can take quite a while because it simulates a full frame at 648x4
 
 To see waveforms, do `make waves`.
 
+Don't forget to do the `hwMulGlobal` change before you generate the synthesis Pano.v, because otherwise the design won't fit in the FPGA!
 
