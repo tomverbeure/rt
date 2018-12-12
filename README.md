@@ -98,4 +98,21 @@ make impact
 
     <To be done>
 
+## Simulation
+
+I have an eye-balling-only simulation set up.
+
+To use it, you first need to make 1 change in the RTL:
+
+Change [this line](https://github.com/tomverbeure/rt/blob/23d486e72243ae706c7d2630ca06af3c1aecb0c1/src/main/scala/rt/RT.scala#L52) to
+```
+    val hwMulGlobal = false
+```
+
+After that, just do `make sim`.
+
+The simulation can take quite a while because it simulates a full frame at 648x480.
+
+To see waveforms, do `make waves`.
+
 
