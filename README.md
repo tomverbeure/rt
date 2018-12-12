@@ -15,7 +15,7 @@ You can read all about it [here](https://tomverbeure.github.io/rtl/2018/11/26/Ra
 If you simply want to run the finished project on your Pano, then all you need to
 do is load a pre-made bitstream into the device.
 
-The bitstream can be found [here](./xilinx/Pano.bit)
+The bitstream can be found [here](./xilinx/Pano.bit).
 
 ## Changing the software
 
