@@ -3,7 +3,7 @@ sim:
 	sbt "test-only rt.PanoTester"
 
 syn:
-	sbt "run-main rt.TopRT"
+	sbt "runMain rt.TopRT"
 
 waves:
 	gtkwave -o simWorkspace/PanoCoreDut/test.vcd &
