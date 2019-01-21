@@ -166,7 +166,9 @@ int fpxx_ge(fpxx_t op_a, fpxx_t op_b)
 
 int main() {
 
+    REG_WR(USB, 0x55aa);
     REG_WR(LED_CONFIG, 0x00);
+    REG_RD(USB);
 
     clear();
     print("Racing the Beam Ray Tracer\n");

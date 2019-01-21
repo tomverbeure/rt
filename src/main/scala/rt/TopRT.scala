@@ -1,7 +1,7 @@
 package rt
 
 import spinal.core._
-//import vexriscv.demo._
+import spinal.lib.io._
 
 object TopRT{
     def main(args: Array[String]) {
@@ -9,7 +9,7 @@ object TopRT{
         val config = SpinalConfig()
         config.generateVerilog({
             val toplevel = new Pano()
-            toplevel
+            InOutWrapper(toplevel)
         })
         println("DONE")
     }

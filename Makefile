@@ -1,6 +1,6 @@
 
 sim:
-	sbt "test-only rt.PanoTester"
+	sbt "testOnly rt.PanoTester"
 
 syn:
 	sbt "runMain rt.TopRT"

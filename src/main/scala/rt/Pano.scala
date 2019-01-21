@@ -5,6 +5,8 @@ import spinal.core._
 import spinal.lib.Counter
 import spinal.lib.CounterFreeRun
 import spinal.lib.GrayCounter
+import spinal.lib.master
+import spinal.lib.io.{ReadableOpenDrain, TriStateArray, TriState}
 import math._
 
 
@@ -18,6 +20,16 @@ class Pano extends Component {
 
         val led_green           = out(Bool)
         val led_blue            = out(Bool)
+
+        val usb_reset_n         = out(Bool)
+        val usb_clkin           = out(Bool)
+
+        val usb_a               = out(UInt(17 bits))
+        val usb_d               = master(TriStateArray(16 bits))
+        val usb_cs_             = out(Bool)
+        val usb_rd_             = out(Bool)
+        val usb_wr_             = out(Bool)
+        val usb_irq             = in(Bool)
     }
 
     noIoPrefix()
@@ -72,6 +84,13 @@ class Pano extends Component {
 
         u_pano_core.io.led_green    <> io.led_green
         u_pano_core.io.led_blue     <> io.led_blue
+
+        u_pano_core.io.usb_a        <> io.usb_a
+        u_pano_core.io.usb_d        <> io.usb_d
+        u_pano_core.io.usb_cs_      <> io.usb_cs_
+        u_pano_core.io.usb_rd_      <> io.usb_rd_
+        u_pano_core.io.usb_wr_      <> io.usb_wr_
+        u_pano_core.io.usb_irq      <> io.usb_irq
     }
 
 }

@@ -1,16 +1,16 @@
 [*]
 [*] GTKWave Analyzer v3.3.90 (w)1999-2018 BSI
-[*] Sun Nov 25 22:28:48 2018
+[*] Mon Jan 21 19:34:28 2019
 [*]
 [dumpfile] "/home/tom/projects/rt/simWorkspace/PanoCoreDut/test.vcd"
-[dumpfile_mtime] "Sun Nov 25 22:28:46 2018"
-[dumpfile_size] 511087951
+[dumpfile_mtime] "Mon Jan 21 19:29:03 2019"
+[dumpfile_size] 1250835880
 [optimize_vcd]
 [savefile] "/home/tom/projects/rt/CamSweep.gtkw"
-[timestart] 338000
-[size] 2345 1461
+[timestart] 314
+[size] 1913 1235
 [pos] -1 -1
-*-14.338978 417400 430710 5130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-6.338978 470 430710 5130 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] TOP.
 [treeopen] TOP.PanoCoreDut.
 [treeopen] TOP.PanoCoreDut.u_pano_core.
@@ -21,9 +21,9 @@
 [treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.
 [treeopen] TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.
 [sst_width] 400
-[signals_width] 654
+[signals_width] 527
 [sst_expanded] 1
-[sst_vpaned_height] 994
+[sst_vpaned_height] 823
 @28
 TOP.PanoCoreDut.u_pano_core.rt_u_cam_sweep.clk
 @200
@@ -94,6 +94,28 @@ TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_req_size[1:0]
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_rsp_valid
 @22
 TOP.PanoCoreDut.u_pano_core.u_mr1_top.mr1_1_.data_rsp_data[31:0]
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.is_usb_req
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.is_usb_req_d1
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.is_usb_req_d2
+@200
+-
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.clk
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_cs_
+@22
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_a[16:0]
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_wr_
+@22
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_d_read[15:0]
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_d_writeEnable[15:0]
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_d_write[15:0]
+@28
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_rd_
+TOP.PanoCoreDut.u_pano_core.u_mr1_top.io_usb_irq
 @200
 -
 @28
@@ -942,9 +964,7 @@ TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_addr[11:0]
 TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_byte[7:0]
 @28
 TOP.PanoCoreDut.u_pano_core.u_txt_gen.bitmap_pixel
-@24
-TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_sub_x_p2[2:0]
-@23
+@22
 TOP.PanoCoreDut.u_pano_core.u_txt_gen.char_sub_y[3:0]
 @200
 -

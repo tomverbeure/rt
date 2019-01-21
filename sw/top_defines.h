@@ -26,3 +26,4 @@
 
 #define TXT_BUF_ADDR        0x00008000
 
+#define USB_ADDR            0x00100000

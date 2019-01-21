@@ -1,3 +1,3 @@
 
-sbt "run-main rt.TopRT"
+sbt "runMain rt.TopRT"
 

@@ -49,7 +49,7 @@ object MatchLatency {
 
 object Constants {
 
-    val hwMulGlobal = true
+    val hwMulGlobal = false
 
     def fpxxAddConfig   = FpxxAddConfig(pipeStages = 2)
     def fpxxMulConfig   = FpxxMulConfig(pipeStages = 5)

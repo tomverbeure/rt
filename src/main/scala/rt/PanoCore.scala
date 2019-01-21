@@ -5,6 +5,8 @@ import spinal.core._
 import spinal.lib.Counter
 import spinal.lib.CounterFreeRun
 import spinal.lib.GrayCounter
+import spinal.lib.master
+import spinal.lib.io.{ReadableOpenDrain, TriStateArray, TriState}
 
 import math._
 import mr1._
@@ -17,8 +19,14 @@ class PanoCore extends Component {
 
         val led_green           = out(Bool)
         val led_blue            = out(Bool)
-    }
 
+        val usb_a               = out(UInt(17 bits))
+        val usb_d               = master(TriStateArray(16 bits))
+        val usb_cs_             = out(Bool)
+        val usb_rd_             = out(Bool)
+        val usb_wr_             = out(Bool)
+        val usb_irq             = in(Bool)
+    }
 
     val leds = new Area {
         val led_cntr = Reg(UInt(24 bits)) init(0)
@@ -42,6 +50,12 @@ class PanoCore extends Component {
     u_mr1_top.io.led1       <> io.led_blue
     u_mr1_top.io.switch_    <> True
     u_mr1_top.io.eof        <> eof_final
+    u_mr1_top.io.usb_a      <> io.usb_a
+    u_mr1_top.io.usb_d      <> io.usb_d
+    u_mr1_top.io.usb_cs_    <> io.usb_cs_
+    u_mr1_top.io.usb_rd_    <> io.usb_rd_
+    u_mr1_top.io.usb_wr_    <> io.usb_wr_
+    u_mr1_top.io.usb_irq    <> io.usb_irq
 
     val timings = VideoTimings()
     timings.h_active        := 640
