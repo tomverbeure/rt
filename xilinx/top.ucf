@@ -57,108 +57,109 @@ NET "led_blue"  LOC = L1  |IOSTANDARD = LVCMOS33;
 #============================================================
 # DDR2 DRAM
 #============================================================
-#NET "sdram_a[0]"   LOC = F11 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[1]"   LOC = D13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[2]"   LOC = E13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[3]"   LOC = E11 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[4]"   LOC = B16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[5]"   LOC = A16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[6]"   LOC = A12 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[7]"   LOC = A11 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[8]"   LOC = D14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[9]"   LOC = A14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[10]"  LOC = B14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_a[11]"  LOC = A13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_ck"     LOC = J17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_ck_"    LOC = J16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_cke"    LOC = E15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_cs_"    LOC =  | IOSTANDARD = SSTL18_I;
-#NET "sdram_we_"    LOC = P16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_cas_"   LOC = M14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_ras_"   LOC = H14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dm[0]"  LOC = K12 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dm[1]"  LOC = K13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dm[2]"  LOC = J14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dm[3]"  LOC = H15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_ba[0]"  LOC = F12 |IOSTANDARD = SSTL18_I;
-#NET "sdram_ba[1]"  LOC = E12 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[31]" LOC = C18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[30]" LOC = C17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[29]" LOC = D17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[28]" LOC = D16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[27]" LOC = F15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[26]" LOC = F14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[25]" LOC = F18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[24]" LOC = F17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[23]" LOC = G14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[22]" LOC = G13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[21]" LOC = G15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[20]" LOC = G16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[19]" LOC = H16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[18]" LOC = H17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[17]" LOC = J12 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[16]" LOC = J13 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[15]" LOC = K15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[14]" LOC = K14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[13]" LOC = L16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[12]" LOC = L15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[11]" LOC = N18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[10]" LOC = M18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[9]"  LOC = M15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[8]"  LOC = M16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[7]"  LOC = P17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[6]"  LOC = P18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[5]"  LOC = N15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[4]"  LOC = N14 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[3]"  LOC = R18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[2]"  LOC = T18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[1]"  LOC = U18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dq[0]"  LOC = T17 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dqs[3]" LOC = E16 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dqs[2]" LOC = J15 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dqs[1]" LOC = L18 |IOSTANDARD = SSTL18_I;
-#NET "sdram_dqs[0]" LOC = R15 |IOSTANDARD = SSTL18_I;
+#NET "sdram_a[0]"   LOC = F11 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[1]"   LOC = D13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[2]"   LOC = E13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[3]"   LOC = E11 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[4]"   LOC = B16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[5]"   LOC = A16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[6]"   LOC = A12 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[7]"   LOC = A11 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[8]"   LOC = D14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[9]"   LOC = A14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[10]"  LOC = B14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_a[11]"  LOC = A13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_ck"     LOC = J17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_ck_"    LOC = J16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_cke"    LOC = E15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_cs_"    LOC =  | IOSTANDARD = LVCMOS18;
+#NET "sdram_we_"    LOC = P16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_cas_"   LOC = M14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_ras_"   LOC = H14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dm[0]"  LOC = K12 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dm[1]"  LOC = K13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dm[2]"  LOC = J14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dm[3]"  LOC = H15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_ba[0]"  LOC = F12 |IOSTANDARD = LVCMOS18;
+#NET "sdram_ba[1]"  LOC = E12 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[31]" LOC = C18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[30]" LOC = C17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[29]" LOC = D17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[28]" LOC = D16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[27]" LOC = F15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[26]" LOC = F14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[25]" LOC = F18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[24]" LOC = F17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[23]" LOC = G14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[22]" LOC = G13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[21]" LOC = G15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[20]" LOC = G16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[19]" LOC = H16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[18]" LOC = H17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[17]" LOC = J12 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[16]" LOC = J13 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[15]" LOC = K15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[14]" LOC = K14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[13]" LOC = L16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[12]" LOC = L15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[11]" LOC = N18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[10]" LOC = M18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[9]"  LOC = M15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[8]"  LOC = M16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[7]"  LOC = P17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[6]"  LOC = P18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[5]"  LOC = N15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[4]"  LOC = N14 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[3]"  LOC = R18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[2]"  LOC = T18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[1]"  LOC = U18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dq[0]"  LOC = T17 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dqs[3]" LOC = E16 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dqs[2]" LOC = J15 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dqs[1]" LOC = L18 |IOSTANDARD = LVCMOS18;
+#NET "sdram_dqs[0]" LOC = R15 |IOSTANDARD = LVCMOS18;
 #============================================================
 # VGA Out - TI THS8135
 #============================================================
-NET "vo_clk"  LOC = E10  |IOSTANDARD = LVCMOS33;   # CLK
+NET "vo_clk"  LOC = E10  |IOSTANDARD = LVCMOS18;   # CLK
 NET "vo_vsync"  LOC = D1  |IOSTANDARD = LVCMOS33;  # B2B A[9]
 NET "vo_hsync"  LOC = C2  |IOSTANDARD = LVCMOS33;  # B2B A[11]
-NET "vo_blank_" LOC = A8  |IOSTANDARD = LVCMOS33;  # BLANK_
+NET "vo_blank_" LOC = A8  |IOSTANDARD = LVCMOS18;  # BLANK_
                                                     # SYNC_  = 10k pullup to VDD
                                                     # SYNC_T = 10k R to ?
                                                     # M1 = 10 pulldown to GND
                                                     # M2 = 10 pulldown to GND
 #NET "vo_scl"  LOC = D4  |IOSTANDARD = LVCMOS33;
 #NET "vo_sda"  LOC = G3  |IOSTANDARD = LVCMOS33;
-NET "vo_r[7]" LOC = D9  |IOSTANDARD = LVCMOS33;    # R9
-NET "vo_r[6]" LOC = E9  |IOSTANDARD = LVCMOS33;    # R8
-NET "vo_r[5]" LOC = C9  |IOSTANDARD = LVCMOS33;    # R7
-NET "vo_r[4]" LOC = F9  |IOSTANDARD = LVCMOS33;    # R6
-NET "vo_r[3]" LOC = F8  |IOSTANDARD = LVCMOS33;    # R5
-NET "vo_r[2]" LOC = C7  |IOSTANDARD = LVCMOS33;    # R4
-NET "vo_r[1]" LOC = E8  |IOSTANDARD = LVCMOS33;    # R3
-NET "vo_r[0]" LOC = F7  |IOSTANDARD = LVCMOS33;    # R2
+
+NET "vo_r[7]" LOC = D9  |IOSTANDARD = LVCMOS18;    # R9
+NET "vo_r[6]" LOC = E9  |IOSTANDARD = LVCMOS18;    # R8
+NET "vo_r[5]" LOC = C9  |IOSTANDARD = LVCMOS18;    # R7
+NET "vo_r[4]" LOC = F9  |IOSTANDARD = LVCMOS18;    # R6
+NET "vo_r[3]" LOC = F8  |IOSTANDARD = LVCMOS18;    # R5
+NET "vo_r[2]" LOC = C7  |IOSTANDARD = LVCMOS18;    # R4
+NET "vo_r[1]" LOC = E8  |IOSTANDARD = LVCMOS18;    # R3
+NET "vo_r[0]" LOC = F7  |IOSTANDARD = LVCMOS18;    # R2
                                                     # R1 = GND
                                                     # R0 = GND
-NET "vo_g[7]" LOC = G9   |IOSTANDARD = LVCMOS33;   # G9
-NET "vo_g[6]" LOC = D11  |IOSTANDARD = LVCMOS33;   # G8
-NET "vo_g[5]" LOC = C4   |IOSTANDARD = LVCMOS33;   # G7
-NET "vo_g[4]" LOC = A7   |IOSTANDARD = LVCMOS33;   # G6
-NET "vo_g[3]" LOC = A10  |IOSTANDARD = LVCMOS33;   # G5
-NET "vo_g[2]" LOC = D10  |IOSTANDARD = LVCMOS33;   # G4
-NET "vo_g[1]" LOC = C11  |IOSTANDARD = LVCMOS33;   # G3
-NET "vo_g[0]" LOC = B10  |IOSTANDARD = LVCMOS33;   # G2
+NET "vo_g[7]" LOC = G9   |IOSTANDARD = LVCMOS18;   # G9
+NET "vo_g[6]" LOC = D11  |IOSTANDARD = LVCMOS18;   # G8
+NET "vo_g[5]" LOC = C4   |IOSTANDARD = LVCMOS18;   # G7
+NET "vo_g[4]" LOC = A7   |IOSTANDARD = LVCMOS18;   # G6
+NET "vo_g[3]" LOC = A10  |IOSTANDARD = LVCMOS18;   # G5
+NET "vo_g[2]" LOC = D10  |IOSTANDARD = LVCMOS18;   # G4
+NET "vo_g[1]" LOC = C11  |IOSTANDARD = LVCMOS18;   # G3
+NET "vo_g[0]" LOC = B10  |IOSTANDARD = LVCMOS18;   # G2
                                                     # G1 = GND
                                                     # G0 = GND
-NET "vo_b[7]" LOC = A4  |IOSTANDARD = LVCMOS33;    # B9
-NET "vo_b[6]" LOC = D6  |IOSTANDARD = LVCMOS33;    # B8
-NET "vo_b[5]" LOC = C3  |IOSTANDARD = LVCMOS33;    # B7
-NET "vo_b[4]" LOC = E6  |IOSTANDARD = LVCMOS33;    # B6
-NET "vo_b[3]" LOC = B4  |IOSTANDARD = LVCMOS33;    # B5
-NET "vo_b[2]" LOC = C5  |IOSTANDARD = LVCMOS33;    # B4
-NET "vo_b[1]" LOC = B6  |IOSTANDARD = LVCMOS33;    # B3
-NET "vo_b[0]" LOC = A6  |IOSTANDARD = LVCMOS33;    # B2
+NET "vo_b[7]" LOC = A4  |IOSTANDARD = LVCMOS18;    # B9
+NET "vo_b[6]" LOC = D6  |IOSTANDARD = LVCMOS18;    # B8
+NET "vo_b[5]" LOC = C3  |IOSTANDARD = LVCMOS18;    # B7
+NET "vo_b[4]" LOC = E6  |IOSTANDARD = LVCMOS18;    # B6
+NET "vo_b[3]" LOC = B4  |IOSTANDARD = LVCMOS18;    # B5
+NET "vo_b[2]" LOC = C5  |IOSTANDARD = LVCMOS18;    # B4
+NET "vo_b[1]" LOC = B6  |IOSTANDARD = LVCMOS18;    # B3
+NET "vo_b[0]" LOC = A6  |IOSTANDARD = LVCMOS18;    # B2
                                                     # B1 = GND
                                                     # B0 = GND
 #============================================================
