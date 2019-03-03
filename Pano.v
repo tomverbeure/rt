@@ -1,14 +1,7 @@
-// Generator : SpinalHDL v1.2.0    git head : cf3b44dbd881428e70669e5b623479c23b2d0ddd
-// Date      : 01/12/2018, 17:27:17
+// Generator : SpinalHDL v1.2.2    git head : 3159d9865a8de00378e0b0405c338a97c2f5a601
+// Date      : 02/03/2019, 16:52:33
 // Component : Pano
 
-
-`define PcState_defaultEncoding_type [4:0]
-`define PcState_defaultEncoding_Idle 5'b00001
-`define PcState_defaultEncoding_WaitReqReady 5'b00010
-`define PcState_defaultEncoding_WaitRsp 5'b00100
-`define PcState_defaultEncoding_WaitJumpDone 5'b01000
-`define PcState_defaultEncoding_WaitStallDone 5'b10000
 
 `define InstrType_defaultEncoding_type [12:0]
 `define InstrType_defaultEncoding_Undef 13'b0000000000001
@@ -33,6 +26,13 @@
 `define InstrFormat_defaultEncoding_U 7'b0010000
 `define InstrFormat_defaultEncoding_J 7'b0100000
 `define InstrFormat_defaultEncoding_Shamt 7'b1000000
+
+`define PcState_defaultEncoding_type [4:0]
+`define PcState_defaultEncoding_Idle 5'b00001
+`define PcState_defaultEncoding_WaitReqReady 5'b00010
+`define PcState_defaultEncoding_WaitRsp 5'b00100
+`define PcState_defaultEncoding_WaitJumpDone 5'b01000
+`define PcState_defaultEncoding_WaitStallDone 5'b10000
 
 `define Op1Kind_binary_sequential_type [1:0]
 `define Op1Kind_binary_sequential_Rs1 2'b00
@@ -1079,18 +1079,19 @@ module Fetch (
     pc_capture_instr = 1'b0;
     io_instr_req_valid = 1'b0;
     io_instr_req_addr = pc_real_pc;
-    case(pc_cur_state)
-      `PcState_defaultEncoding_Idle : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((pc_cur_state) & `PcState_defaultEncoding_Idle) == `PcState_defaultEncoding_Idle) : begin
         if(_zz_1_)begin
           io_instr_req_valid = 1'b1;
           io_instr_req_addr = pc_real_pc;
         end
       end
-      `PcState_defaultEncoding_WaitReqReady : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitReqReady) == `PcState_defaultEncoding_WaitReqReady) : begin
         io_instr_req_valid = 1'b1;
         io_instr_req_addr = pc_real_pc;
       end
-      `PcState_defaultEncoding_WaitRsp : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitRsp) == `PcState_defaultEncoding_WaitRsp) : begin
         if(io_instr_rsp_valid)begin
           pc_capture_instr = 1'b1;
           io_instr_req_addr = pc_real_pc_incr;
@@ -1104,7 +1105,7 @@ module Fetch (
           end
         end
       end
-      `PcState_defaultEncoding_WaitStallDone : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitStallDone) == `PcState_defaultEncoding_WaitStallDone) : begin
         if(_zz_3_)begin
           pc_send_instr = 1'b1;
           if(! instr_is_jump_r) begin
@@ -1163,8 +1164,9 @@ module Fetch (
       pc_r <= (32'b00000000000000000000000000000000);
       instr_is_jump_regNextWhen <= 1'b0;
     end else begin
-      case(pc_cur_state)
-        `PcState_defaultEncoding_Idle : begin
+      (* parallel_case *)
+      case(1) // synthesis parallel_case
+        (((pc_cur_state) & `PcState_defaultEncoding_Idle) == `PcState_defaultEncoding_Idle) : begin
           if(_zz_1_)begin
             if(io_instr_req_ready)begin
               pc_cur_state <= `PcState_defaultEncoding_WaitRsp;
@@ -1173,12 +1175,12 @@ module Fetch (
             end
           end
         end
-        `PcState_defaultEncoding_WaitReqReady : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitReqReady) == `PcState_defaultEncoding_WaitReqReady) : begin
           if(io_instr_req_ready)begin
             pc_cur_state <= `PcState_defaultEncoding_WaitRsp;
           end
         end
-        `PcState_defaultEncoding_WaitRsp : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitRsp) == `PcState_defaultEncoding_WaitRsp) : begin
           if(io_instr_rsp_valid)begin
             pc_real_pc <= pc_real_pc_incr;
             if(_zz_2_)begin
@@ -1196,7 +1198,7 @@ module Fetch (
             end
           end
         end
-        `PcState_defaultEncoding_WaitStallDone : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitStallDone) == `PcState_defaultEncoding_WaitStallDone) : begin
           if(_zz_3_)begin
             if(instr_is_jump_r)begin
               pc_cur_state <= `PcState_defaultEncoding_WaitJumpDone;
@@ -1609,20 +1611,21 @@ module Decode (
 
   assign op1_33 = _zz_10_;
   always @ (*) begin
-    case(decode_iformat)
-      `InstrFormat_defaultEncoding_R : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((decode_iformat) & `InstrFormat_defaultEncoding_R) == `InstrFormat_defaultEncoding_R) : begin
         _zz_11_ = rs2_33;
       end
-      `InstrFormat_defaultEncoding_I : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_I) == `InstrFormat_defaultEncoding_I) : begin
         _zz_11_ = (unsigned_1_ ? _zz_25_ : _zz_26_);
       end
-      `InstrFormat_defaultEncoding_S : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_S) == `InstrFormat_defaultEncoding_S) : begin
         _zz_11_ = _zz_27_;
       end
-      `InstrFormat_defaultEncoding_U : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_U) == `InstrFormat_defaultEncoding_U) : begin
         _zz_11_ = _zz_28_;
       end
-      `InstrFormat_defaultEncoding_Shamt : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_Shamt) == `InstrFormat_defaultEncoding_Shamt) : begin
         _zz_11_ = {rs2_33[32 : 5],instr[24 : 20]};
       end
       default : begin
@@ -1634,14 +1637,15 @@ module Decode (
   assign op2_33 = (_zz_11_ ^ (sub ? (33'b111111111111111111111111111111111) : (33'b000000000000000000000000000000000)));
   assign op1_op2_lsb = _zz_29_[9 : 1];
   always @ (*) begin
-    case(decode_iformat)
-      `InstrFormat_defaultEncoding_I : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((decode_iformat) & `InstrFormat_defaultEncoding_I) == `InstrFormat_defaultEncoding_I) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_31_};
       end
-      `InstrFormat_defaultEncoding_B : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_B) == `InstrFormat_defaultEncoding_B) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_32_};
       end
-      `InstrFormat_defaultEncoding_J : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_J) == `InstrFormat_defaultEncoding_J) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_33_};
       end
       default : begin
@@ -1852,12 +1856,13 @@ module Execute (
   always @ (*) begin
     alu_rd_wr = 1'b0;
     alu_rd_wdata = alu_rd_wdata_alu_add;
-    case(itype)
-      `InstrType_defaultEncoding_ALU_ADD : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((itype) & `InstrType_defaultEncoding_ALU_ADD) == `InstrType_defaultEncoding_ALU_ADD) : begin
         alu_rd_wr = 1'b1;
         alu_rd_wdata = alu_rd_wdata_alu_add;
       end
-      `InstrType_defaultEncoding_ALU : begin
+      (((itype) & `InstrType_defaultEncoding_ALU) == `InstrType_defaultEncoding_ALU) : begin
         case(funct3)
           3'b010, 3'b011 : begin
             alu_rd_wr = 1'b1;
@@ -1879,7 +1884,7 @@ module Execute (
           end
         endcase
       end
-      `InstrType_defaultEncoding_MULDIV : begin
+      (((itype) & `InstrType_defaultEncoding_MULDIV) == `InstrType_defaultEncoding_MULDIV) : begin
       end
       default : begin
       end
@@ -1901,17 +1906,18 @@ module Execute (
     jump_clr_lsb = 1'b0;
     jump_pc_op1 = jump_pc;
     jump_rd_wr = 1'b0;
-    case(itype)
-      `InstrType_defaultEncoding_B : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((itype) & `InstrType_defaultEncoding_B) == `InstrType_defaultEncoding_B) : begin
         jump_pc_jump_valid = 1'b1;
         jump_take_jump = _zz_3_;
       end
-      `InstrType_defaultEncoding_JAL : begin
+      (((itype) & `InstrType_defaultEncoding_JAL) == `InstrType_defaultEncoding_JAL) : begin
         jump_pc_jump_valid = 1'b1;
         jump_take_jump = 1'b1;
         jump_rd_wr = 1'b1;
       end
-      `InstrType_defaultEncoding_JALR : begin
+      (((itype) & `InstrType_defaultEncoding_JALR) == `InstrType_defaultEncoding_JALR) : begin
         jump_pc_jump_valid = 1'b1;
         jump_pc_op1 = op1;
         jump_take_jump = 1'b1;
@@ -7200,7 +7206,7 @@ module MR1Top (
   wire [31:0] _zz_65_;
   reg [3:0] _zz_1_;
   wire [3:0] wmask;
-  reg  instr_req_valid_regNext;
+  reg  mr1_1__instr_req_valid_regNext;
   wire [31:0] cpu_ram_rd_data;
   wire [31:0] reg_rd_data;
   reg  _zz_2_;
@@ -9385,7 +9391,7 @@ module MR1Top (
     .instr_req_valid(_zz_34_),
     .instr_req_ready(_zz_23_),
     .instr_req_addr(_zz_35_),
-    .instr_rsp_valid(instr_req_valid_regNext),
+    .instr_rsp_valid(mr1_1__instr_req_valid_regNext),
     .instr_rsp_data(_zz_24_),
     .data_req_valid(_zz_36_),
     .data_req_ready(_zz_25_),
@@ -11604,14 +11610,14 @@ module MR1Top (
   assign io_txt_buf_wr_data = _zz_40_[7 : 0];
   always @ (posedge resetCtrl_clk25) begin
     if(!resetCtrl_reset_) begin
-      instr_req_valid_regNext <= 1'b0;
+      mr1_1__instr_req_valid_regNext <= 1'b0;
       _zz_2_ <= 1'b0;
       _zz_8_ <= 1'b0;
       _zz_9_ <= 1'b0;
       _zz_10_ <= 1'b0;
       eof_sticky <= 1'b0;
     end else begin
-      instr_req_valid_regNext <= _zz_34_;
+      mr1_1__instr_req_valid_regNext <= _zz_34_;
       _zz_2_ <= (_zz_36_ && (! _zz_38_));
       if(update_leds)begin
         _zz_8_ <= _zz_40_[0];
