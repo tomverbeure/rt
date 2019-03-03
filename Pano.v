@@ -1,5 +1,5 @@
-// Generator : SpinalHDL v1.2.0    git head : cf3b44dbd881428e70669e5b623479c23b2d0ddd
-// Date      : 01/12/2018, 17:27:17
+// Generator : SpinalHDL v1.3.0    git head : a4aa217960e9fd6394cc93913205fac49fac47d4
+// Date      : 02/03/2019, 17:11:00
 // Component : Pano
 
 
@@ -51,8 +51,8 @@ module FpxxAdd (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [1:0] _zz_33_;
   wire [1:0] _zz_34_;
   wire [1:0] _zz_35_;
@@ -598,8 +598,8 @@ module FpxxAdd (
   assign io_result_sign = sign_final_p5;
   assign io_result_exp = exp_final_p5;
   assign io_result_mant = mant_final_p5[12:0];
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p2_vld <= 1'b0;
       p4_vld <= 1'b0;
     end else begin
@@ -612,7 +612,7 @@ module FpxxAdd (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_is_zero_p2 <= op_is_zero_p0;
     end
@@ -677,8 +677,8 @@ module FpxxMul (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [7:0] _zz_1_;
   wire [7:0] _zz_2_;
   wire [7:0] _zz_3_;
@@ -779,8 +779,8 @@ module FpxxMul (
   assign io_result_sign = sign_final_p2;
   assign io_result_exp = exp_final_p2;
   assign io_result_mant = mant_final_p2;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
       p2_vld <= 1'b0;
     end else begin
@@ -793,7 +793,7 @@ module FpxxMul (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_is_zero_p1 <= op_is_zero_p0;
     end
@@ -1016,8 +1016,8 @@ module Fetch (
       output  io_rd2r_rs2_rd,
       output [4:0] io_rd2r_rs2_rd_addr,
       input   io_r2rd_stall,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_1_;
   wire  _zz_2_;
   wire  _zz_3_;
@@ -1079,18 +1079,19 @@ module Fetch (
     pc_capture_instr = 1'b0;
     io_instr_req_valid = 1'b0;
     io_instr_req_addr = pc_real_pc;
-    case(pc_cur_state)
-      `PcState_defaultEncoding_Idle : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((pc_cur_state) & `PcState_defaultEncoding_Idle) == `PcState_defaultEncoding_Idle) : begin
         if(_zz_1_)begin
           io_instr_req_valid = 1'b1;
           io_instr_req_addr = pc_real_pc;
         end
       end
-      `PcState_defaultEncoding_WaitReqReady : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitReqReady) == `PcState_defaultEncoding_WaitReqReady) : begin
         io_instr_req_valid = 1'b1;
         io_instr_req_addr = pc_real_pc;
       end
-      `PcState_defaultEncoding_WaitRsp : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitRsp) == `PcState_defaultEncoding_WaitRsp) : begin
         if(io_instr_rsp_valid)begin
           pc_capture_instr = 1'b1;
           io_instr_req_addr = pc_real_pc_incr;
@@ -1104,7 +1105,7 @@ module Fetch (
           end
         end
       end
-      `PcState_defaultEncoding_WaitStallDone : begin
+      (((pc_cur_state) & `PcState_defaultEncoding_WaitStallDone) == `PcState_defaultEncoding_WaitStallDone) : begin
         if(_zz_3_)begin
           pc_send_instr = 1'b1;
           if(! instr_is_jump_r) begin
@@ -1152,8 +1153,8 @@ module Fetch (
   assign io_rd2r_rs1_rd_addr = (rf_rs1_valid ? rf_rs1_addr : (5'b00000));
   assign io_rd2r_rs2_rd_addr = (rf_rs2_valid ? rf_rs2_addr : (5'b00000));
   assign raw_stall = rf_raw_stall;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       io_f2d_valid <= 1'b0;
       io_f2d_pc <= (32'b00000000000000000000000000000000);
       io_f2d_instr <= (32'b00000000000000000000000000000000);
@@ -1163,8 +1164,9 @@ module Fetch (
       pc_r <= (32'b00000000000000000000000000000000);
       instr_is_jump_regNextWhen <= 1'b0;
     end else begin
-      case(pc_cur_state)
-        `PcState_defaultEncoding_Idle : begin
+      (* parallel_case *)
+      case(1) // synthesis parallel_case
+        (((pc_cur_state) & `PcState_defaultEncoding_Idle) == `PcState_defaultEncoding_Idle) : begin
           if(_zz_1_)begin
             if(io_instr_req_ready)begin
               pc_cur_state <= `PcState_defaultEncoding_WaitRsp;
@@ -1173,12 +1175,12 @@ module Fetch (
             end
           end
         end
-        `PcState_defaultEncoding_WaitReqReady : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitReqReady) == `PcState_defaultEncoding_WaitReqReady) : begin
           if(io_instr_req_ready)begin
             pc_cur_state <= `PcState_defaultEncoding_WaitRsp;
           end
         end
-        `PcState_defaultEncoding_WaitRsp : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitRsp) == `PcState_defaultEncoding_WaitRsp) : begin
           if(io_instr_rsp_valid)begin
             pc_real_pc <= pc_real_pc_incr;
             if(_zz_2_)begin
@@ -1196,7 +1198,7 @@ module Fetch (
             end
           end
         end
-        `PcState_defaultEncoding_WaitStallDone : begin
+        (((pc_cur_state) & `PcState_defaultEncoding_WaitStallDone) == `PcState_defaultEncoding_WaitStallDone) : begin
           if(_zz_3_)begin
             if(instr_is_jump_r)begin
               pc_cur_state <= `PcState_defaultEncoding_WaitJumpDone;
@@ -1267,8 +1269,8 @@ module Decode (
       input   io_e2d_stall,
       input   io_e2d_pc_jump_valid,
       input  [31:0] io_e2d_pc_jump,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_13_;
   wire [9:0] _zz_14_;
   wire [31:0] _zz_15_;
@@ -1609,20 +1611,21 @@ module Decode (
 
   assign op1_33 = _zz_10_;
   always @ (*) begin
-    case(decode_iformat)
-      `InstrFormat_defaultEncoding_R : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((decode_iformat) & `InstrFormat_defaultEncoding_R) == `InstrFormat_defaultEncoding_R) : begin
         _zz_11_ = rs2_33;
       end
-      `InstrFormat_defaultEncoding_I : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_I) == `InstrFormat_defaultEncoding_I) : begin
         _zz_11_ = (unsigned_1_ ? _zz_25_ : _zz_26_);
       end
-      `InstrFormat_defaultEncoding_S : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_S) == `InstrFormat_defaultEncoding_S) : begin
         _zz_11_ = _zz_27_;
       end
-      `InstrFormat_defaultEncoding_U : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_U) == `InstrFormat_defaultEncoding_U) : begin
         _zz_11_ = _zz_28_;
       end
-      `InstrFormat_defaultEncoding_Shamt : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_Shamt) == `InstrFormat_defaultEncoding_Shamt) : begin
         _zz_11_ = {rs2_33[32 : 5],instr[24 : 20]};
       end
       default : begin
@@ -1634,14 +1637,15 @@ module Decode (
   assign op2_33 = (_zz_11_ ^ (sub ? (33'b111111111111111111111111111111111) : (33'b000000000000000000000000000000000)));
   assign op1_op2_lsb = _zz_29_[9 : 1];
   always @ (*) begin
-    case(decode_iformat)
-      `InstrFormat_defaultEncoding_I : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((decode_iformat) & `InstrFormat_defaultEncoding_I) == `InstrFormat_defaultEncoding_I) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_31_};
       end
-      `InstrFormat_defaultEncoding_B : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_B) == `InstrFormat_defaultEncoding_B) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_32_};
       end
-      `InstrFormat_defaultEncoding_J : begin
+      (((decode_iformat) & `InstrFormat_defaultEncoding_J) == `InstrFormat_defaultEncoding_J) : begin
         _zz_12_ = {io_r2rr_rs2_data[31 : 21],_zz_33_};
       end
       default : begin
@@ -1666,8 +1670,8 @@ module Decode (
   assign d2e_nxt_rs2_imm = rs2_imm;
   assign d2e_nxt_rd_valid = ((! trap) && rd_valid);
   assign d2e_nxt_rd_addr = rd_addr_final;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       io_d2e_valid <= 1'b0;
       d2f_stall_d <= 1'b0;
       f2d_valid_d <= 1'b0;
@@ -1684,7 +1688,7 @@ module Decode (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(_zz_13_)begin
       io_d2e_pc <= d2e_nxt_pc;
       io_d2e_instr <= d2e_nxt_instr;
@@ -1733,8 +1737,8 @@ module Execute (
       output  io_data_req_wr,
       output [1:0] io_data_req_size,
       output [31:0] io_data_req_data,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_8_;
   wire [32:0] _zz_9_;
   wire [32:0] _zz_10_;
@@ -1852,12 +1856,13 @@ module Execute (
   always @ (*) begin
     alu_rd_wr = 1'b0;
     alu_rd_wdata = alu_rd_wdata_alu_add;
-    case(itype)
-      `InstrType_defaultEncoding_ALU_ADD : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((itype) & `InstrType_defaultEncoding_ALU_ADD) == `InstrType_defaultEncoding_ALU_ADD) : begin
         alu_rd_wr = 1'b1;
         alu_rd_wdata = alu_rd_wdata_alu_add;
       end
-      `InstrType_defaultEncoding_ALU : begin
+      (((itype) & `InstrType_defaultEncoding_ALU) == `InstrType_defaultEncoding_ALU) : begin
         case(funct3)
           3'b010, 3'b011 : begin
             alu_rd_wr = 1'b1;
@@ -1879,7 +1884,7 @@ module Execute (
           end
         endcase
       end
-      `InstrType_defaultEncoding_MULDIV : begin
+      (((itype) & `InstrType_defaultEncoding_MULDIV) == `InstrType_defaultEncoding_MULDIV) : begin
       end
       default : begin
       end
@@ -1901,17 +1906,18 @@ module Execute (
     jump_clr_lsb = 1'b0;
     jump_pc_op1 = jump_pc;
     jump_rd_wr = 1'b0;
-    case(itype)
-      `InstrType_defaultEncoding_B : begin
+    (* parallel_case *)
+    case(1) // synthesis parallel_case
+      (((itype) & `InstrType_defaultEncoding_B) == `InstrType_defaultEncoding_B) : begin
         jump_pc_jump_valid = 1'b1;
         jump_take_jump = _zz_3_;
       end
-      `InstrType_defaultEncoding_JAL : begin
+      (((itype) & `InstrType_defaultEncoding_JAL) == `InstrType_defaultEncoding_JAL) : begin
         jump_pc_jump_valid = 1'b1;
         jump_take_jump = 1'b1;
         jump_rd_wr = 1'b1;
       end
-      `InstrType_defaultEncoding_JALR : begin
+      (((itype) & `InstrType_defaultEncoding_JALR) == `InstrType_defaultEncoding_JALR) : begin
         jump_pc_jump_valid = 1'b1;
         jump_pc_op1 = op1;
         jump_take_jump = 1'b1;
@@ -2094,8 +2100,8 @@ module Execute (
   assign e2w_nxt_rd_wr = rd_wr;
   assign e2w_nxt_rd_waddr = rd_addr;
   assign e2w_nxt_rd_wdata = rd_wdata;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       io_e2w_valid <= 1'b0;
       e2d_stall_d <= 1'b0;
     end else begin
@@ -2110,7 +2116,7 @@ module Execute (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(_zz_8_)begin
       io_e2w_ld_active <= e2w_nxt_ld_active;
       io_e2w_ld_addr_lsb <= e2w_nxt_ld_addr_lsb;
@@ -2135,8 +2141,8 @@ module RegFile (
       input   io_w2r_rd_wr,
       input  [4:0] io_w2r_rd_wr_addr,
       input  [31:0] io_w2r_rd_wr_data,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [31:0] _zz_1_;
   reg [31:0] _zz_2_;
   wire [4:0] reg_init_cntr;
@@ -2145,19 +2151,19 @@ module RegFile (
   wire [4:0] rd_wr_addr;
   wire [31:0] rd_wr_data;
   reg [31:0] mem [0:31];
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(rd_wr) begin
       mem[rd_wr_addr] <= rd_wr_data;
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(io_rd2r_rs1_rd) begin
       _zz_1_ <= mem[io_rd2r_rs1_rd_addr];
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(io_rd2r_rs2_rd) begin
       _zz_2_ <= mem[io_rd2r_rs2_rd_addr];
     end
@@ -2170,8 +2176,8 @@ module RegFile (
   assign rd_wr = (reg_init_initR ? 1'b1 : io_w2r_rd_wr);
   assign rd_wr_addr = (reg_init_initR ? reg_init_cntr[4 : 0] : io_w2r_rd_wr_addr);
   assign rd_wr_data = (reg_init_initR ? (32'b00000000000000000000000000000000) : io_w2r_rd_wr_data);
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       reg_init_initR <= 1'b1;
     end else begin
       reg_init_initR <= 1'b0;
@@ -2218,8 +2224,8 @@ module Writeback (
       input  [3:0] io_e2w_rvfi_mem_wmask,
       input  [31:0] io_e2w_rvfi_mem_rdata,
       input  [31:0] io_e2w_rvfi_mem_wdata,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [5:0] _zz_4_;
   wire [7:0] _zz_5_;
   wire [31:0] _zz_6_;
@@ -2354,15 +2360,15 @@ module Writeback (
   assign io_rd_update_rd_waddr = io_e2w_rd_waddr;
   assign io_rd_update_rd_wdata_valid = (io_e2w_valid && rd_wr);
   assign io_rd_update_rd_wdata = rd_wdata;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       w2e_stall_d <= 1'b0;
     end else begin
       w2e_stall_d <= io_w2e_stall;
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     ld_data_rsp_valid <= io_data_rsp_valid;
     ld_data_rsp_data <= io_data_rsp_data;
   end
@@ -2411,12 +2417,12 @@ module FpxxSub (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_add_io_result_vld;
+  wire  u_add_io_result_sign;
+  wire [5:0] u_add_io_result_exp;
+  wire [12:0] u_add_io_result_mant;
   wire  op_b_sign;
   wire [5:0] op_b_exp;
   wire [12:0] op_b_mant;
@@ -2428,20 +2434,20 @@ module FpxxSub (
     .op_b_p0_sign(op_b_sign),
     .op_b_p0_exp(op_b_exp),
     .op_b_p0_mant(op_b_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_add_io_result_vld),
+    .io_result_sign(u_add_io_result_sign),
+    .io_result_exp(u_add_io_result_exp),
+    .io_result_mant(u_add_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   assign op_b_sign = (! io_op_b_sign);
   assign op_b_exp = io_op_b_exp;
   assign op_b_mant = io_op_b_mant;
-  assign io_result_vld = _zz_1_;
-  assign io_result_sign = _zz_2_;
-  assign io_result_exp = _zz_3_;
-  assign io_result_mant = _zz_4_;
+  assign io_result_vld = u_add_io_result_vld;
+  assign io_result_sign = u_add_io_result_sign;
+  assign io_result_exp = u_add_io_result_exp;
+  assign io_result_mant = u_add_io_result_mant;
 endmodule
 
 
@@ -2462,8 +2468,8 @@ module FpxxMul_27_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [17:0] _zz_1_;
   wire [17:0] _zz_2_;
   wire [17:0] _zz_3_;
@@ -2471,25 +2477,25 @@ module FpxxMul_27_ (
   wire  _zz_5_;
   wire  _zz_6_;
   wire  _zz_7_;
-  wire [35:0] _zz_8_;
+  wire [35:0] mULT18X18SIO_1__P;
+  wire [7:0] _zz_8_;
   wire [7:0] _zz_9_;
   wire [7:0] _zz_10_;
   wire [7:0] _zz_11_;
   wire [7:0] _zz_12_;
   wire [7:0] _zz_13_;
-  wire [7:0] _zz_14_;
+  wire [17:0] _zz_14_;
   wire [17:0] _zz_15_;
-  wire [17:0] _zz_16_;
-  wire [35:0] _zz_17_;
-  wire [14:0] _zz_18_;
-  wire [1:0] _zz_19_;
-  wire [7:0] _zz_20_;
-  wire [0:0] _zz_21_;
-  wire [1:0] _zz_22_;
-  wire [7:0] _zz_23_;
+  wire [35:0] _zz_16_;
+  wire [14:0] _zz_17_;
+  wire [1:0] _zz_18_;
+  wire [7:0] _zz_19_;
+  wire [0:0] _zz_20_;
+  wire [1:0] _zz_21_;
+  wire [7:0] _zz_22_;
+  wire [8:0] _zz_23_;
   wire [8:0] _zz_24_;
-  wire [8:0] _zz_25_;
-  wire [5:0] _zz_26_;
+  wire [5:0] _zz_25_;
   wire  op_is_nan_p0;
   wire  op_a_is_zero_p0;
   wire  op_b_is_zero_p0;
@@ -2509,38 +2515,38 @@ module FpxxMul_27_ (
   reg  sign_final_p2;
   reg [5:0] exp_final_p2;
   reg [12:0] mant_final_p2;
-  assign _zz_9_ = ($signed(_zz_10_) + $signed(_zz_12_));
-  assign _zz_10_ = _zz_11_;
-  assign _zz_11_ = {2'd0, exp_a_p0};
-  assign _zz_12_ = _zz_13_;
-  assign _zz_13_ = {2'd0, exp_b_p0};
-  assign _zz_14_ = (8'b00011111);
-  assign _zz_15_ = {4'd0, mant_a_p0};
-  assign _zz_16_ = {4'd0, mant_b_p0};
-  assign _zz_17_ = _zz_8_;
-  assign _zz_18_ = (mant_mul_p1 >>> mant_mul_p1[14]);
-  assign _zz_19_ = _zz_22_;
-  assign _zz_20_ = {{6{_zz_19_[1]}}, _zz_19_};
-  assign _zz_21_ = mant_mul_p1[14];
-  assign _zz_22_ = {1'd0, _zz_21_};
-  assign _zz_23_ = (8'b00000000);
-  assign _zz_24_ = (9'b011111111);
-  assign _zz_25_ = {{1{exp_mul_adj_p2[7]}}, exp_mul_adj_p2};
-  assign _zz_26_ = exp_mul_adj_p2[5:0];
+  assign _zz_8_ = ($signed(_zz_9_) + $signed(_zz_11_));
+  assign _zz_9_ = _zz_10_;
+  assign _zz_10_ = {2'd0, exp_a_p0};
+  assign _zz_11_ = _zz_12_;
+  assign _zz_12_ = {2'd0, exp_b_p0};
+  assign _zz_13_ = (8'b00011111);
+  assign _zz_14_ = {4'd0, mant_a_p0};
+  assign _zz_15_ = {4'd0, mant_b_p0};
+  assign _zz_16_ = mULT18X18SIO_1__P;
+  assign _zz_17_ = (mant_mul_p1 >>> mant_mul_p1[14]);
+  assign _zz_18_ = _zz_21_;
+  assign _zz_19_ = {{6{_zz_18_[1]}}, _zz_18_};
+  assign _zz_20_ = mant_mul_p1[14];
+  assign _zz_21_ = {1'd0, _zz_20_};
+  assign _zz_22_ = (8'b00000000);
+  assign _zz_23_ = (9'b011111111);
+  assign _zz_24_ = {{1{exp_mul_adj_p2[7]}}, exp_mul_adj_p2};
+  assign _zz_25_ = exp_mul_adj_p2[5:0];
   MULT18X18SIO #( 
     .AREG(1'b0),
     .BREG(1'b0),
     .PREG(1'b1),
     .B_INPUT("DIRECT") 
   ) mULT18X18SIO_1_ ( 
-    .P(_zz_8_),
+    .P(mULT18X18SIO_1__P),
     .A(_zz_1_),
     .B(_zz_2_),
     .BCIN(_zz_3_),
     .CEA(p0_vld),
     .CEB(p0_vld),
     .CEP(_zz_4_),
-    .CLK(resetCtrl_clk25),
+    .CLK(toplevel_resetCtrl_clk25),
     .RSTA(_zz_5_),
     .RSTB(_zz_6_),
     .RSTP(_zz_7_) 
@@ -2552,17 +2558,17 @@ module FpxxMul_27_ (
   assign mant_a_p0 = {(1'b1),op_a_p0_mant};
   assign mant_b_p0 = {(1'b1),op_b_p0_mant};
   assign sign_mul_p0 = (op_a_p0_sign ^ op_b_p0_sign);
-  assign exp_mul_p1 = ($signed(_zz_9_) - $signed(_zz_14_));
-  assign _zz_1_ = _zz_15_;
-  assign _zz_2_ = _zz_16_;
+  assign exp_mul_p1 = ($signed(_zz_8_) - $signed(_zz_13_));
+  assign _zz_1_ = _zz_14_;
+  assign _zz_2_ = _zz_15_;
   assign _zz_3_ = (18'b000000000000000000);
   assign _zz_4_ = 1'b1;
   assign _zz_5_ = 1'b0;
   assign _zz_6_ = 1'b0;
   assign _zz_7_ = 1'b0;
-  assign mant_mul_p1 = _zz_17_[27 : 13];
-  assign mant_mul_adj_p2 = _zz_18_[13:0];
-  assign exp_mul_adj_p2 = ($signed(exp_mul_p2) + $signed(_zz_20_));
+  assign mant_mul_p1 = _zz_16_[27 : 13];
+  assign mant_mul_adj_p2 = _zz_17_[13:0];
+  assign exp_mul_adj_p2 = ($signed(exp_mul_p2) + $signed(_zz_19_));
   always @ (*) begin
     if(op_is_nan_p2)begin
       sign_final_p2 = 1'b0;
@@ -2570,18 +2576,18 @@ module FpxxMul_27_ (
       mant_final_p2 = (1'b0 ? (13'b1111111111111) : (13'b0000000000000));
       mant_final_p2[12] = 1'b1;
     end else begin
-      if((op_is_zero_p2 || ($signed(exp_mul_adj_p2) <= $signed(_zz_23_))))begin
+      if((op_is_zero_p2 || ($signed(exp_mul_adj_p2) <= $signed(_zz_22_))))begin
         sign_final_p2 = 1'b0;
         exp_final_p2 = (6'b000000);
         mant_final_p2 = (13'b0000000000000);
       end else begin
-        if(($signed(_zz_24_) <= $signed(_zz_25_)))begin
+        if(($signed(_zz_23_) <= $signed(_zz_24_)))begin
           sign_final_p2 = sign_mul_p2;
           exp_final_p2 = (6'b111111);
           mant_final_p2 = (13'b0000000000000);
         end else begin
           sign_final_p2 = sign_mul_p2;
-          exp_final_p2 = _zz_26_;
+          exp_final_p2 = _zz_25_;
           mant_final_p2 = mant_mul_adj_p2[12:0];
         end
       end
@@ -2592,8 +2598,8 @@ module FpxxMul_27_ (
   assign io_result_sign = sign_final_p2;
   assign io_result_exp = exp_final_p2;
   assign io_result_mant = mant_final_p2;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p2_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -2602,7 +2608,7 @@ module FpxxMul_27_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_is_zero_p2 <= op_is_zero_p0;
     end
@@ -2679,20 +2685,20 @@ module MulVecScalar (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_x_io_result_vld;
+  wire  u_x_io_result_sign;
+  wire [5:0] u_x_io_result_exp;
+  wire [12:0] u_x_io_result_mant;
+  wire  u_y_io_result_vld;
+  wire  u_y_io_result_sign;
+  wire [5:0] u_y_io_result_exp;
+  wire [12:0] u_y_io_result_mant;
+  wire  u_z_io_result_vld;
+  wire  u_z_io_result_sign;
+  wire [5:0] u_z_io_result_exp;
+  wire [12:0] u_z_io_result_mant;
   FpxxMul u_x ( 
     .p0_vld(io_op_vld),
     .op_a_p0_sign(io_op_vec_x_sign),
@@ -2701,12 +2707,12 @@ module MulVecScalar (
     .op_b_p0_sign(io_op_scalar_sign),
     .exp_b_p0(io_op_scalar_exp),
     .op_b_p0_mant(io_op_scalar_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_x_io_result_vld),
+    .io_result_sign(u_x_io_result_sign),
+    .io_result_exp(u_x_io_result_exp),
+    .io_result_mant(u_x_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_y ( 
     .p0_vld(io_op_vld),
@@ -2716,12 +2722,12 @@ module MulVecScalar (
     .op_b_p0_sign(io_op_scalar_sign),
     .exp_b_p0(io_op_scalar_exp),
     .op_b_p0_mant(io_op_scalar_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_y_io_result_vld),
+    .io_result_sign(u_y_io_result_sign),
+    .io_result_exp(u_y_io_result_exp),
+    .io_result_mant(u_y_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_z ( 
     .p0_vld(io_op_vld),
@@ -2731,23 +2737,23 @@ module MulVecScalar (
     .op_b_p0_sign(io_op_scalar_sign),
     .exp_b_p0(io_op_scalar_exp),
     .op_b_p0_mant(io_op_scalar_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_z_io_result_vld),
+    .io_result_sign(u_z_io_result_sign),
+    .io_result_exp(u_z_io_result_exp),
+    .io_result_mant(u_z_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign io_result_vld = _zz_1_;
-  assign io_result_x_sign = _zz_2_;
-  assign io_result_x_exp = _zz_3_;
-  assign io_result_x_mant = _zz_4_;
-  assign io_result_y_sign = _zz_6_;
-  assign io_result_y_exp = _zz_7_;
-  assign io_result_y_mant = _zz_8_;
-  assign io_result_z_sign = _zz_10_;
-  assign io_result_z_exp = _zz_11_;
-  assign io_result_z_mant = _zz_12_;
+  assign io_result_vld = u_x_io_result_vld;
+  assign io_result_x_sign = u_x_io_result_sign;
+  assign io_result_x_exp = u_x_io_result_exp;
+  assign io_result_x_mant = u_x_io_result_mant;
+  assign io_result_y_sign = u_y_io_result_sign;
+  assign io_result_y_exp = u_y_io_result_exp;
+  assign io_result_y_mant = u_y_io_result_mant;
+  assign io_result_z_sign = u_z_io_result_sign;
+  assign io_result_z_exp = u_z_io_result_exp;
+  assign io_result_z_mant = u_z_io_result_mant;
 endmodule
 
 module AddVecVec (
@@ -2780,20 +2786,20 @@ module AddVecVec (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_x_io_result_vld;
+  wire  u_x_io_result_sign;
+  wire [5:0] u_x_io_result_exp;
+  wire [12:0] u_x_io_result_mant;
+  wire  u_y_io_result_vld;
+  wire  u_y_io_result_sign;
+  wire [5:0] u_y_io_result_exp;
+  wire [12:0] u_y_io_result_mant;
+  wire  u_z_io_result_vld;
+  wire  u_z_io_result_sign;
+  wire [5:0] u_z_io_result_exp;
+  wire [12:0] u_z_io_result_mant;
   FpxxAdd u_x ( 
     .p0_vld(io_op_vld),
     .op_a_p0_sign(io_op_a_x_sign),
@@ -2802,12 +2808,12 @@ module AddVecVec (
     .op_b_p0_sign(io_op_b_x_sign),
     .op_b_p0_exp(io_op_b_x_exp),
     .op_b_p0_mant(io_op_b_x_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_x_io_result_vld),
+    .io_result_sign(u_x_io_result_sign),
+    .io_result_exp(u_x_io_result_exp),
+    .io_result_mant(u_x_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_y ( 
     .p0_vld(io_op_vld),
@@ -2817,12 +2823,12 @@ module AddVecVec (
     .op_b_p0_sign(io_op_b_y_sign),
     .op_b_p0_exp(io_op_b_y_exp),
     .op_b_p0_mant(io_op_b_y_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_y_io_result_vld),
+    .io_result_sign(u_y_io_result_sign),
+    .io_result_exp(u_y_io_result_exp),
+    .io_result_mant(u_y_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_z ( 
     .p0_vld(io_op_vld),
@@ -2832,23 +2838,23 @@ module AddVecVec (
     .op_b_p0_sign(io_op_b_z_sign),
     .op_b_p0_exp(io_op_b_z_exp),
     .op_b_p0_mant(io_op_b_z_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_z_io_result_vld),
+    .io_result_sign(u_z_io_result_sign),
+    .io_result_exp(u_z_io_result_exp),
+    .io_result_mant(u_z_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign io_result_vld = _zz_1_;
-  assign io_result_x_sign = _zz_2_;
-  assign io_result_x_exp = _zz_3_;
-  assign io_result_x_mant = _zz_4_;
-  assign io_result_y_sign = _zz_6_;
-  assign io_result_y_exp = _zz_7_;
-  assign io_result_y_mant = _zz_8_;
-  assign io_result_z_sign = _zz_10_;
-  assign io_result_z_exp = _zz_11_;
-  assign io_result_z_mant = _zz_12_;
+  assign io_result_vld = u_x_io_result_vld;
+  assign io_result_x_sign = u_x_io_result_sign;
+  assign io_result_x_exp = u_x_io_result_exp;
+  assign io_result_x_mant = u_x_io_result_mant;
+  assign io_result_y_sign = u_y_io_result_sign;
+  assign io_result_y_exp = u_y_io_result_exp;
+  assign io_result_y_mant = u_y_io_result_mant;
+  assign io_result_z_sign = u_z_io_result_sign;
+  assign io_result_z_exp = u_z_io_result_exp;
+  assign io_result_z_mant = u_z_io_result_mant;
 endmodule
 
 
@@ -2884,28 +2890,28 @@ module DotProduct (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire [5:0] _zz_15_;
-  wire [12:0] _zz_16_;
-  wire  _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_xx_io_result_vld;
+  wire  u_xx_io_result_sign;
+  wire [5:0] u_xx_io_result_exp;
+  wire [12:0] u_xx_io_result_mant;
+  wire  u_yy_io_result_vld;
+  wire  u_yy_io_result_sign;
+  wire [5:0] u_yy_io_result_exp;
+  wire [12:0] u_yy_io_result_mant;
+  wire  u_zz_io_result_vld;
+  wire  u_zz_io_result_sign;
+  wire [5:0] u_zz_io_result_exp;
+  wire [12:0] u_zz_io_result_mant;
+  wire  u_xx_yy_io_result_vld;
+  wire  u_xx_yy_io_result_sign;
+  wire [5:0] u_xx_yy_io_result_exp;
+  wire [12:0] u_xx_yy_io_result_mant;
+  wire  u_xx_yy_zz_io_result_vld;
+  wire  u_xx_yy_zz_io_result_sign;
+  wire [5:0] u_xx_yy_zz_io_result_exp;
+  wire [12:0] u_xx_yy_zz_io_result_mant;
   wire  xx_vld;
   wire  yy_vld;
   wire  zz_vld;
@@ -2940,12 +2946,12 @@ module DotProduct (
     .op_b_p0_sign(io_op_b_x_sign),
     .exp_b_p0(io_op_b_x_exp),
     .op_b_p0_mant(io_op_b_x_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_io_result_vld),
+    .io_result_sign(u_xx_io_result_sign),
+    .io_result_exp(u_xx_io_result_exp),
+    .io_result_mant(u_xx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_yy ( 
     .p0_vld(io_op_vld),
@@ -2955,12 +2961,12 @@ module DotProduct (
     .op_b_p0_sign(io_op_b_y_sign),
     .exp_b_p0(io_op_b_y_exp),
     .op_b_p0_mant(io_op_b_y_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_yy_io_result_vld),
+    .io_result_sign(u_yy_io_result_sign),
+    .io_result_exp(u_yy_io_result_exp),
+    .io_result_mant(u_yy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_zz ( 
     .p0_vld(io_op_vld),
@@ -2970,12 +2976,12 @@ module DotProduct (
     .op_b_p0_sign(io_op_b_z_sign),
     .exp_b_p0(io_op_b_z_exp),
     .op_b_p0_mant(io_op_b_z_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_zz_io_result_vld),
+    .io_result_sign(u_zz_io_result_sign),
+    .io_result_exp(u_zz_io_result_exp),
+    .io_result_mant(u_zz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_xx_yy ( 
     .p0_vld(xx_vld),
@@ -2985,12 +2991,12 @@ module DotProduct (
     .op_b_p0_sign(yy_sign),
     .op_b_p0_exp(yy_exp),
     .op_b_p0_mant(yy_mant),
-    .io_result_vld(_zz_13_),
-    .io_result_sign(_zz_14_),
-    .io_result_exp(_zz_15_),
-    .io_result_mant(_zz_16_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_yy_io_result_vld),
+    .io_result_sign(u_xx_yy_io_result_sign),
+    .io_result_exp(u_xx_yy_io_result_exp),
+    .io_result_mant(u_xx_yy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_xx_yy_zz ( 
     .p0_vld(xx_yy_vld),
@@ -3000,38 +3006,38 @@ module DotProduct (
     .op_b_p0_sign(zz_delayed_sign),
     .op_b_p0_exp(zz_delayed_exp),
     .op_b_p0_mant(zz_delayed_mant),
-    .io_result_vld(_zz_17_),
-    .io_result_sign(_zz_18_),
-    .io_result_exp(_zz_19_),
-    .io_result_mant(_zz_20_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_yy_zz_io_result_vld),
+    .io_result_sign(u_xx_yy_zz_io_result_sign),
+    .io_result_exp(u_xx_yy_zz_io_result_exp),
+    .io_result_mant(u_xx_yy_zz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign xx_vld = _zz_1_;
-  assign xx_sign = _zz_2_;
-  assign xx_exp = _zz_3_;
-  assign xx_mant = _zz_4_;
-  assign yy_vld = _zz_5_;
-  assign yy_sign = _zz_6_;
-  assign yy_exp = _zz_7_;
-  assign yy_mant = _zz_8_;
-  assign zz_vld = _zz_9_;
-  assign zz_sign = _zz_10_;
-  assign zz_exp = _zz_11_;
-  assign zz_mant = _zz_12_;
-  assign xx_yy_vld = _zz_13_;
-  assign xx_yy_sign = _zz_14_;
-  assign xx_yy_exp = _zz_15_;
-  assign xx_yy_mant = _zz_16_;
-  assign xx_yy_zz_vld = _zz_17_;
-  assign xx_yy_zz_sign = _zz_18_;
-  assign xx_yy_zz_exp = _zz_19_;
-  assign xx_yy_zz_mant = _zz_20_;
+  assign xx_vld = u_xx_io_result_vld;
+  assign xx_sign = u_xx_io_result_sign;
+  assign xx_exp = u_xx_io_result_exp;
+  assign xx_mant = u_xx_io_result_mant;
+  assign yy_vld = u_yy_io_result_vld;
+  assign yy_sign = u_yy_io_result_sign;
+  assign yy_exp = u_yy_io_result_exp;
+  assign yy_mant = u_yy_io_result_mant;
+  assign zz_vld = u_zz_io_result_vld;
+  assign zz_sign = u_zz_io_result_sign;
+  assign zz_exp = u_zz_io_result_exp;
+  assign zz_mant = u_zz_io_result_mant;
+  assign xx_yy_vld = u_xx_yy_io_result_vld;
+  assign xx_yy_sign = u_xx_yy_io_result_sign;
+  assign xx_yy_exp = u_xx_yy_io_result_exp;
+  assign xx_yy_mant = u_xx_yy_io_result_mant;
+  assign xx_yy_zz_vld = u_xx_yy_zz_io_result_vld;
+  assign xx_yy_zz_sign = u_xx_yy_zz_io_result_sign;
+  assign xx_yy_zz_exp = u_xx_yy_zz_io_result_exp;
+  assign xx_yy_zz_mant = u_xx_yy_zz_io_result_mant;
   assign io_result_vld = xx_yy_zz_vld;
   assign io_result_sign = xx_yy_zz_sign;
   assign io_result_exp = xx_yy_zz_exp;
   assign io_result_mant = xx_yy_zz_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     zz_delay_1_sign <= zz_sign;
     zz_delay_1_exp <= zz_exp;
     zz_delay_1_mant <= zz_mant;
@@ -3051,8 +3057,8 @@ module FpxxRSqrt (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [13:0] _zz_1_;
   wire [6:0] _zz_2_;
   wire [6:0] _zz_3_;
@@ -3104,7 +3110,7 @@ module FpxxRSqrt (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_sphere_intersect_u_normalize_u_rsqrt_rsqrt_table.bin",rsqrt_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= rsqrt_table[rsqrt_addr_p0];
     end
@@ -3149,8 +3155,8 @@ module FpxxRSqrt (
   assign io_result_sign = sign_final_p1;
   assign io_result_exp = exp_final_p1;
   assign io_result_mant = mant_final_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -3159,7 +3165,7 @@ module FpxxRSqrt (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_zero_p1 <= op_zero_p0;
     end
@@ -3332,8 +3338,8 @@ module FpxxRSqrt_1_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [13:0] _zz_1_;
   wire [6:0] _zz_2_;
   wire [6:0] _zz_3_;
@@ -3385,7 +3391,7 @@ module FpxxRSqrt_1_ (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_shadow_sphere_intersect_u_normalize_u_rsqrt_rsqrt_table.bin",rsqrt_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= rsqrt_table[rsqrt_addr_p0];
     end
@@ -3430,8 +3436,8 @@ module FpxxRSqrt_1_ (
   assign io_result_sign = sign_final_p1;
   assign io_result_exp = exp_final_p1;
   assign io_result_mant = mant_final_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -3440,7 +3446,7 @@ module FpxxRSqrt_1_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_zero_p1 <= op_zero_p0;
     end
@@ -3507,8 +3513,8 @@ module MR1 (
       output [31:0] data_req_data,
       input   data_rsp_valid,
       input  [31:0] data_rsp_data,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_1_;
   wire [63:0] _zz_2_;
   wire [31:0] _zz_3_;
@@ -3528,191 +3534,191 @@ module MR1 (
   wire [3:0] _zz_17_;
   wire [31:0] _zz_18_;
   wire [31:0] _zz_19_;
-  wire  _zz_20_;
-  wire [31:0] _zz_21_;
-  wire  _zz_22_;
-  wire [31:0] _zz_23_;
-  wire [31:0] _zz_24_;
-  wire  _zz_25_;
-  wire [4:0] _zz_26_;
-  wire  _zz_27_;
-  wire [4:0] _zz_28_;
-  wire  _zz_29_;
-  wire  _zz_30_;
-  wire [31:0] _zz_31_;
-  wire  _zz_32_;
-  wire [4:0] _zz_33_;
-  wire  _zz_34_;
-  wire [31:0] _zz_35_;
-  wire  _zz_36_;
-  wire [31:0] _zz_37_;
-  wire [31:0] _zz_38_;
-  wire `InstrType_defaultEncoding_type _zz_39_;
-  wire [32:0] _zz_40_;
-  wire [32:0] _zz_41_;
-  wire [8:0] _zz_42_;
-  wire [31:0] _zz_43_;
-  wire  _zz_44_;
-  wire [4:0] _zz_45_;
-  wire  _zz_46_;
-  wire  _zz_47_;
-  wire [31:0] _zz_48_;
-  wire  _zz_49_;
-  wire [4:0] _zz_50_;
-  wire  _zz_51_;
-  wire [31:0] _zz_52_;
-  wire  _zz_53_;
-  wire  _zz_54_;
-  wire [1:0] _zz_55_;
-  wire [1:0] _zz_56_;
-  wire  _zz_57_;
-  wire  _zz_58_;
-  wire [4:0] _zz_59_;
-  wire [31:0] _zz_60_;
-  wire  _zz_61_;
-  wire [31:0] _zz_62_;
-  wire  _zz_63_;
-  wire [1:0] _zz_64_;
-  wire [31:0] _zz_65_;
-  wire  _zz_66_;
-  wire [31:0] _zz_67_;
-  wire [31:0] _zz_68_;
-  wire  _zz_69_;
-  wire  _zz_70_;
-  wire [4:0] _zz_71_;
-  wire  _zz_72_;
-  wire [31:0] _zz_73_;
-  wire  _zz_74_;
-  wire [4:0] _zz_75_;
-  wire [31:0] _zz_76_;
+  wire  fetch_1__io_instr_req_valid;
+  wire [31:0] fetch_1__io_instr_req_addr;
+  wire  fetch_1__io_f2d_valid;
+  wire [31:0] fetch_1__io_f2d_pc;
+  wire [31:0] fetch_1__io_f2d_instr;
+  wire  fetch_1__io_rd2r_rs1_rd;
+  wire [4:0] fetch_1__io_rd2r_rs1_rd_addr;
+  wire  fetch_1__io_rd2r_rs2_rd;
+  wire [4:0] fetch_1__io_rd2r_rs2_rd_addr;
+  wire  decode_1__io_d2f_stall;
+  wire  decode_1__io_d2f_pc_jump_valid;
+  wire [31:0] decode_1__io_d2f_pc_jump;
+  wire  decode_1__io_rd_update_rd_waddr_valid;
+  wire [4:0] decode_1__io_rd_update_rd_waddr;
+  wire  decode_1__io_rd_update_rd_wdata_valid;
+  wire [31:0] decode_1__io_rd_update_rd_wdata;
+  wire  decode_1__io_d2e_valid;
+  wire [31:0] decode_1__io_d2e_pc;
+  wire [31:0] decode_1__io_d2e_instr;
+  wire `InstrType_defaultEncoding_type decode_1__io_d2e_itype;
+  wire [32:0] decode_1__io_d2e_op1_33;
+  wire [32:0] decode_1__io_d2e_op2_33;
+  wire [8:0] decode_1__io_d2e_op1_op2_lsb;
+  wire [31:0] decode_1__io_d2e_rs2_imm;
+  wire  decode_1__io_d2e_rd_valid;
+  wire [4:0] decode_1__io_d2e_rd_addr;
+  wire  execute_1__io_e2d_stall;
+  wire  execute_1__io_e2d_pc_jump_valid;
+  wire [31:0] execute_1__io_e2d_pc_jump;
+  wire  execute_1__io_rd_update_rd_waddr_valid;
+  wire [4:0] execute_1__io_rd_update_rd_waddr;
+  wire  execute_1__io_rd_update_rd_wdata_valid;
+  wire [31:0] execute_1__io_rd_update_rd_wdata;
+  wire  execute_1__io_e2w_valid;
+  wire  execute_1__io_e2w_ld_active;
+  wire [1:0] execute_1__io_e2w_ld_addr_lsb;
+  wire [1:0] execute_1__io_e2w_ld_data_size;
+  wire  execute_1__io_e2w_ld_data_signed;
+  wire  execute_1__io_e2w_rd_wr;
+  wire [4:0] execute_1__io_e2w_rd_waddr;
+  wire [31:0] execute_1__io_e2w_rd_wdata;
+  wire  execute_1__io_data_req_valid;
+  wire [31:0] execute_1__io_data_req_addr;
+  wire  execute_1__io_data_req_wr;
+  wire [1:0] execute_1__io_data_req_size;
+  wire [31:0] execute_1__io_data_req_data;
+  wire  reg_file_io_r2rd_stall;
+  wire [31:0] reg_file_io_r2rr_rs1_data;
+  wire [31:0] reg_file_io_r2rr_rs2_data;
+  wire  wb_io_w2e_stall;
+  wire  wb_io_rd_update_rd_waddr_valid;
+  wire [4:0] wb_io_rd_update_rd_waddr;
+  wire  wb_io_rd_update_rd_wdata_valid;
+  wire [31:0] wb_io_rd_update_rd_wdata;
+  wire  wb_io_w2r_rd_wr;
+  wire [4:0] wb_io_w2r_rd_wr_addr;
+  wire [31:0] wb_io_w2r_rd_wr_data;
   Fetch fetch_1_ ( 
-    .io_instr_req_valid(_zz_20_),
+    .io_instr_req_valid(fetch_1__io_instr_req_valid),
     .io_instr_req_ready(instr_req_ready),
-    .io_instr_req_addr(_zz_21_),
+    .io_instr_req_addr(fetch_1__io_instr_req_addr),
     .io_instr_rsp_valid(instr_rsp_valid),
     .instr(instr_rsp_data),
-    .io_f2d_valid(_zz_22_),
-    .io_f2d_pc(_zz_23_),
-    .io_f2d_instr(_zz_24_),
-    .io_d2f_stall(_zz_29_),
-    .io_d2f_pc_jump_valid(_zz_30_),
-    .io_d2f_pc_jump(_zz_31_),
-    .io_d_rd_update_rd_waddr_valid(_zz_32_),
-    .io_d_rd_update_rd_waddr(_zz_33_),
-    .io_d_rd_update_rd_wdata_valid(_zz_34_),
-    .io_d_rd_update_rd_wdata(_zz_35_),
-    .io_e_rd_update_rd_waddr_valid(_zz_49_),
-    .io_e_rd_update_rd_waddr(_zz_50_),
-    .io_e_rd_update_rd_wdata_valid(_zz_51_),
-    .io_e_rd_update_rd_wdata(_zz_52_),
-    .io_w_rd_update_rd_waddr_valid(_zz_70_),
-    .io_w_rd_update_rd_waddr(_zz_71_),
-    .io_w_rd_update_rd_wdata_valid(_zz_72_),
-    .io_w_rd_update_rd_wdata(_zz_73_),
-    .io_rd2r_rs1_rd(_zz_25_),
-    .io_rd2r_rs1_rd_addr(_zz_26_),
-    .io_rd2r_rs2_rd(_zz_27_),
-    .io_rd2r_rs2_rd_addr(_zz_28_),
-    .io_r2rd_stall(_zz_66_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_f2d_valid(fetch_1__io_f2d_valid),
+    .io_f2d_pc(fetch_1__io_f2d_pc),
+    .io_f2d_instr(fetch_1__io_f2d_instr),
+    .io_d2f_stall(decode_1__io_d2f_stall),
+    .io_d2f_pc_jump_valid(decode_1__io_d2f_pc_jump_valid),
+    .io_d2f_pc_jump(decode_1__io_d2f_pc_jump),
+    .io_d_rd_update_rd_waddr_valid(decode_1__io_rd_update_rd_waddr_valid),
+    .io_d_rd_update_rd_waddr(decode_1__io_rd_update_rd_waddr),
+    .io_d_rd_update_rd_wdata_valid(decode_1__io_rd_update_rd_wdata_valid),
+    .io_d_rd_update_rd_wdata(decode_1__io_rd_update_rd_wdata),
+    .io_e_rd_update_rd_waddr_valid(execute_1__io_rd_update_rd_waddr_valid),
+    .io_e_rd_update_rd_waddr(execute_1__io_rd_update_rd_waddr),
+    .io_e_rd_update_rd_wdata_valid(execute_1__io_rd_update_rd_wdata_valid),
+    .io_e_rd_update_rd_wdata(execute_1__io_rd_update_rd_wdata),
+    .io_w_rd_update_rd_waddr_valid(wb_io_rd_update_rd_waddr_valid),
+    .io_w_rd_update_rd_waddr(wb_io_rd_update_rd_waddr),
+    .io_w_rd_update_rd_wdata_valid(wb_io_rd_update_rd_wdata_valid),
+    .io_w_rd_update_rd_wdata(wb_io_rd_update_rd_wdata),
+    .io_rd2r_rs1_rd(fetch_1__io_rd2r_rs1_rd),
+    .io_rd2r_rs1_rd_addr(fetch_1__io_rd2r_rs1_rd_addr),
+    .io_rd2r_rs2_rd(fetch_1__io_rd2r_rs2_rd),
+    .io_rd2r_rs2_rd_addr(fetch_1__io_rd2r_rs2_rd_addr),
+    .io_r2rd_stall(reg_file_io_r2rd_stall),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Decode decode_1_ ( 
-    .io_f2d_valid(_zz_22_),
-    .io_f2d_pc(_zz_23_),
-    .instr(_zz_24_),
-    .io_d2f_stall(_zz_29_),
-    .io_d2f_pc_jump_valid(_zz_30_),
-    .io_d2f_pc_jump(_zz_31_),
-    .io_rd_update_rd_waddr_valid(_zz_32_),
-    .io_rd_update_rd_waddr(_zz_33_),
-    .io_rd_update_rd_wdata_valid(_zz_34_),
-    .io_rd_update_rd_wdata(_zz_35_),
-    .io_r2rr_rs1_data(_zz_67_),
-    .io_r2rr_rs2_data(_zz_68_),
-    .io_d2e_valid(_zz_36_),
-    .io_d2e_pc(_zz_37_),
-    .io_d2e_instr(_zz_38_),
-    .io_d2e_itype(_zz_39_),
-    .io_d2e_op1_33(_zz_40_),
-    .io_d2e_op2_33(_zz_41_),
-    .io_d2e_op1_op2_lsb(_zz_42_),
-    .io_d2e_rs2_imm(_zz_43_),
-    .io_d2e_rd_valid(_zz_44_),
-    .io_d2e_rd_addr(_zz_45_),
-    .io_e2d_stall(_zz_46_),
-    .io_e2d_pc_jump_valid(_zz_47_),
-    .io_e2d_pc_jump(_zz_48_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_f2d_valid(fetch_1__io_f2d_valid),
+    .io_f2d_pc(fetch_1__io_f2d_pc),
+    .instr(fetch_1__io_f2d_instr),
+    .io_d2f_stall(decode_1__io_d2f_stall),
+    .io_d2f_pc_jump_valid(decode_1__io_d2f_pc_jump_valid),
+    .io_d2f_pc_jump(decode_1__io_d2f_pc_jump),
+    .io_rd_update_rd_waddr_valid(decode_1__io_rd_update_rd_waddr_valid),
+    .io_rd_update_rd_waddr(decode_1__io_rd_update_rd_waddr),
+    .io_rd_update_rd_wdata_valid(decode_1__io_rd_update_rd_wdata_valid),
+    .io_rd_update_rd_wdata(decode_1__io_rd_update_rd_wdata),
+    .io_r2rr_rs1_data(reg_file_io_r2rr_rs1_data),
+    .io_r2rr_rs2_data(reg_file_io_r2rr_rs2_data),
+    .io_d2e_valid(decode_1__io_d2e_valid),
+    .io_d2e_pc(decode_1__io_d2e_pc),
+    .io_d2e_instr(decode_1__io_d2e_instr),
+    .io_d2e_itype(decode_1__io_d2e_itype),
+    .io_d2e_op1_33(decode_1__io_d2e_op1_33),
+    .io_d2e_op2_33(decode_1__io_d2e_op2_33),
+    .io_d2e_op1_op2_lsb(decode_1__io_d2e_op1_op2_lsb),
+    .io_d2e_rs2_imm(decode_1__io_d2e_rs2_imm),
+    .io_d2e_rd_valid(decode_1__io_d2e_rd_valid),
+    .io_d2e_rd_addr(decode_1__io_d2e_rd_addr),
+    .io_e2d_stall(execute_1__io_e2d_stall),
+    .io_e2d_pc_jump_valid(execute_1__io_e2d_pc_jump_valid),
+    .io_e2d_pc_jump(execute_1__io_e2d_pc_jump),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Execute execute_1_ ( 
-    .io_d2e_valid(_zz_36_),
-    .io_d2e_pc(_zz_37_),
-    .io_d2e_instr(_zz_38_),
-    .io_d2e_itype(_zz_39_),
-    .io_d2e_op1_33(_zz_40_),
-    .io_d2e_op2_33(_zz_41_),
-    .io_d2e_op1_op2_lsb(_zz_42_),
-    .rs2(_zz_43_),
-    .io_d2e_rd_valid(_zz_44_),
-    .rd_addr(_zz_45_),
-    .io_e2d_stall(_zz_46_),
-    .io_e2d_pc_jump_valid(_zz_47_),
-    .io_e2d_pc_jump(_zz_48_),
-    .io_rd_update_rd_waddr_valid(_zz_49_),
-    .io_rd_update_rd_waddr(_zz_50_),
-    .io_rd_update_rd_wdata_valid(_zz_51_),
-    .io_rd_update_rd_wdata(_zz_52_),
-    .io_e2w_valid(_zz_53_),
-    .io_e2w_ld_active(_zz_54_),
-    .io_e2w_ld_addr_lsb(_zz_55_),
-    .io_e2w_ld_data_size(_zz_56_),
-    .io_e2w_ld_data_signed(_zz_57_),
-    .io_e2w_rd_wr(_zz_58_),
-    .io_e2w_rd_waddr(_zz_59_),
-    .io_e2w_rd_wdata(_zz_60_),
-    .io_w2e_stall(_zz_69_),
-    .io_data_req_valid(_zz_61_),
+    .io_d2e_valid(decode_1__io_d2e_valid),
+    .io_d2e_pc(decode_1__io_d2e_pc),
+    .io_d2e_instr(decode_1__io_d2e_instr),
+    .io_d2e_itype(decode_1__io_d2e_itype),
+    .io_d2e_op1_33(decode_1__io_d2e_op1_33),
+    .io_d2e_op2_33(decode_1__io_d2e_op2_33),
+    .io_d2e_op1_op2_lsb(decode_1__io_d2e_op1_op2_lsb),
+    .rs2(decode_1__io_d2e_rs2_imm),
+    .io_d2e_rd_valid(decode_1__io_d2e_rd_valid),
+    .rd_addr(decode_1__io_d2e_rd_addr),
+    .io_e2d_stall(execute_1__io_e2d_stall),
+    .io_e2d_pc_jump_valid(execute_1__io_e2d_pc_jump_valid),
+    .io_e2d_pc_jump(execute_1__io_e2d_pc_jump),
+    .io_rd_update_rd_waddr_valid(execute_1__io_rd_update_rd_waddr_valid),
+    .io_rd_update_rd_waddr(execute_1__io_rd_update_rd_waddr),
+    .io_rd_update_rd_wdata_valid(execute_1__io_rd_update_rd_wdata_valid),
+    .io_rd_update_rd_wdata(execute_1__io_rd_update_rd_wdata),
+    .io_e2w_valid(execute_1__io_e2w_valid),
+    .io_e2w_ld_active(execute_1__io_e2w_ld_active),
+    .io_e2w_ld_addr_lsb(execute_1__io_e2w_ld_addr_lsb),
+    .io_e2w_ld_data_size(execute_1__io_e2w_ld_data_size),
+    .io_e2w_ld_data_signed(execute_1__io_e2w_ld_data_signed),
+    .io_e2w_rd_wr(execute_1__io_e2w_rd_wr),
+    .io_e2w_rd_waddr(execute_1__io_e2w_rd_waddr),
+    .io_e2w_rd_wdata(execute_1__io_e2w_rd_wdata),
+    .io_w2e_stall(wb_io_w2e_stall),
+    .io_data_req_valid(execute_1__io_data_req_valid),
     .io_data_req_ready(data_req_ready),
-    .io_data_req_addr(_zz_62_),
-    .io_data_req_wr(_zz_63_),
-    .io_data_req_size(_zz_64_),
-    .io_data_req_data(_zz_65_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_data_req_addr(execute_1__io_data_req_addr),
+    .io_data_req_wr(execute_1__io_data_req_wr),
+    .io_data_req_size(execute_1__io_data_req_size),
+    .io_data_req_data(execute_1__io_data_req_data),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   RegFile reg_file ( 
-    .io_rd2r_rs1_rd(_zz_25_),
-    .io_rd2r_rs1_rd_addr(_zz_26_),
-    .io_rd2r_rs2_rd(_zz_27_),
-    .io_rd2r_rs2_rd_addr(_zz_28_),
-    .io_r2rd_stall(_zz_66_),
-    .io_r2rr_rs1_data(_zz_67_),
-    .io_r2rr_rs2_data(_zz_68_),
-    .io_w2r_rd_wr(_zz_74_),
-    .io_w2r_rd_wr_addr(_zz_75_),
-    .io_w2r_rd_wr_data(_zz_76_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_rd2r_rs1_rd(fetch_1__io_rd2r_rs1_rd),
+    .io_rd2r_rs1_rd_addr(fetch_1__io_rd2r_rs1_rd_addr),
+    .io_rd2r_rs2_rd(fetch_1__io_rd2r_rs2_rd),
+    .io_rd2r_rs2_rd_addr(fetch_1__io_rd2r_rs2_rd_addr),
+    .io_r2rd_stall(reg_file_io_r2rd_stall),
+    .io_r2rr_rs1_data(reg_file_io_r2rr_rs1_data),
+    .io_r2rr_rs2_data(reg_file_io_r2rr_rs2_data),
+    .io_w2r_rd_wr(wb_io_w2r_rd_wr),
+    .io_w2r_rd_wr_addr(wb_io_w2r_rd_wr_addr),
+    .io_w2r_rd_wr_data(wb_io_w2r_rd_wr_data),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Writeback wb ( 
-    .io_e2w_valid(_zz_53_),
-    .io_e2w_ld_active(_zz_54_),
-    .io_e2w_ld_addr_lsb(_zz_55_),
-    .io_e2w_ld_data_size(_zz_56_),
-    .io_e2w_ld_data_signed(_zz_57_),
-    .io_e2w_rd_wr(_zz_58_),
-    .io_e2w_rd_waddr(_zz_59_),
-    .io_e2w_rd_wdata(_zz_60_),
-    .io_w2e_stall(_zz_69_),
-    .io_rd_update_rd_waddr_valid(_zz_70_),
-    .io_rd_update_rd_waddr(_zz_71_),
-    .io_rd_update_rd_wdata_valid(_zz_72_),
-    .io_rd_update_rd_wdata(_zz_73_),
-    .io_w2r_rd_wr(_zz_74_),
-    .io_w2r_rd_wr_addr(_zz_75_),
-    .io_w2r_rd_wr_data(_zz_76_),
+    .io_e2w_valid(execute_1__io_e2w_valid),
+    .io_e2w_ld_active(execute_1__io_e2w_ld_active),
+    .io_e2w_ld_addr_lsb(execute_1__io_e2w_ld_addr_lsb),
+    .io_e2w_ld_data_size(execute_1__io_e2w_ld_data_size),
+    .io_e2w_ld_data_signed(execute_1__io_e2w_ld_data_signed),
+    .io_e2w_rd_wr(execute_1__io_e2w_rd_wr),
+    .io_e2w_rd_waddr(execute_1__io_e2w_rd_waddr),
+    .io_e2w_rd_wdata(execute_1__io_e2w_rd_wdata),
+    .io_w2e_stall(wb_io_w2e_stall),
+    .io_rd_update_rd_waddr_valid(wb_io_rd_update_rd_waddr_valid),
+    .io_rd_update_rd_waddr(wb_io_rd_update_rd_waddr),
+    .io_rd_update_rd_wdata_valid(wb_io_rd_update_rd_wdata_valid),
+    .io_rd_update_rd_wdata(wb_io_rd_update_rd_wdata),
+    .io_w2r_rd_wr(wb_io_w2r_rd_wr),
+    .io_w2r_rd_wr_addr(wb_io_w2r_rd_wr_addr),
+    .io_w2r_rd_wr_data(wb_io_w2r_rd_wr_data),
     .io_data_rsp_valid(data_rsp_valid),
     .io_data_rsp_data(data_rsp_data),
     .io_e2w_rvfi_valid(_zz_1_),
@@ -3734,16 +3740,16 @@ module MR1 (
     .io_e2w_rvfi_mem_wmask(_zz_17_),
     .io_e2w_rvfi_mem_rdata(_zz_18_),
     .io_e2w_rvfi_mem_wdata(_zz_19_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign instr_req_valid = _zz_20_;
-  assign instr_req_addr = _zz_21_;
-  assign data_req_valid = _zz_61_;
-  assign data_req_addr = _zz_62_;
-  assign data_req_wr = _zz_63_;
-  assign data_req_size = _zz_64_;
-  assign data_req_data = _zz_65_;
+  assign instr_req_valid = fetch_1__io_instr_req_valid;
+  assign instr_req_addr = fetch_1__io_instr_req_addr;
+  assign data_req_valid = execute_1__io_data_req_valid;
+  assign data_req_addr = execute_1__io_data_req_addr;
+  assign data_req_wr = execute_1__io_data_req_wr;
+  assign data_req_size = execute_1__io_data_req_size;
+  assign data_req_data = execute_1__io_data_req_data;
 endmodule
 
 
@@ -3759,8 +3765,8 @@ module SInt2Fpxx (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [1:0] _zz_48_;
   wire [1:0] _zz_49_;
   wire [1:0] _zz_50_;
@@ -4316,8 +4322,8 @@ module SInt2Fpxx (
   assign io_result_sign = sign_final_p2;
   assign io_result_exp = exp_final_p2;
   assign io_result_mant = mant_final_p2;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
       p2_vld <= 1'b0;
     end else begin
@@ -4330,7 +4336,7 @@ module SInt2Fpxx (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       sign_p1 <= sign_p0;
     end
@@ -4358,8 +4364,8 @@ module Fpxx2SInt (
       output  io_result_vld,
       output [19:0] io_result,
       output  io_result_ovfl,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [7:0] _zz_2_;
   wire [7:0] _zz_3_;
   wire [14:0] _zz_4_;
@@ -4420,8 +4426,8 @@ module Fpxx2SInt (
   assign io_result_vld = p1_vld;
   assign io_result = int_p1;
   assign io_result_ovfl = ovfl_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -4430,7 +4436,7 @@ module Fpxx2SInt (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       ge0_p1 <= ge0_p0;
     end
@@ -4451,8 +4457,8 @@ module SInt2Fpxx_1_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [1:0] _zz_28_;
   wire [1:0] _zz_29_;
   wire [1:0] _zz_30_;
@@ -4794,8 +4800,8 @@ module SInt2Fpxx_1_ (
   assign io_result_sign = sign_final_p2;
   assign io_result_exp = exp_final_p2;
   assign io_result_mant = mant_final_p2;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
       p2_vld <= 1'b0;
     end else begin
@@ -4808,7 +4814,7 @@ module SInt2Fpxx_1_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       sign_p1 <= sign_p0;
     end
@@ -4835,8 +4841,8 @@ module SInt2Fpxx_2_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [1:0] _zz_26_;
   wire [1:0] _zz_27_;
   wire [1:0] _zz_28_;
@@ -5155,8 +5161,8 @@ module SInt2Fpxx_2_ (
   assign io_result_sign = sign_final_p2;
   assign io_result_exp = exp_final_p2;
   assign io_result_mant = mant_final_p2;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
       p2_vld <= 1'b0;
     end else begin
@@ -5169,7 +5175,7 @@ module SInt2Fpxx_2_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       sign_p1 <= sign_p0;
     end
@@ -5243,8 +5249,8 @@ module FpxxRSqrt_2_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [13:0] _zz_1_;
   wire [6:0] _zz_2_;
   wire [6:0] _zz_3_;
@@ -5296,7 +5302,7 @@ module FpxxRSqrt_2_ (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_normalize_ray_u_rsqrt_rsqrt_table.bin",rsqrt_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= rsqrt_table[rsqrt_addr_p0];
     end
@@ -5341,8 +5347,8 @@ module FpxxRSqrt_2_ (
   assign io_result_sign = sign_final_p1;
   assign io_result_exp = exp_final_p1;
   assign io_result_mant = mant_final_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -5351,7 +5357,7 @@ module FpxxRSqrt_2_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_zero_p1 <= op_zero_p0;
     end
@@ -5401,20 +5407,20 @@ module SubVecVec (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_x_io_result_vld;
+  wire  u_x_io_result_sign;
+  wire [5:0] u_x_io_result_exp;
+  wire [12:0] u_x_io_result_mant;
+  wire  u_y_io_result_vld;
+  wire  u_y_io_result_sign;
+  wire [5:0] u_y_io_result_exp;
+  wire [12:0] u_y_io_result_mant;
+  wire  u_z_io_result_vld;
+  wire  u_z_io_result_sign;
+  wire [5:0] u_z_io_result_exp;
+  wire [12:0] u_z_io_result_mant;
   FpxxSub u_x ( 
     .io_op_vld(io_op_vld),
     .io_op_a_sign(io_op_a_x_sign),
@@ -5423,12 +5429,12 @@ module SubVecVec (
     .io_op_b_sign(io_op_b_x_sign),
     .io_op_b_exp(io_op_b_x_exp),
     .io_op_b_mant(io_op_b_x_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_x_io_result_vld),
+    .io_result_sign(u_x_io_result_sign),
+    .io_result_exp(u_x_io_result_exp),
+    .io_result_mant(u_x_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_y ( 
     .io_op_vld(io_op_vld),
@@ -5438,12 +5444,12 @@ module SubVecVec (
     .io_op_b_sign(io_op_b_y_sign),
     .io_op_b_exp(io_op_b_y_exp),
     .io_op_b_mant(io_op_b_y_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_y_io_result_vld),
+    .io_result_sign(u_y_io_result_sign),
+    .io_result_exp(u_y_io_result_exp),
+    .io_result_mant(u_y_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_z ( 
     .io_op_vld(io_op_vld),
@@ -5453,23 +5459,23 @@ module SubVecVec (
     .io_op_b_sign(io_op_b_z_sign),
     .io_op_b_exp(io_op_b_z_exp),
     .io_op_b_mant(io_op_b_z_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_z_io_result_vld),
+    .io_result_sign(u_z_io_result_sign),
+    .io_result_exp(u_z_io_result_exp),
+    .io_result_mant(u_z_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign io_result_vld = _zz_1_;
-  assign io_result_x_sign = _zz_2_;
-  assign io_result_x_exp = _zz_3_;
-  assign io_result_x_mant = _zz_4_;
-  assign io_result_y_sign = _zz_6_;
-  assign io_result_y_exp = _zz_7_;
-  assign io_result_y_mant = _zz_8_;
-  assign io_result_z_sign = _zz_10_;
-  assign io_result_z_exp = _zz_11_;
-  assign io_result_z_mant = _zz_12_;
+  assign io_result_vld = u_x_io_result_vld;
+  assign io_result_x_sign = u_x_io_result_sign;
+  assign io_result_x_exp = u_x_io_result_exp;
+  assign io_result_x_mant = u_x_io_result_mant;
+  assign io_result_y_sign = u_y_io_result_sign;
+  assign io_result_y_exp = u_y_io_result_exp;
+  assign io_result_y_mant = u_y_io_result_mant;
+  assign io_result_z_sign = u_z_io_result_sign;
+  assign io_result_z_exp = u_z_io_result_exp;
+  assign io_result_z_mant = u_z_io_result_mant;
 endmodule
 
 module DotProduct_3_ (
@@ -5496,28 +5502,28 @@ module DotProduct_3_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire [5:0] _zz_15_;
-  wire [12:0] _zz_16_;
-  wire  _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_xx_io_result_vld;
+  wire  u_xx_io_result_sign;
+  wire [5:0] u_xx_io_result_exp;
+  wire [12:0] u_xx_io_result_mant;
+  wire  u_yy_io_result_vld;
+  wire  u_yy_io_result_sign;
+  wire [5:0] u_yy_io_result_exp;
+  wire [12:0] u_yy_io_result_mant;
+  wire  u_zz_io_result_vld;
+  wire  u_zz_io_result_sign;
+  wire [5:0] u_zz_io_result_exp;
+  wire [12:0] u_zz_io_result_mant;
+  wire  u_xx_yy_io_result_vld;
+  wire  u_xx_yy_io_result_sign;
+  wire [5:0] u_xx_yy_io_result_exp;
+  wire [12:0] u_xx_yy_io_result_mant;
+  wire  u_xx_yy_zz_io_result_vld;
+  wire  u_xx_yy_zz_io_result_sign;
+  wire [5:0] u_xx_yy_zz_io_result_exp;
+  wire [12:0] u_xx_yy_zz_io_result_mant;
   wire  xx_vld;
   wire  yy_vld;
   wire  zz_vld;
@@ -5552,12 +5558,12 @@ module DotProduct_3_ (
     .op_b_p0_sign(io_op_b_x_sign),
     .exp_b_p0(io_op_b_x_exp),
     .op_b_p0_mant(io_op_b_x_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_io_result_vld),
+    .io_result_sign(u_xx_io_result_sign),
+    .io_result_exp(u_xx_io_result_exp),
+    .io_result_mant(u_xx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_yy ( 
     .p0_vld(io_op_vld),
@@ -5567,12 +5573,12 @@ module DotProduct_3_ (
     .op_b_p0_sign(io_op_b_y_sign),
     .exp_b_p0(io_op_b_y_exp),
     .op_b_p0_mant(io_op_b_y_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_yy_io_result_vld),
+    .io_result_sign(u_yy_io_result_sign),
+    .io_result_exp(u_yy_io_result_exp),
+    .io_result_mant(u_yy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_zz ( 
     .p0_vld(io_op_vld),
@@ -5582,12 +5588,12 @@ module DotProduct_3_ (
     .op_b_p0_sign(io_op_b_z_sign),
     .exp_b_p0(io_op_b_z_exp),
     .op_b_p0_mant(io_op_b_z_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_zz_io_result_vld),
+    .io_result_sign(u_zz_io_result_sign),
+    .io_result_exp(u_zz_io_result_exp),
+    .io_result_mant(u_zz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_xx_yy ( 
     .p0_vld(xx_vld),
@@ -5597,12 +5603,12 @@ module DotProduct_3_ (
     .op_b_p0_sign(yy_sign),
     .op_b_p0_exp(yy_exp),
     .op_b_p0_mant(yy_mant),
-    .io_result_vld(_zz_13_),
-    .io_result_sign(_zz_14_),
-    .io_result_exp(_zz_15_),
-    .io_result_mant(_zz_16_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_yy_io_result_vld),
+    .io_result_sign(u_xx_yy_io_result_sign),
+    .io_result_exp(u_xx_yy_io_result_exp),
+    .io_result_mant(u_xx_yy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_xx_yy_zz ( 
     .p0_vld(xx_yy_vld),
@@ -5612,38 +5618,38 @@ module DotProduct_3_ (
     .op_b_p0_sign(zz_delayed_sign),
     .op_b_p0_exp(zz_delayed_exp),
     .op_b_p0_mant(zz_delayed_mant),
-    .io_result_vld(_zz_17_),
-    .io_result_sign(_zz_18_),
-    .io_result_exp(_zz_19_),
-    .io_result_mant(_zz_20_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_xx_yy_zz_io_result_vld),
+    .io_result_sign(u_xx_yy_zz_io_result_sign),
+    .io_result_exp(u_xx_yy_zz_io_result_exp),
+    .io_result_mant(u_xx_yy_zz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign xx_vld = _zz_1_;
-  assign xx_sign = _zz_2_;
-  assign xx_exp = _zz_3_;
-  assign xx_mant = _zz_4_;
-  assign yy_vld = _zz_5_;
-  assign yy_sign = _zz_6_;
-  assign yy_exp = _zz_7_;
-  assign yy_mant = _zz_8_;
-  assign zz_vld = _zz_9_;
-  assign zz_sign = _zz_10_;
-  assign zz_exp = _zz_11_;
-  assign zz_mant = _zz_12_;
-  assign xx_yy_vld = _zz_13_;
-  assign xx_yy_sign = _zz_14_;
-  assign xx_yy_exp = _zz_15_;
-  assign xx_yy_mant = _zz_16_;
-  assign xx_yy_zz_vld = _zz_17_;
-  assign xx_yy_zz_sign = _zz_18_;
-  assign xx_yy_zz_exp = _zz_19_;
-  assign xx_yy_zz_mant = _zz_20_;
+  assign xx_vld = u_xx_io_result_vld;
+  assign xx_sign = u_xx_io_result_sign;
+  assign xx_exp = u_xx_io_result_exp;
+  assign xx_mant = u_xx_io_result_mant;
+  assign yy_vld = u_yy_io_result_vld;
+  assign yy_sign = u_yy_io_result_sign;
+  assign yy_exp = u_yy_io_result_exp;
+  assign yy_mant = u_yy_io_result_mant;
+  assign zz_vld = u_zz_io_result_vld;
+  assign zz_sign = u_zz_io_result_sign;
+  assign zz_exp = u_zz_io_result_exp;
+  assign zz_mant = u_zz_io_result_mant;
+  assign xx_yy_vld = u_xx_yy_io_result_vld;
+  assign xx_yy_sign = u_xx_yy_io_result_sign;
+  assign xx_yy_exp = u_xx_yy_io_result_exp;
+  assign xx_yy_mant = u_xx_yy_io_result_mant;
+  assign xx_yy_zz_vld = u_xx_yy_zz_io_result_vld;
+  assign xx_yy_zz_sign = u_xx_yy_zz_io_result_sign;
+  assign xx_yy_zz_exp = u_xx_yy_zz_io_result_exp;
+  assign xx_yy_zz_mant = u_xx_yy_zz_io_result_mant;
   assign io_result_vld = xx_yy_zz_vld;
   assign io_result_sign = xx_yy_zz_sign;
   assign io_result_exp = xx_yy_zz_exp;
   assign io_result_mant = xx_yy_zz_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     zz_delay_1_sign <= zz_sign;
     zz_delay_1_exp <= zz_exp;
     zz_delay_1_mant <= zz_mant;
@@ -5675,8 +5681,8 @@ module FpxxSqrt (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [13:0] _zz_1_;
   wire [6:0] _zz_2_;
   wire [6:0] _zz_3_;
@@ -5726,7 +5732,7 @@ module FpxxSqrt (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_sphere_intersect_u_thc_sqrt_table.bin",sqrt_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= sqrt_table[sqrt_addr_p0];
     end
@@ -5771,8 +5777,8 @@ module FpxxSqrt (
   assign io_result_sign = sign_final_p1;
   assign io_result_exp = exp_final_p1;
   assign io_result_mant = mant_final_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -5781,7 +5787,7 @@ module FpxxSqrt (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_zero_p1 <= op_zero_p0;
     end
@@ -5837,28 +5843,28 @@ module Intersection (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire [5:0] _zz_6_;
-  wire [12:0] _zz_7_;
-  wire  _zz_8_;
-  wire [5:0] _zz_9_;
-  wire [12:0] _zz_10_;
-  wire  _zz_11_;
-  wire  _zz_12_;
-  wire [5:0] _zz_13_;
-  wire [12:0] _zz_14_;
-  wire  _zz_15_;
-  wire [5:0] _zz_16_;
-  wire [12:0] _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_mul_dir_t_io_result_vld;
+  wire  u_mul_dir_t_io_result_x_sign;
+  wire [5:0] u_mul_dir_t_io_result_x_exp;
+  wire [12:0] u_mul_dir_t_io_result_x_mant;
+  wire  u_mul_dir_t_io_result_y_sign;
+  wire [5:0] u_mul_dir_t_io_result_y_exp;
+  wire [12:0] u_mul_dir_t_io_result_y_mant;
+  wire  u_mul_dir_t_io_result_z_sign;
+  wire [5:0] u_mul_dir_t_io_result_z_exp;
+  wire [12:0] u_mul_dir_t_io_result_z_mant;
+  wire  u_add_origin_dir_mul_t_io_result_vld;
+  wire  u_add_origin_dir_mul_t_io_result_x_sign;
+  wire [5:0] u_add_origin_dir_mul_t_io_result_x_exp;
+  wire [12:0] u_add_origin_dir_mul_t_io_result_x_mant;
+  wire  u_add_origin_dir_mul_t_io_result_y_sign;
+  wire [5:0] u_add_origin_dir_mul_t_io_result_y_exp;
+  wire [12:0] u_add_origin_dir_mul_t_io_result_y_mant;
+  wire  u_add_origin_dir_mul_t_io_result_z_sign;
+  wire [5:0] u_add_origin_dir_mul_t_io_result_z_exp;
+  wire [12:0] u_add_origin_dir_mul_t_io_result_z_mant;
   wire  dir_mul_t_vld;
   wire  dir_mul_t_x_sign;
   wire [5:0] dir_mul_t_x_exp;
@@ -5911,18 +5917,18 @@ module Intersection (
     .io_op_scalar_sign(io_t_sign),
     .io_op_scalar_exp(io_t_exp),
     .io_op_scalar_mant(io_t_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_x_sign(_zz_2_),
-    .io_result_x_exp(_zz_3_),
-    .io_result_x_mant(_zz_4_),
-    .io_result_y_sign(_zz_5_),
-    .io_result_y_exp(_zz_6_),
-    .io_result_y_mant(_zz_7_),
-    .io_result_z_sign(_zz_8_),
-    .io_result_z_exp(_zz_9_),
-    .io_result_z_mant(_zz_10_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_mul_dir_t_io_result_vld),
+    .io_result_x_sign(u_mul_dir_t_io_result_x_sign),
+    .io_result_x_exp(u_mul_dir_t_io_result_x_exp),
+    .io_result_x_mant(u_mul_dir_t_io_result_x_mant),
+    .io_result_y_sign(u_mul_dir_t_io_result_y_sign),
+    .io_result_y_exp(u_mul_dir_t_io_result_y_exp),
+    .io_result_y_mant(u_mul_dir_t_io_result_y_mant),
+    .io_result_z_sign(u_mul_dir_t_io_result_z_sign),
+    .io_result_z_exp(u_mul_dir_t_io_result_z_exp),
+    .io_result_z_mant(u_mul_dir_t_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   AddVecVec u_add_origin_dir_mul_t ( 
     .io_op_vld(dir_mul_t_vld),
@@ -5944,39 +5950,39 @@ module Intersection (
     .io_op_b_z_sign(origin_delayed_z_sign),
     .io_op_b_z_exp(origin_delayed_z_exp),
     .io_op_b_z_mant(origin_delayed_z_mant),
-    .io_result_vld(_zz_11_),
-    .io_result_x_sign(_zz_12_),
-    .io_result_x_exp(_zz_13_),
-    .io_result_x_mant(_zz_14_),
-    .io_result_y_sign(_zz_15_),
-    .io_result_y_exp(_zz_16_),
-    .io_result_y_mant(_zz_17_),
-    .io_result_z_sign(_zz_18_),
-    .io_result_z_exp(_zz_19_),
-    .io_result_z_mant(_zz_20_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_add_origin_dir_mul_t_io_result_vld),
+    .io_result_x_sign(u_add_origin_dir_mul_t_io_result_x_sign),
+    .io_result_x_exp(u_add_origin_dir_mul_t_io_result_x_exp),
+    .io_result_x_mant(u_add_origin_dir_mul_t_io_result_x_mant),
+    .io_result_y_sign(u_add_origin_dir_mul_t_io_result_y_sign),
+    .io_result_y_exp(u_add_origin_dir_mul_t_io_result_y_exp),
+    .io_result_y_mant(u_add_origin_dir_mul_t_io_result_y_mant),
+    .io_result_z_sign(u_add_origin_dir_mul_t_io_result_z_sign),
+    .io_result_z_exp(u_add_origin_dir_mul_t_io_result_z_exp),
+    .io_result_z_mant(u_add_origin_dir_mul_t_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign dir_mul_t_vld = _zz_1_;
-  assign dir_mul_t_x_sign = _zz_2_;
-  assign dir_mul_t_x_exp = _zz_3_;
-  assign dir_mul_t_x_mant = _zz_4_;
-  assign dir_mul_t_y_sign = _zz_5_;
-  assign dir_mul_t_y_exp = _zz_6_;
-  assign dir_mul_t_y_mant = _zz_7_;
-  assign dir_mul_t_z_sign = _zz_8_;
-  assign dir_mul_t_z_exp = _zz_9_;
-  assign dir_mul_t_z_mant = _zz_10_;
-  assign intersection_vld = _zz_11_;
-  assign intersection_x_sign = _zz_12_;
-  assign intersection_x_exp = _zz_13_;
-  assign intersection_x_mant = _zz_14_;
-  assign intersection_y_sign = _zz_15_;
-  assign intersection_y_exp = _zz_16_;
-  assign intersection_y_mant = _zz_17_;
-  assign intersection_z_sign = _zz_18_;
-  assign intersection_z_exp = _zz_19_;
-  assign intersection_z_mant = _zz_20_;
+  assign dir_mul_t_vld = u_mul_dir_t_io_result_vld;
+  assign dir_mul_t_x_sign = u_mul_dir_t_io_result_x_sign;
+  assign dir_mul_t_x_exp = u_mul_dir_t_io_result_x_exp;
+  assign dir_mul_t_x_mant = u_mul_dir_t_io_result_x_mant;
+  assign dir_mul_t_y_sign = u_mul_dir_t_io_result_y_sign;
+  assign dir_mul_t_y_exp = u_mul_dir_t_io_result_y_exp;
+  assign dir_mul_t_y_mant = u_mul_dir_t_io_result_y_mant;
+  assign dir_mul_t_z_sign = u_mul_dir_t_io_result_z_sign;
+  assign dir_mul_t_z_exp = u_mul_dir_t_io_result_z_exp;
+  assign dir_mul_t_z_mant = u_mul_dir_t_io_result_z_mant;
+  assign intersection_vld = u_add_origin_dir_mul_t_io_result_vld;
+  assign intersection_x_sign = u_add_origin_dir_mul_t_io_result_x_sign;
+  assign intersection_x_exp = u_add_origin_dir_mul_t_io_result_x_exp;
+  assign intersection_x_mant = u_add_origin_dir_mul_t_io_result_x_mant;
+  assign intersection_y_sign = u_add_origin_dir_mul_t_io_result_y_sign;
+  assign intersection_y_exp = u_add_origin_dir_mul_t_io_result_y_exp;
+  assign intersection_y_mant = u_add_origin_dir_mul_t_io_result_y_mant;
+  assign intersection_z_sign = u_add_origin_dir_mul_t_io_result_z_sign;
+  assign intersection_z_exp = u_add_origin_dir_mul_t_io_result_z_exp;
+  assign intersection_z_mant = u_add_origin_dir_mul_t_io_result_z_mant;
   assign io_result_vld = intersection_vld;
   assign io_result_x_sign = intersection_x_sign;
   assign io_result_x_exp = intersection_x_exp;
@@ -5987,7 +5993,7 @@ module Intersection (
   assign io_result_z_sign = intersection_z_sign;
   assign io_result_z_exp = intersection_z_exp;
   assign io_result_z_mant = intersection_z_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_ray_origin_delay_1_x_sign <= io_ray_origin_x_sign;
     io_ray_origin_delay_1_x_exp <= io_ray_origin_x_exp;
     io_ray_origin_delay_1_x_mant <= io_ray_origin_x_mant;
@@ -6034,26 +6040,26 @@ module Normalize (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire [5:0] _zz_14_;
-  wire [12:0] _zz_15_;
-  wire  _zz_16_;
-  wire [5:0] _zz_17_;
-  wire [12:0] _zz_18_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_dot_io_result_vld;
+  wire  u_dot_io_result_sign;
+  wire [5:0] u_dot_io_result_exp;
+  wire [12:0] u_dot_io_result_mant;
+  wire  u_rsqrt_io_result_vld;
+  wire  u_rsqrt_io_result_sign;
+  wire [5:0] u_rsqrt_io_result_exp;
+  wire [12:0] u_rsqrt_io_result_mant;
+  wire  u_vec_adj_io_result_vld;
+  wire  u_vec_adj_io_result_x_sign;
+  wire [5:0] u_vec_adj_io_result_x_exp;
+  wire [12:0] u_vec_adj_io_result_x_mant;
+  wire  u_vec_adj_io_result_y_sign;
+  wire [5:0] u_vec_adj_io_result_y_exp;
+  wire [12:0] u_vec_adj_io_result_y_mant;
+  wire  u_vec_adj_io_result_z_sign;
+  wire [5:0] u_vec_adj_io_result_z_exp;
+  wire [12:0] u_vec_adj_io_result_z_mant;
   wire  vec_dot_vld;
   wire  vec_dot_sign;
   wire [5:0] vec_dot_exp;
@@ -6145,24 +6151,24 @@ module Normalize (
     .io_op_b_z_sign(io_op_z_sign),
     .io_op_b_z_exp(io_op_z_exp),
     .io_op_b_z_mant(io_op_z_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_io_result_vld),
+    .io_result_sign(u_dot_io_result_sign),
+    .io_result_exp(u_dot_io_result_exp),
+    .io_result_mant(u_dot_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxRSqrt u_rsqrt ( 
     .p0_vld(vec_dot_vld),
     .op_p0_sign(vec_dot_sign),
     .op_p0_exp(vec_dot_exp),
     .op_p0_mant(vec_dot_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_rsqrt_io_result_vld),
+    .io_result_sign(u_rsqrt_io_result_sign),
+    .io_result_exp(u_rsqrt_io_result_exp),
+    .io_result_mant(u_rsqrt_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   MulVecScalar u_vec_adj ( 
     .io_op_vld(denom_vld),
@@ -6178,38 +6184,38 @@ module Normalize (
     .io_op_scalar_sign(denom_sign),
     .io_op_scalar_exp(denom_exp),
     .io_op_scalar_mant(denom_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_x_sign(_zz_10_),
-    .io_result_x_exp(_zz_11_),
-    .io_result_x_mant(_zz_12_),
-    .io_result_y_sign(_zz_13_),
-    .io_result_y_exp(_zz_14_),
-    .io_result_y_mant(_zz_15_),
-    .io_result_z_sign(_zz_16_),
-    .io_result_z_exp(_zz_17_),
-    .io_result_z_mant(_zz_18_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_vec_adj_io_result_vld),
+    .io_result_x_sign(u_vec_adj_io_result_x_sign),
+    .io_result_x_exp(u_vec_adj_io_result_x_exp),
+    .io_result_x_mant(u_vec_adj_io_result_x_mant),
+    .io_result_y_sign(u_vec_adj_io_result_y_sign),
+    .io_result_y_exp(u_vec_adj_io_result_y_exp),
+    .io_result_y_mant(u_vec_adj_io_result_y_mant),
+    .io_result_z_sign(u_vec_adj_io_result_z_sign),
+    .io_result_z_exp(u_vec_adj_io_result_z_exp),
+    .io_result_z_mant(u_vec_adj_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign vec_dot_vld = _zz_1_;
-  assign vec_dot_sign = _zz_2_;
-  assign vec_dot_exp = _zz_3_;
-  assign vec_dot_mant = _zz_4_;
-  assign denom_vld = _zz_5_;
-  assign denom_sign = _zz_6_;
-  assign denom_exp = _zz_7_;
-  assign denom_mant = _zz_8_;
-  assign io_result_vld = _zz_9_;
-  assign io_result_x_sign = _zz_10_;
-  assign io_result_x_exp = _zz_11_;
-  assign io_result_x_mant = _zz_12_;
-  assign io_result_y_sign = _zz_13_;
-  assign io_result_y_exp = _zz_14_;
-  assign io_result_y_mant = _zz_15_;
-  assign io_result_z_sign = _zz_16_;
-  assign io_result_z_exp = _zz_17_;
-  assign io_result_z_mant = _zz_18_;
-  always @ (posedge resetCtrl_clk25) begin
+  assign vec_dot_vld = u_dot_io_result_vld;
+  assign vec_dot_sign = u_dot_io_result_sign;
+  assign vec_dot_exp = u_dot_io_result_exp;
+  assign vec_dot_mant = u_dot_io_result_mant;
+  assign denom_vld = u_rsqrt_io_result_vld;
+  assign denom_sign = u_rsqrt_io_result_sign;
+  assign denom_exp = u_rsqrt_io_result_exp;
+  assign denom_mant = u_rsqrt_io_result_mant;
+  assign io_result_vld = u_vec_adj_io_result_vld;
+  assign io_result_x_sign = u_vec_adj_io_result_x_sign;
+  assign io_result_x_exp = u_vec_adj_io_result_x_exp;
+  assign io_result_x_mant = u_vec_adj_io_result_x_mant;
+  assign io_result_y_sign = u_vec_adj_io_result_y_sign;
+  assign io_result_y_exp = u_vec_adj_io_result_y_exp;
+  assign io_result_y_mant = u_vec_adj_io_result_y_mant;
+  assign io_result_z_sign = u_vec_adj_io_result_z_sign;
+  assign io_result_z_exp = u_vec_adj_io_result_z_exp;
+  assign io_result_z_mant = u_vec_adj_io_result_z_mant;
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_op_delay_1_x_sign <= io_op_x_sign;
     io_op_delay_1_x_exp <= io_op_x_exp;
     io_op_delay_1_x_mant <= io_op_x_mant;
@@ -6307,8 +6313,8 @@ module FpxxDiv (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [15:0] _zz_1_;
   wire [13:0] _zz_2_;
   wire [5:0] _zz_3_;
@@ -6422,7 +6428,7 @@ module FpxxDiv (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_plane_intersect_u_div_p0r0_dot_norm_denom_div_table.bin",div_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= div_table[div_addr_p0];
     end
@@ -6500,8 +6506,8 @@ module FpxxDiv (
   assign io_result_sign = sign_final_p6;
   assign io_result_exp = exp_final_p6;
   assign io_result_mant = div_final_p6;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
       p2_vld <= 1'b0;
       p3_vld <= 1'b0;
@@ -6530,7 +6536,7 @@ module FpxxDiv (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       yh_m_yl_p1 <= yh_m_yl_p0;
     end
@@ -6691,8 +6697,8 @@ module FpxxSqrt_1_ (
       output  io_result_sign,
       output [5:0] io_result_exp,
       output [12:0] io_result_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [13:0] _zz_1_;
   wire [6:0] _zz_2_;
   wire [6:0] _zz_3_;
@@ -6742,7 +6748,7 @@ module FpxxSqrt_1_ (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_rt_u_shadow_sphere_intersect_u_thc_sqrt_table.bin",sqrt_table);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld) begin
       _zz_1_ <= sqrt_table[sqrt_addr_p0];
     end
@@ -6787,8 +6793,8 @@ module FpxxSqrt_1_ (
   assign io_result_sign = sign_final_p1;
   assign io_result_exp = exp_final_p1;
   assign io_result_mant = mant_final_p1;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       p1_vld <= 1'b0;
     end else begin
       if(1'b1)begin
@@ -6797,7 +6803,7 @@ module FpxxSqrt_1_ (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(p0_vld)begin
       op_zero_p1 <= op_zero_p0;
     end
@@ -6847,26 +6853,26 @@ module Normalize_1_ (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire [5:0] _zz_14_;
-  wire [12:0] _zz_15_;
-  wire  _zz_16_;
-  wire [5:0] _zz_17_;
-  wire [12:0] _zz_18_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_dot_io_result_vld;
+  wire  u_dot_io_result_sign;
+  wire [5:0] u_dot_io_result_exp;
+  wire [12:0] u_dot_io_result_mant;
+  wire  u_rsqrt_io_result_vld;
+  wire  u_rsqrt_io_result_sign;
+  wire [5:0] u_rsqrt_io_result_exp;
+  wire [12:0] u_rsqrt_io_result_mant;
+  wire  u_vec_adj_io_result_vld;
+  wire  u_vec_adj_io_result_x_sign;
+  wire [5:0] u_vec_adj_io_result_x_exp;
+  wire [12:0] u_vec_adj_io_result_x_mant;
+  wire  u_vec_adj_io_result_y_sign;
+  wire [5:0] u_vec_adj_io_result_y_exp;
+  wire [12:0] u_vec_adj_io_result_y_mant;
+  wire  u_vec_adj_io_result_z_sign;
+  wire [5:0] u_vec_adj_io_result_z_exp;
+  wire [12:0] u_vec_adj_io_result_z_mant;
   wire  vec_dot_vld;
   wire  vec_dot_sign;
   wire [5:0] vec_dot_exp;
@@ -6958,24 +6964,24 @@ module Normalize_1_ (
     .io_op_b_z_sign(io_op_z_sign),
     .io_op_b_z_exp(io_op_z_exp),
     .io_op_b_z_mant(io_op_z_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_io_result_vld),
+    .io_result_sign(u_dot_io_result_sign),
+    .io_result_exp(u_dot_io_result_exp),
+    .io_result_mant(u_dot_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxRSqrt_1_ u_rsqrt ( 
     .p0_vld(vec_dot_vld),
     .op_p0_sign(vec_dot_sign),
     .op_p0_exp(vec_dot_exp),
     .op_p0_mant(vec_dot_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_rsqrt_io_result_vld),
+    .io_result_sign(u_rsqrt_io_result_sign),
+    .io_result_exp(u_rsqrt_io_result_exp),
+    .io_result_mant(u_rsqrt_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   MulVecScalar u_vec_adj ( 
     .io_op_vld(denom_vld),
@@ -6991,38 +6997,38 @@ module Normalize_1_ (
     .io_op_scalar_sign(denom_sign),
     .io_op_scalar_exp(denom_exp),
     .io_op_scalar_mant(denom_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_x_sign(_zz_10_),
-    .io_result_x_exp(_zz_11_),
-    .io_result_x_mant(_zz_12_),
-    .io_result_y_sign(_zz_13_),
-    .io_result_y_exp(_zz_14_),
-    .io_result_y_mant(_zz_15_),
-    .io_result_z_sign(_zz_16_),
-    .io_result_z_exp(_zz_17_),
-    .io_result_z_mant(_zz_18_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_vec_adj_io_result_vld),
+    .io_result_x_sign(u_vec_adj_io_result_x_sign),
+    .io_result_x_exp(u_vec_adj_io_result_x_exp),
+    .io_result_x_mant(u_vec_adj_io_result_x_mant),
+    .io_result_y_sign(u_vec_adj_io_result_y_sign),
+    .io_result_y_exp(u_vec_adj_io_result_y_exp),
+    .io_result_y_mant(u_vec_adj_io_result_y_mant),
+    .io_result_z_sign(u_vec_adj_io_result_z_sign),
+    .io_result_z_exp(u_vec_adj_io_result_z_exp),
+    .io_result_z_mant(u_vec_adj_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign vec_dot_vld = _zz_1_;
-  assign vec_dot_sign = _zz_2_;
-  assign vec_dot_exp = _zz_3_;
-  assign vec_dot_mant = _zz_4_;
-  assign denom_vld = _zz_5_;
-  assign denom_sign = _zz_6_;
-  assign denom_exp = _zz_7_;
-  assign denom_mant = _zz_8_;
-  assign io_result_vld = _zz_9_;
-  assign io_result_x_sign = _zz_10_;
-  assign io_result_x_exp = _zz_11_;
-  assign io_result_x_mant = _zz_12_;
-  assign io_result_y_sign = _zz_13_;
-  assign io_result_y_exp = _zz_14_;
-  assign io_result_y_mant = _zz_15_;
-  assign io_result_z_sign = _zz_16_;
-  assign io_result_z_exp = _zz_17_;
-  assign io_result_z_mant = _zz_18_;
-  always @ (posedge resetCtrl_clk25) begin
+  assign vec_dot_vld = u_dot_io_result_vld;
+  assign vec_dot_sign = u_dot_io_result_sign;
+  assign vec_dot_exp = u_dot_io_result_exp;
+  assign vec_dot_mant = u_dot_io_result_mant;
+  assign denom_vld = u_rsqrt_io_result_vld;
+  assign denom_sign = u_rsqrt_io_result_sign;
+  assign denom_exp = u_rsqrt_io_result_exp;
+  assign denom_mant = u_rsqrt_io_result_mant;
+  assign io_result_vld = u_vec_adj_io_result_vld;
+  assign io_result_x_sign = u_vec_adj_io_result_x_sign;
+  assign io_result_x_exp = u_vec_adj_io_result_x_exp;
+  assign io_result_x_mant = u_vec_adj_io_result_x_mant;
+  assign io_result_y_sign = u_vec_adj_io_result_y_sign;
+  assign io_result_y_exp = u_vec_adj_io_result_y_exp;
+  assign io_result_y_mant = u_vec_adj_io_result_y_mant;
+  assign io_result_z_sign = u_vec_adj_io_result_z_sign;
+  assign io_result_z_exp = u_vec_adj_io_result_z_exp;
+  assign io_result_z_mant = u_vec_adj_io_result_z_mant;
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_op_delay_1_x_sign <= io_op_x_sign;
     io_op_delay_1_x_exp <= io_op_x_exp;
     io_op_delay_1_x_mant <= io_op_x_mant;
@@ -7153,8 +7159,8 @@ module MR1Top (
       output [10:0] io_txt_buf_wr_addr,
       output [7:0] io_txt_buf_wr_data,
       input   io_eof,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_23_;
   wire [31:0] _zz_24_;
   wire  _zz_25_;
@@ -7166,41 +7172,41 @@ module MR1Top (
   wire  _zz_31_;
   reg [31:0] _zz_32_;
   reg [31:0] _zz_33_;
-  wire  _zz_34_;
-  wire [31:0] _zz_35_;
-  wire  _zz_36_;
+  wire  mr1_1__instr_req_valid;
+  wire [31:0] mr1_1__instr_req_addr;
+  wire  mr1_1__data_req_valid;
+  wire [31:0] mr1_1__data_req_addr;
+  wire  mr1_1__data_req_wr;
+  wire [1:0] mr1_1__data_req_size;
+  wire [31:0] mr1_1__data_req_data;
+  wire  u_fpxx_add_io_result_vld;
+  wire  u_fpxx_add_io_result_sign;
+  wire [5:0] u_fpxx_add_io_result_exp;
+  wire [12:0] u_fpxx_add_io_result_mant;
+  wire  u_fpxx_mul_io_result_vld;
+  wire  u_fpxx_mul_io_result_sign;
+  wire [5:0] u_fpxx_mul_io_result_exp;
+  wire [12:0] u_fpxx_mul_io_result_mant;
+  wire  u_int2fpxx_io_result_vld;
+  wire  u_int2fpxx_io_result_sign;
+  wire [5:0] u_int2fpxx_io_result_exp;
+  wire [12:0] u_int2fpxx_io_result_mant;
+  wire  u_fpxx2int_io_result_vld;
+  wire [19:0] u_fpxx2int_io_result;
+  wire  u_fpxx2int_io_result_ovfl;
+  wire [10:0] _zz_34_;
+  wire [10:0] _zz_35_;
+  wire [19:0] _zz_36_;
   wire [31:0] _zz_37_;
-  wire  _zz_38_;
-  wire [1:0] _zz_39_;
-  wire [31:0] _zz_40_;
-  wire  _zz_41_;
-  wire  _zz_42_;
-  wire [5:0] _zz_43_;
-  wire [12:0] _zz_44_;
-  wire  _zz_45_;
-  wire  _zz_46_;
-  wire [5:0] _zz_47_;
-  wire [12:0] _zz_48_;
-  wire  _zz_49_;
-  wire  _zz_50_;
-  wire [5:0] _zz_51_;
-  wire [12:0] _zz_52_;
-  wire  _zz_53_;
-  wire [19:0] _zz_54_;
-  wire  _zz_55_;
-  wire [10:0] _zz_56_;
-  wire [10:0] _zz_57_;
-  wire [19:0] _zz_58_;
-  wire [31:0] _zz_59_;
-  wire [19:0] _zz_60_;
-  wire [31:0] _zz_61_;
-  wire [19:0] _zz_62_;
-  wire [31:0] _zz_63_;
-  wire [31:0] _zz_64_;
-  wire [31:0] _zz_65_;
+  wire [19:0] _zz_38_;
+  wire [31:0] _zz_39_;
+  wire [19:0] _zz_40_;
+  wire [31:0] _zz_41_;
+  wire [31:0] _zz_42_;
+  wire [31:0] _zz_43_;
   reg [3:0] _zz_1_;
   wire [3:0] wmask;
-  reg  instr_req_valid_regNext;
+  reg  mr1_1__instr_req_valid_regNext;
   wire [31:0] cpu_ram_rd_data;
   wire [31:0] reg_rd_data;
   reg  _zz_2_;
@@ -9321,24 +9327,24 @@ module MR1Top (
   reg [7:0] ram_cpu_ram_symbol1 [0:2047];
   reg [7:0] ram_cpu_ram_symbol2 [0:2047];
   reg [7:0] ram_cpu_ram_symbol3 [0:2047];
-  reg [7:0] _zz_66_;
-  reg [7:0] _zz_67_;
-  reg [7:0] _zz_68_;
-  reg [7:0] _zz_69_;
-  reg [7:0] _zz_70_;
-  reg [7:0] _zz_71_;
-  reg [7:0] _zz_72_;
-  reg [7:0] _zz_73_;
-  assign _zz_56_ = _zz_4_[10:0];
-  assign _zz_57_ = _zz_6_[10:0];
-  assign _zz_58_ = {{fpxx_mul_sign,fpxx_mul_exp},fpxx_mul_mant};
-  assign _zz_59_ = {12'd0, _zz_58_};
-  assign _zz_60_ = {{fpxx_add_sign,fpxx_add_exp},fpxx_add_mant};
-  assign _zz_61_ = {12'd0, _zz_60_};
-  assign _zz_62_ = {{int2fpxx_sign,int2fpxx_exp},int2fpxx_mant};
-  assign _zz_63_ = {12'd0, _zz_62_};
-  assign _zz_64_ = {{12{fpxx2int[19]}}, fpxx2int};
-  assign _zz_65_ = (32'b00000000000010001000000000000000);
+  reg [7:0] _zz_44_;
+  reg [7:0] _zz_45_;
+  reg [7:0] _zz_46_;
+  reg [7:0] _zz_47_;
+  reg [7:0] _zz_48_;
+  reg [7:0] _zz_49_;
+  reg [7:0] _zz_50_;
+  reg [7:0] _zz_51_;
+  assign _zz_34_ = _zz_4_[10:0];
+  assign _zz_35_ = _zz_6_[10:0];
+  assign _zz_36_ = {{fpxx_mul_sign,fpxx_mul_exp},fpxx_mul_mant};
+  assign _zz_37_ = {12'd0, _zz_36_};
+  assign _zz_38_ = {{fpxx_add_sign,fpxx_add_exp},fpxx_add_mant};
+  assign _zz_39_ = {12'd0, _zz_38_};
+  assign _zz_40_ = {{int2fpxx_sign,int2fpxx_exp},int2fpxx_mant};
+  assign _zz_41_ = {12'd0, _zz_40_};
+  assign _zz_42_ = {{12{fpxx2int[19]}}, fpxx2int};
+  assign _zz_43_ = (32'b00000000000010001000000000000000);
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_u_mr1_top_ram_cpu_ram_symbol0.bin",ram_cpu_ram_symbol0);
     $readmemb("Pano.v_toplevel_core_u_pano_core_u_mr1_top_ram_cpu_ram_symbol1.bin",ram_cpu_ram_symbol1);
@@ -9346,57 +9352,57 @@ module MR1Top (
     $readmemb("Pano.v_toplevel_core_u_pano_core_u_mr1_top_ram_cpu_ram_symbol3.bin",ram_cpu_ram_symbol3);
   end
   always @ (*) begin
-    _zz_33_ = {_zz_69_, _zz_68_, _zz_67_, _zz_66_};
+    _zz_33_ = {_zz_47_, _zz_46_, _zz_45_, _zz_44_};
   end
   always @ (*) begin
-    _zz_32_ = {_zz_73_, _zz_72_, _zz_71_, _zz_70_};
+    _zz_32_ = {_zz_51_, _zz_50_, _zz_49_, _zz_48_};
   end
-  always @ (posedge resetCtrl_clk25) begin
-    if(wmask[0] && _zz_5_ && _zz_38_ ) begin
-      ram_cpu_ram_symbol0[_zz_57_] <= _zz_7_[7 : 0];
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(wmask[0] && _zz_5_ && mr1_1__data_req_wr ) begin
+      ram_cpu_ram_symbol0[_zz_35_] <= _zz_7_[7 : 0];
     end
-    if(wmask[1] && _zz_5_ && _zz_38_ ) begin
-      ram_cpu_ram_symbol1[_zz_57_] <= _zz_7_[15 : 8];
+    if(wmask[1] && _zz_5_ && mr1_1__data_req_wr ) begin
+      ram_cpu_ram_symbol1[_zz_35_] <= _zz_7_[15 : 8];
     end
-    if(wmask[2] && _zz_5_ && _zz_38_ ) begin
-      ram_cpu_ram_symbol2[_zz_57_] <= _zz_7_[23 : 16];
+    if(wmask[2] && _zz_5_ && mr1_1__data_req_wr ) begin
+      ram_cpu_ram_symbol2[_zz_35_] <= _zz_7_[23 : 16];
     end
-    if(wmask[3] && _zz_5_ && _zz_38_ ) begin
-      ram_cpu_ram_symbol3[_zz_57_] <= _zz_7_[31 : 24];
+    if(wmask[3] && _zz_5_ && mr1_1__data_req_wr ) begin
+      ram_cpu_ram_symbol3[_zz_35_] <= _zz_7_[31 : 24];
     end
     if(_zz_5_) begin
-      _zz_66_ <= ram_cpu_ram_symbol0[_zz_57_];
-      _zz_67_ <= ram_cpu_ram_symbol1[_zz_57_];
-      _zz_68_ <= ram_cpu_ram_symbol2[_zz_57_];
-      _zz_69_ <= ram_cpu_ram_symbol3[_zz_57_];
+      _zz_44_ <= ram_cpu_ram_symbol0[_zz_35_];
+      _zz_45_ <= ram_cpu_ram_symbol1[_zz_35_];
+      _zz_46_ <= ram_cpu_ram_symbol2[_zz_35_];
+      _zz_47_ <= ram_cpu_ram_symbol3[_zz_35_];
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
-    if(_zz_34_) begin
-      _zz_70_ <= ram_cpu_ram_symbol0[_zz_56_];
-      _zz_71_ <= ram_cpu_ram_symbol1[_zz_56_];
-      _zz_72_ <= ram_cpu_ram_symbol2[_zz_56_];
-      _zz_73_ <= ram_cpu_ram_symbol3[_zz_56_];
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(mr1_1__instr_req_valid) begin
+      _zz_48_ <= ram_cpu_ram_symbol0[_zz_34_];
+      _zz_49_ <= ram_cpu_ram_symbol1[_zz_34_];
+      _zz_50_ <= ram_cpu_ram_symbol2[_zz_34_];
+      _zz_51_ <= ram_cpu_ram_symbol3[_zz_34_];
     end
   end
 
   MR1 mr1_1_ ( 
-    .instr_req_valid(_zz_34_),
+    .instr_req_valid(mr1_1__instr_req_valid),
     .instr_req_ready(_zz_23_),
-    .instr_req_addr(_zz_35_),
-    .instr_rsp_valid(instr_req_valid_regNext),
+    .instr_req_addr(mr1_1__instr_req_addr),
+    .instr_rsp_valid(mr1_1__instr_req_valid_regNext),
     .instr_rsp_data(_zz_24_),
-    .data_req_valid(_zz_36_),
+    .data_req_valid(mr1_1__data_req_valid),
     .data_req_ready(_zz_25_),
-    .data_req_addr(_zz_37_),
-    .data_req_wr(_zz_38_),
-    .data_req_size(_zz_39_),
-    .data_req_data(_zz_40_),
+    .data_req_addr(mr1_1__data_req_addr),
+    .data_req_wr(mr1_1__data_req_wr),
+    .data_req_size(mr1_1__data_req_size),
+    .data_req_data(mr1_1__data_req_data),
     .data_rsp_valid(_zz_2_),
     .data_rsp_data(_zz_26_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_fpxx_add ( 
     .p0_vld(_zz_27_),
@@ -9406,12 +9412,12 @@ module MR1Top (
     .op_b_p0_sign(fpxx_op_b_sign),
     .op_b_p0_exp(fpxx_op_b_exp),
     .op_b_p0_mant(fpxx_op_b_mant),
-    .io_result_vld(_zz_41_),
-    .io_result_sign(_zz_42_),
-    .io_result_exp(_zz_43_),
-    .io_result_mant(_zz_44_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_fpxx_add_io_result_vld),
+    .io_result_sign(u_fpxx_add_io_result_sign),
+    .io_result_exp(u_fpxx_add_io_result_exp),
+    .io_result_mant(u_fpxx_add_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_fpxx_mul ( 
     .p0_vld(_zz_28_),
@@ -9421,36 +9427,36 @@ module MR1Top (
     .op_b_p0_sign(fpxx_op_b_sign),
     .exp_b_p0(fpxx_op_b_exp),
     .op_b_p0_mant(fpxx_op_b_mant),
-    .io_result_vld(_zz_45_),
-    .io_result_sign(_zz_46_),
-    .io_result_exp(_zz_47_),
-    .io_result_mant(_zz_48_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_fpxx_mul_io_result_vld),
+    .io_result_sign(u_fpxx_mul_io_result_sign),
+    .io_result_exp(u_fpxx_mul_io_result_exp),
+    .io_result_mant(u_fpxx_mul_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SInt2Fpxx u_int2fpxx ( 
     .p0_vld(_zz_29_),
     .op_p0(_zz_30_),
-    .io_result_vld(_zz_49_),
-    .io_result_sign(_zz_50_),
-    .io_result_exp(_zz_51_),
-    .io_result_mant(_zz_52_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_int2fpxx_io_result_vld),
+    .io_result_sign(u_int2fpxx_io_result_sign),
+    .io_result_exp(u_int2fpxx_io_result_exp),
+    .io_result_mant(u_int2fpxx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Fpxx2SInt u_fpxx2int ( 
     .p0_vld(_zz_31_),
     .sign_p0(fpxx_op_a_sign),
     .op_p0_exp(fpxx_op_a_exp),
     .op_p0_mant(fpxx_op_a_mant),
-    .io_result_vld(_zz_53_),
-    .io_result(_zz_54_),
-    .io_result_ovfl(_zz_55_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_fpxx2int_io_result_vld),
+    .io_result(u_fpxx2int_io_result),
+    .io_result_ovfl(u_fpxx2int_io_result_ovfl),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   always @ (*) begin
-    case(_zz_39_)
+    case(mr1_1__data_req_size)
       2'b00 : begin
         _zz_1_ = (4'b0001);
       end
@@ -9463,7 +9469,7 @@ module MR1Top (
     endcase
   end
 
-  assign wmask = (_zz_1_ <<< _zz_37_[1 : 0]);
+  assign wmask = (_zz_1_ <<< mr1_1__data_req_addr[1 : 0]);
   assign _zz_23_ = 1'b1;
   assign _zz_25_ = 1'b1;
   assign _zz_26_ = (_zz_3_ ? reg_rd_data : cpu_ram_rd_data);
@@ -11515,19 +11521,19 @@ module MR1Top (
   assign ram_cpuRamContent_2045 = (32'b00000000000000000000000000000000);
   assign ram_cpuRamContent_2046 = (32'b00000000000000000000000000000000);
   assign ram_cpuRamContent_2047 = (32'b00000000000000000000000000000000);
-  assign _zz_4_ = (_zz_35_ >>> 2);
+  assign _zz_4_ = (mr1_1__instr_req_addr >>> 2);
   assign _zz_24_ = _zz_32_;
-  assign _zz_5_ = (_zz_36_ && (! _zz_37_[19]));
-  assign _zz_6_ = (_zz_37_ >>> 2);
-  assign _zz_7_ = _zz_40_;
+  assign _zz_5_ = (mr1_1__data_req_valid && (! mr1_1__data_req_addr[19]));
+  assign _zz_6_ = (mr1_1__data_req_addr >>> 2);
+  assign _zz_7_ = mr1_1__data_req_data;
   assign cpu_ram_rd_data = _zz_33_;
-  assign update_leds = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000000000)));
+  assign update_leds = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000000000)));
   assign io_led1 = _zz_8_;
   assign io_led2 = _zz_9_;
   assign io_led3 = _zz_10_;
-  assign update_camera_pos_x = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000010000)));
-  assign update_camera_pos_y = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000010100)));
-  assign update_camera_pos_z = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000011000)));
+  assign update_camera_pos_x = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000010000)));
+  assign update_camera_pos_y = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000010100)));
+  assign update_camera_pos_z = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000011000)));
   assign io_camera_pos_x_sign = _zz_11_[19];
   assign io_camera_pos_x_exp = _zz_11_[18 : 13];
   assign io_camera_pos_x_mant = _zz_11_[12 : 0];
@@ -11537,32 +11543,32 @@ module MR1Top (
   assign io_camera_pos_z_sign = _zz_13_[19];
   assign io_camera_pos_z_exp = _zz_13_[18 : 13];
   assign io_camera_pos_z_mant = _zz_13_[12 : 0];
-  assign update_rot_x_sin = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000100000)));
-  assign update_rot_x_cos = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000100100)));
+  assign update_rot_x_sin = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000100000)));
+  assign update_rot_x_cos = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000100100)));
   assign io_rot_x_sin_sign = _zz_14_[19];
   assign io_rot_x_sin_exp = _zz_14_[18 : 13];
   assign io_rot_x_sin_mant = _zz_14_[12 : 0];
   assign io_rot_x_cos_sign = _zz_15_[19];
   assign io_rot_x_cos_exp = _zz_15_[18 : 13];
   assign io_rot_x_cos_mant = _zz_15_[12 : 0];
-  assign update_rot_y_sin = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000110000)));
-  assign update_rot_y_cos = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000000110100)));
+  assign update_rot_y_sin = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000110000)));
+  assign update_rot_y_cos = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000000110100)));
   assign io_rot_y_sin_sign = _zz_16_[19];
   assign io_rot_y_sin_exp = _zz_16_[18 : 13];
   assign io_rot_y_sin_mant = _zz_16_[12 : 0];
   assign io_rot_y_cos_sign = _zz_17_[19];
   assign io_rot_y_cos_exp = _zz_17_[18 : 13];
   assign io_rot_y_cos_mant = _zz_17_[12 : 0];
-  assign eof_addr = (_zz_37_ == (32'b00000000000010000000000001000000));
-  assign update_eof_sticky = ((_zz_36_ && _zz_38_) && eof_addr);
-  assign fpxx_op_a_addr = (_zz_37_ == (32'b00000000000010000000000001010000));
-  assign fpxx_op_b_addr = (_zz_37_ == (32'b00000000000010000000000001010100));
-  assign fpxx_mul_addr = (_zz_37_ == (32'b00000000000010000000000001011000));
-  assign fpxx_add_addr = (_zz_37_ == (32'b00000000000010000000000001011100));
-  assign int2fpxx_addr = (_zz_37_ == (32'b00000000000010000000000001100000));
-  assign fpxx2int_addr = (_zz_37_ == (32'b00000000000010000000000001100100));
-  assign update_fpxx_op_a = ((_zz_36_ && _zz_38_) && fpxx_op_a_addr);
-  assign update_fpxx_op_b = ((_zz_36_ && _zz_38_) && fpxx_op_b_addr);
+  assign eof_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001000000));
+  assign update_eof_sticky = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && eof_addr);
+  assign fpxx_op_a_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001010000));
+  assign fpxx_op_b_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001010100));
+  assign fpxx_mul_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001011000));
+  assign fpxx_add_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001011100));
+  assign int2fpxx_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001100000));
+  assign fpxx2int_addr = (mr1_1__data_req_addr == (32'b00000000000010000000000001100100));
+  assign update_fpxx_op_a = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && fpxx_op_a_addr);
+  assign update_fpxx_op_b = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && fpxx_op_b_addr);
   assign fpxx_op_a_sign = _zz_18_[19];
   assign fpxx_op_a_exp = _zz_18_[18 : 13];
   assign fpxx_op_a_mant = _zz_18_[12 : 0];
@@ -11570,24 +11576,24 @@ module MR1Top (
   assign fpxx_op_b_exp = _zz_19_[18 : 13];
   assign fpxx_op_b_mant = _zz_19_[12 : 0];
   assign _zz_27_ = 1'b1;
-  assign fpxx_add_sign = _zz_42_;
-  assign fpxx_add_exp = _zz_43_;
-  assign fpxx_add_mant = _zz_44_;
+  assign fpxx_add_sign = u_fpxx_add_io_result_sign;
+  assign fpxx_add_exp = u_fpxx_add_io_result_exp;
+  assign fpxx_add_mant = u_fpxx_add_io_result_mant;
   assign _zz_28_ = 1'b1;
-  assign fpxx_mul_sign = _zz_46_;
-  assign fpxx_mul_exp = _zz_47_;
-  assign fpxx_mul_mant = _zz_48_;
+  assign fpxx_mul_sign = u_fpxx_mul_io_result_sign;
+  assign fpxx_mul_exp = u_fpxx_mul_io_result_exp;
+  assign fpxx_mul_mant = u_fpxx_mul_io_result_mant;
   assign _zz_29_ = 1'b1;
   assign _zz_30_ = {{fpxx_op_a_sign,fpxx_op_a_exp},fpxx_op_a_mant};
-  assign int2fpxx_sign = _zz_50_;
-  assign int2fpxx_exp = _zz_51_;
-  assign int2fpxx_mant = _zz_52_;
+  assign int2fpxx_sign = u_int2fpxx_io_result_sign;
+  assign int2fpxx_exp = u_int2fpxx_io_result_exp;
+  assign int2fpxx_mant = u_int2fpxx_io_result_mant;
   assign _zz_31_ = 1'b1;
-  assign fpxx2int = _zz_54_;
-  assign reg_rd_data = (eof_addr_regNext ? {(31'b0000000000000000000000000000000),eof_sticky} : (fpxx_mul_addr_regNext ? _zz_59_ : (fpxx_add_addr_regNext ? _zz_61_ : (int2fpxx_addr_regNext ? _zz_63_ : (fpxx2int_addr_regNext ? _zz_64_ : (32'b00000000000000000000000000000000))))));
-  assign update_sphere_pos_x = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000001110000)));
-  assign update_sphere_pos_y = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000001110100)));
-  assign update_sphere_pos_z = ((_zz_36_ && _zz_38_) && (_zz_37_ == (32'b00000000000010000000000001111000)));
+  assign fpxx2int = u_fpxx2int_io_result;
+  assign reg_rd_data = (eof_addr_regNext ? {(31'b0000000000000000000000000000000),eof_sticky} : (fpxx_mul_addr_regNext ? _zz_37_ : (fpxx_add_addr_regNext ? _zz_39_ : (int2fpxx_addr_regNext ? _zz_41_ : (fpxx2int_addr_regNext ? _zz_42_ : (32'b00000000000000000000000000000000))))));
+  assign update_sphere_pos_x = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000001110000)));
+  assign update_sphere_pos_y = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000001110100)));
+  assign update_sphere_pos_z = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && (mr1_1__data_req_addr == (32'b00000000000010000000000001111000)));
   assign io_sphere_pos_x_sign = _zz_20_[19];
   assign io_sphere_pos_x_exp = _zz_20_[18 : 13];
   assign io_sphere_pos_x_mant = _zz_20_[12 : 0];
@@ -11597,63 +11603,63 @@ module MR1Top (
   assign io_sphere_pos_z_sign = _zz_22_[19];
   assign io_sphere_pos_z_exp = _zz_22_[18 : 13];
   assign io_sphere_pos_z_mant = _zz_22_[12 : 0];
-  assign txt_buf_addr = (_zz_37_[31 : 15] == _zz_65_[31 : 15]);
-  assign update_txt_buf = ((_zz_36_ && _zz_38_) && txt_buf_addr);
+  assign txt_buf_addr = (mr1_1__data_req_addr[31 : 15] == _zz_43_[31 : 15]);
+  assign update_txt_buf = ((mr1_1__data_req_valid && mr1_1__data_req_wr) && txt_buf_addr);
   assign io_txt_buf_wr = update_txt_buf;
-  assign io_txt_buf_wr_addr = _zz_37_[12 : 2];
-  assign io_txt_buf_wr_data = _zz_40_[7 : 0];
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
-      instr_req_valid_regNext <= 1'b0;
+  assign io_txt_buf_wr_addr = mr1_1__data_req_addr[12 : 2];
+  assign io_txt_buf_wr_data = mr1_1__data_req_data[7 : 0];
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
+      mr1_1__instr_req_valid_regNext <= 1'b0;
       _zz_2_ <= 1'b0;
       _zz_8_ <= 1'b0;
       _zz_9_ <= 1'b0;
       _zz_10_ <= 1'b0;
       eof_sticky <= 1'b0;
     end else begin
-      instr_req_valid_regNext <= _zz_34_;
-      _zz_2_ <= (_zz_36_ && (! _zz_38_));
+      mr1_1__instr_req_valid_regNext <= mr1_1__instr_req_valid;
+      _zz_2_ <= (mr1_1__data_req_valid && (! mr1_1__data_req_wr));
       if(update_leds)begin
-        _zz_8_ <= _zz_40_[0];
+        _zz_8_ <= mr1_1__data_req_data[0];
       end
       if(update_leds)begin
-        _zz_9_ <= _zz_40_[1];
+        _zz_9_ <= mr1_1__data_req_data[1];
       end
       if(update_leds)begin
-        _zz_10_ <= _zz_40_[2];
+        _zz_10_ <= mr1_1__data_req_data[2];
       end
       eof_sticky <= (io_eof ? 1'b1 : (eof_sticky && (! update_eof_sticky)));
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
-    _zz_3_ <= _zz_37_[19];
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    _zz_3_ <= mr1_1__data_req_addr[19];
     if(update_camera_pos_x)begin
-      _zz_11_ <= _zz_40_[19 : 0];
+      _zz_11_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_camera_pos_y)begin
-      _zz_12_ <= _zz_40_[19 : 0];
+      _zz_12_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_camera_pos_z)begin
-      _zz_13_ <= _zz_40_[19 : 0];
+      _zz_13_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_rot_x_sin)begin
-      _zz_14_ <= _zz_40_[19 : 0];
+      _zz_14_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_rot_x_cos)begin
-      _zz_15_ <= _zz_40_[19 : 0];
+      _zz_15_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_rot_y_sin)begin
-      _zz_16_ <= _zz_40_[19 : 0];
+      _zz_16_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_rot_y_cos)begin
-      _zz_17_ <= _zz_40_[19 : 0];
+      _zz_17_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_fpxx_op_a)begin
-      _zz_18_ <= _zz_40_[19 : 0];
+      _zz_18_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_fpxx_op_b)begin
-      _zz_19_ <= _zz_40_[19 : 0];
+      _zz_19_ <= mr1_1__data_req_data[19 : 0];
     end
     eof_addr_regNext <= eof_addr;
     fpxx_mul_addr_regNext <= fpxx_mul_addr;
@@ -11661,13 +11667,13 @@ module MR1Top (
     int2fpxx_addr_regNext <= int2fpxx_addr;
     fpxx2int_addr_regNext <= fpxx2int_addr;
     if(update_sphere_pos_x)begin
-      _zz_20_ <= _zz_40_[19 : 0];
+      _zz_20_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_sphere_pos_y)begin
-      _zz_21_ <= _zz_40_[19 : 0];
+      _zz_21_ <= mr1_1__data_req_data[19 : 0];
     end
     if(update_sphere_pos_z)begin
-      _zz_22_ <= _zz_40_[19 : 0];
+      _zz_22_ <= mr1_1__data_req_data[19 : 0];
     end
   end
 
@@ -11693,8 +11699,8 @@ module VideoTimingGen (
       output reg [7:0] io_pixel_out_pixel_r,
       output reg [7:0] io_pixel_out_pixel_g,
       output reg [7:0] io_pixel_out_pixel_b,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [11:0] _zz_1_;
   wire [7:0] _zz_2_;
   wire [5:0] _zz_3_;
@@ -11721,8 +11727,8 @@ module VideoTimingGen (
   assign h_blank = (_zz_2_ + io_timings_h_bp);
   assign v_blank = (_zz_3_ + io_timings_v_bp);
   assign pixel_active = ((_zz_4_ <= col_cntr) && (_zz_5_ <= line_cntr));
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       col_cntr <= (12'b000000000000);
       line_cntr <= (11'b00000000000);
     end else begin
@@ -11739,7 +11745,7 @@ module VideoTimingGen (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_pixel_out_vsync <= ((col_cntr == (12'b000000000000)) && (line_cntr == (11'b00000000000)));
     io_pixel_out_req <= pixel_active;
     io_pixel_out_eol <= (pixel_active ? last_col : 1'b0);
@@ -11784,26 +11790,26 @@ module CamSweep (
       output  io_ray_direction_z_sign,
       output [5:0] io_ray_direction_z_exp,
       output [12:0] io_ray_direction_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire [5:0] _zz_15_;
-  wire [12:0] _zz_16_;
-  wire [10:0] _zz_17_;
-  wire [11:0] _zz_18_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_pix_x_fp_io_result_vld;
+  wire  u_pix_x_fp_io_result_sign;
+  wire [5:0] u_pix_x_fp_io_result_exp;
+  wire [12:0] u_pix_x_fp_io_result_mant;
+  wire  u_pix_y_fp_io_result_vld;
+  wire  u_pix_y_fp_io_result_sign;
+  wire [5:0] u_pix_y_fp_io_result_exp;
+  wire [12:0] u_pix_y_fp_io_result_mant;
+  wire  u_dir_x_io_result_vld;
+  wire  u_dir_x_io_result_sign;
+  wire [5:0] u_dir_x_io_result_exp;
+  wire [12:0] u_dir_x_io_result_mant;
+  wire  u_dir_y_io_result_vld;
+  wire  u_dir_y_io_result_sign;
+  wire [5:0] u_dir_y_io_result_exp;
+  wire [12:0] u_dir_y_io_result_mant;
+  wire [10:0] _zz_1_;
+  wire [11:0] _zz_2_;
   wire  incrX_sign;
   wire [5:0] incrX_exp;
   wire [12:0] incrX_mant;
@@ -11866,27 +11872,27 @@ module CamSweep (
   reg [7:0] pixel_in_delayed_pixel_r;
   reg [7:0] pixel_in_delayed_pixel_g;
   reg [7:0] pixel_in_delayed_pixel_b;
-  assign _zz_17_ = (11'b00000000001);
-  assign _zz_18_ = (12'b000000000001);
+  assign _zz_1_ = (11'b00000000001);
+  assign _zz_2_ = (12'b000000000001);
   SInt2Fpxx_1_ u_pix_x_fp ( 
     .p0_vld(pix_vld),
     .op_p0(pix_x),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_pix_x_fp_io_result_vld),
+    .io_result_sign(u_pix_x_fp_io_result_sign),
+    .io_result_exp(u_pix_x_fp_io_result_exp),
+    .io_result_mant(u_pix_x_fp_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SInt2Fpxx_2_ u_pix_y_fp ( 
     .p0_vld(pix_vld),
     .op_p0(pix_y),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_pix_y_fp_io_result_vld),
+    .io_result_sign(u_pix_y_fp_io_result_sign),
+    .io_result_exp(u_pix_y_fp_io_result_exp),
+    .io_result_mant(u_pix_y_fp_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_dir_x ( 
     .p0_vld(pix_fp_vld),
@@ -11896,12 +11902,12 @@ module CamSweep (
     .op_b_p0_sign(step_sign),
     .exp_b_p0(step_exp),
     .op_b_p0_mant(step_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_x_io_result_vld),
+    .io_result_sign(u_dir_x_io_result_sign),
+    .io_result_exp(u_dir_x_io_result_exp),
+    .io_result_mant(u_dir_x_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_dir_y ( 
     .p0_vld(pix_fp_vld),
@@ -11911,12 +11917,12 @@ module CamSweep (
     .op_b_p0_sign(step_sign),
     .exp_b_p0(step_exp),
     .op_b_p0_mant(step_mant),
-    .io_result_vld(_zz_13_),
-    .io_result_sign(_zz_14_),
-    .io_result_exp(_zz_15_),
-    .io_result_mant(_zz_16_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_y_io_result_vld),
+    .io_result_sign(u_dir_y_io_result_sign),
+    .io_result_exp(u_dir_y_io_result_exp),
+    .io_result_mant(u_dir_y_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   assign incrX_sign = 1'b0;
   assign incrX_exp = (6'b010101);
@@ -11924,24 +11930,24 @@ module CamSweep (
   assign incrY_sign = 1'b0;
   assign incrY_exp = (6'b010110);
   assign incrY_mant = (13'b0001000100010);
-  assign pix_fp_vld = _zz_1_;
-  assign pix_x_fp_sign = _zz_2_;
-  assign pix_x_fp_exp = _zz_3_;
-  assign pix_x_fp_mant = _zz_4_;
-  assign pix_y_fp_sign = _zz_6_;
-  assign pix_y_fp_exp = _zz_7_;
-  assign pix_y_fp_mant = _zz_8_;
+  assign pix_fp_vld = u_pix_x_fp_io_result_vld;
+  assign pix_x_fp_sign = u_pix_x_fp_io_result_sign;
+  assign pix_x_fp_exp = u_pix_x_fp_io_result_exp;
+  assign pix_x_fp_mant = u_pix_x_fp_io_result_mant;
+  assign pix_y_fp_sign = u_pix_y_fp_io_result_sign;
+  assign pix_y_fp_exp = u_pix_y_fp_io_result_exp;
+  assign pix_y_fp_mant = u_pix_y_fp_io_result_mant;
   assign step_sign = 1'b0;
   assign step_exp = (6'b010110);
   assign step_mant = (13'b0001000100010);
-  assign dir_x_vld = _zz_9_;
-  assign dir_x_sign = _zz_10_;
-  assign dir_x_exp = _zz_11_;
-  assign dir_x_mant = _zz_12_;
-  assign dir_y_vld = _zz_13_;
-  assign dir_y_sign = _zz_14_;
-  assign dir_y_exp = _zz_15_;
-  assign dir_y_mant = _zz_16_;
+  assign dir_x_vld = u_dir_x_io_result_vld;
+  assign dir_x_sign = u_dir_x_io_result_sign;
+  assign dir_x_exp = u_dir_x_io_result_exp;
+  assign dir_x_mant = u_dir_x_io_result_mant;
+  assign dir_y_vld = u_dir_y_io_result_vld;
+  assign dir_y_sign = u_dir_y_io_result_sign;
+  assign dir_y_exp = u_dir_y_io_result_exp;
+  assign dir_y_mant = u_dir_y_io_result_mant;
   assign io_ray_origin_x_sign = 1'b0;
   assign io_ray_origin_x_exp = (6'b000000);
   assign io_ray_origin_x_mant = (13'b0000000000000);
@@ -11967,7 +11973,7 @@ module CamSweep (
   assign io_pixel_out_pixel_r = pixel_in_delayed_pixel_r;
   assign io_pixel_out_pixel_g = pixel_in_delayed_pixel_g;
   assign io_pixel_out_pixel_b = pixel_in_delayed_pixel_b;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if((io_pixel_in_vsync || (io_pixel_in_req && io_pixel_in_eof)))begin
       pix_x <= (12'b111011000000);
       pix_y <= (11'b00011110000);
@@ -11975,9 +11981,9 @@ module CamSweep (
       if(io_pixel_in_req)begin
         if(io_pixel_in_eol)begin
           pix_x <= (12'b111011000000);
-          pix_y <= ($signed(pix_y) - $signed(_zz_17_));
+          pix_y <= ($signed(pix_y) - $signed(_zz_1_));
         end else begin
-          pix_x <= ($signed(pix_x) + $signed(_zz_18_));
+          pix_x <= ($signed(pix_x) + $signed(_zz_2_));
         end
       end
     end
@@ -12018,8 +12024,8 @@ module CamSweep (
     pixel_in_delayed_pixel_b <= io_pixel_in_delay_4_pixel_b;
   end
 
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       pix_vld <= 1'b0;
     end else begin
       pix_vld <= io_pixel_in_req;
@@ -12055,32 +12061,32 @@ module RotateX (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire [5:0] _zz_15_;
-  wire [12:0] _zz_16_;
-  wire  _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
-  wire  _zz_21_;
-  wire  _zz_22_;
-  wire [5:0] _zz_23_;
-  wire [12:0] _zz_24_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_cy_io_result_vld;
+  wire  u_cy_io_result_sign;
+  wire [5:0] u_cy_io_result_exp;
+  wire [12:0] u_cy_io_result_mant;
+  wire  u_sy_io_result_vld;
+  wire  u_sy_io_result_sign;
+  wire [5:0] u_sy_io_result_exp;
+  wire [12:0] u_sy_io_result_mant;
+  wire  u_cz_io_result_vld;
+  wire  u_cz_io_result_sign;
+  wire [5:0] u_cz_io_result_exp;
+  wire [12:0] u_cz_io_result_mant;
+  wire  u_sz_io_result_vld;
+  wire  u_sz_io_result_sign;
+  wire [5:0] u_sz_io_result_exp;
+  wire [12:0] u_sz_io_result_mant;
+  wire  u_cy_sz_io_result_vld;
+  wire  u_cy_sz_io_result_sign;
+  wire [5:0] u_cy_sz_io_result_exp;
+  wire [12:0] u_cy_sz_io_result_mant;
+  wire  u_sy_cz_io_result_vld;
+  wire  u_sy_cz_io_result_sign;
+  wire [5:0] u_sy_cz_io_result_exp;
+  wire [12:0] u_sy_cz_io_result_mant;
   wire  cy_vld;
   wire  cy_sign;
   wire [5:0] cy_exp;
@@ -12116,12 +12122,12 @@ module RotateX (
     .op_b_p0_sign(io_cos_sign),
     .exp_b_p0(io_cos_exp),
     .op_b_p0_mant(io_cos_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cy_io_result_vld),
+    .io_result_sign(u_cy_io_result_sign),
+    .io_result_exp(u_cy_io_result_exp),
+    .io_result_mant(u_cy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_sy ( 
     .p0_vld(io_op_vld),
@@ -12131,12 +12137,12 @@ module RotateX (
     .op_b_p0_sign(io_sin_sign),
     .exp_b_p0(io_sin_exp),
     .op_b_p0_mant(io_sin_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_sy_io_result_vld),
+    .io_result_sign(u_sy_io_result_sign),
+    .io_result_exp(u_sy_io_result_exp),
+    .io_result_mant(u_sy_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_cz ( 
     .p0_vld(io_op_vld),
@@ -12146,12 +12152,12 @@ module RotateX (
     .op_b_p0_sign(io_cos_sign),
     .exp_b_p0(io_cos_exp),
     .op_b_p0_mant(io_cos_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cz_io_result_vld),
+    .io_result_sign(u_cz_io_result_sign),
+    .io_result_exp(u_cz_io_result_exp),
+    .io_result_mant(u_cz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_sz ( 
     .p0_vld(io_op_vld),
@@ -12161,12 +12167,12 @@ module RotateX (
     .op_b_p0_sign(io_sin_sign),
     .exp_b_p0(io_sin_exp),
     .op_b_p0_mant(io_sin_mant),
-    .io_result_vld(_zz_13_),
-    .io_result_sign(_zz_14_),
-    .io_result_exp(_zz_15_),
-    .io_result_mant(_zz_16_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_sz_io_result_vld),
+    .io_result_sign(u_sz_io_result_sign),
+    .io_result_exp(u_sz_io_result_exp),
+    .io_result_mant(u_sz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_cy_sz ( 
     .io_op_vld(cy_vld),
@@ -12176,12 +12182,12 @@ module RotateX (
     .io_op_b_sign(sz_sign),
     .io_op_b_exp(sz_exp),
     .io_op_b_mant(sz_mant),
-    .io_result_vld(_zz_17_),
-    .io_result_sign(_zz_18_),
-    .io_result_exp(_zz_19_),
-    .io_result_mant(_zz_20_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cy_sz_io_result_vld),
+    .io_result_sign(u_cy_sz_io_result_sign),
+    .io_result_exp(u_cy_sz_io_result_exp),
+    .io_result_mant(u_cy_sz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_sy_cz ( 
     .p0_vld(sy_vld),
@@ -12191,37 +12197,37 @@ module RotateX (
     .op_b_p0_sign(cz_sign),
     .op_b_p0_exp(cz_exp),
     .op_b_p0_mant(cz_mant),
-    .io_result_vld(_zz_21_),
-    .io_result_sign(_zz_22_),
-    .io_result_exp(_zz_23_),
-    .io_result_mant(_zz_24_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_sy_cz_io_result_vld),
+    .io_result_sign(u_sy_cz_io_result_sign),
+    .io_result_exp(u_sy_cz_io_result_exp),
+    .io_result_mant(u_sy_cz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign cy_vld = _zz_1_;
-  assign cy_sign = _zz_2_;
-  assign cy_exp = _zz_3_;
-  assign cy_mant = _zz_4_;
-  assign sy_vld = _zz_5_;
-  assign sy_sign = _zz_6_;
-  assign sy_exp = _zz_7_;
-  assign sy_mant = _zz_8_;
-  assign cz_vld = _zz_9_;
-  assign cz_sign = _zz_10_;
-  assign cz_exp = _zz_11_;
-  assign cz_mant = _zz_12_;
-  assign sz_vld = _zz_13_;
-  assign sz_sign = _zz_14_;
-  assign sz_exp = _zz_15_;
-  assign sz_mant = _zz_16_;
-  assign cy_sz_vld = _zz_17_;
-  assign cy_sz_sign = _zz_18_;
-  assign cy_sz_exp = _zz_19_;
-  assign cy_sz_mant = _zz_20_;
-  assign sy_cz_vld = _zz_21_;
-  assign sy_cz_sign = _zz_22_;
-  assign sy_cz_exp = _zz_23_;
-  assign sy_cz_mant = _zz_24_;
+  assign cy_vld = u_cy_io_result_vld;
+  assign cy_sign = u_cy_io_result_sign;
+  assign cy_exp = u_cy_io_result_exp;
+  assign cy_mant = u_cy_io_result_mant;
+  assign sy_vld = u_sy_io_result_vld;
+  assign sy_sign = u_sy_io_result_sign;
+  assign sy_exp = u_sy_io_result_exp;
+  assign sy_mant = u_sy_io_result_mant;
+  assign cz_vld = u_cz_io_result_vld;
+  assign cz_sign = u_cz_io_result_sign;
+  assign cz_exp = u_cz_io_result_exp;
+  assign cz_mant = u_cz_io_result_mant;
+  assign sz_vld = u_sz_io_result_vld;
+  assign sz_sign = u_sz_io_result_sign;
+  assign sz_exp = u_sz_io_result_exp;
+  assign sz_mant = u_sz_io_result_mant;
+  assign cy_sz_vld = u_cy_sz_io_result_vld;
+  assign cy_sz_sign = u_cy_sz_io_result_sign;
+  assign cy_sz_exp = u_cy_sz_io_result_exp;
+  assign cy_sz_mant = u_cy_sz_io_result_mant;
+  assign sy_cz_vld = u_sy_cz_io_result_vld;
+  assign sy_cz_sign = u_sy_cz_io_result_sign;
+  assign sy_cz_exp = u_sy_cz_io_result_exp;
+  assign sy_cz_mant = u_sy_cz_io_result_mant;
   assign io_result_vld = cy_vld;
   assign io_result_x_sign = x_delayed_sign;
   assign io_result_x_exp = x_delayed_exp;
@@ -12232,7 +12238,7 @@ module RotateX (
   assign io_result_z_sign = sy_cz_sign;
   assign io_result_z_exp = sy_cz_exp;
   assign io_result_z_mant = sy_cz_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     x_delayed_sign <= io_op_x_sign;
     x_delayed_exp <= io_op_x_exp;
     x_delayed_mant <= io_op_x_mant;
@@ -12267,32 +12273,32 @@ module RotateY (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire [5:0] _zz_15_;
-  wire [12:0] _zz_16_;
-  wire  _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
-  wire  _zz_21_;
-  wire  _zz_22_;
-  wire [5:0] _zz_23_;
-  wire [12:0] _zz_24_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_cx_io_result_vld;
+  wire  u_cx_io_result_sign;
+  wire [5:0] u_cx_io_result_exp;
+  wire [12:0] u_cx_io_result_mant;
+  wire  u_sx_io_result_vld;
+  wire  u_sx_io_result_sign;
+  wire [5:0] u_sx_io_result_exp;
+  wire [12:0] u_sx_io_result_mant;
+  wire  u_cz_io_result_vld;
+  wire  u_cz_io_result_sign;
+  wire [5:0] u_cz_io_result_exp;
+  wire [12:0] u_cz_io_result_mant;
+  wire  u_sz_io_result_vld;
+  wire  u_sz_io_result_sign;
+  wire [5:0] u_sz_io_result_exp;
+  wire [12:0] u_sz_io_result_mant;
+  wire  u_cx_sz_io_result_vld;
+  wire  u_cx_sz_io_result_sign;
+  wire [5:0] u_cx_sz_io_result_exp;
+  wire [12:0] u_cx_sz_io_result_mant;
+  wire  u_cz_sx_io_result_vld;
+  wire  u_cz_sx_io_result_sign;
+  wire [5:0] u_cz_sx_io_result_exp;
+  wire [12:0] u_cz_sx_io_result_mant;
   wire  cx_vld;
   wire  cx_sign;
   wire [5:0] cx_exp;
@@ -12328,12 +12334,12 @@ module RotateY (
     .op_b_p0_sign(io_cos_sign),
     .exp_b_p0(io_cos_exp),
     .op_b_p0_mant(io_cos_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cx_io_result_vld),
+    .io_result_sign(u_cx_io_result_sign),
+    .io_result_exp(u_cx_io_result_exp),
+    .io_result_mant(u_cx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_sx ( 
     .p0_vld(io_op_vld),
@@ -12343,12 +12349,12 @@ module RotateY (
     .op_b_p0_sign(io_sin_sign),
     .exp_b_p0(io_sin_exp),
     .op_b_p0_mant(io_sin_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_sx_io_result_vld),
+    .io_result_sign(u_sx_io_result_sign),
+    .io_result_exp(u_sx_io_result_exp),
+    .io_result_mant(u_sx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_cz ( 
     .p0_vld(io_op_vld),
@@ -12358,12 +12364,12 @@ module RotateY (
     .op_b_p0_sign(io_cos_sign),
     .exp_b_p0(io_cos_exp),
     .op_b_p0_mant(io_cos_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_sign(_zz_10_),
-    .io_result_exp(_zz_11_),
-    .io_result_mant(_zz_12_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cz_io_result_vld),
+    .io_result_sign(u_cz_io_result_sign),
+    .io_result_exp(u_cz_io_result_exp),
+    .io_result_mant(u_cz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul_27_ u_sz ( 
     .p0_vld(io_op_vld),
@@ -12373,12 +12379,12 @@ module RotateY (
     .op_b_p0_sign(io_sin_sign),
     .exp_b_p0(io_sin_exp),
     .op_b_p0_mant(io_sin_mant),
-    .io_result_vld(_zz_13_),
-    .io_result_sign(_zz_14_),
-    .io_result_exp(_zz_15_),
-    .io_result_mant(_zz_16_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_sz_io_result_vld),
+    .io_result_sign(u_sz_io_result_sign),
+    .io_result_exp(u_sz_io_result_exp),
+    .io_result_mant(u_sz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_cx_sz ( 
     .p0_vld(cx_vld),
@@ -12388,12 +12394,12 @@ module RotateY (
     .op_b_p0_sign(sz_sign),
     .op_b_p0_exp(sz_exp),
     .op_b_p0_mant(sz_mant),
-    .io_result_vld(_zz_17_),
-    .io_result_sign(_zz_18_),
-    .io_result_exp(_zz_19_),
-    .io_result_mant(_zz_20_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cx_sz_io_result_vld),
+    .io_result_sign(u_cx_sz_io_result_sign),
+    .io_result_exp(u_cx_sz_io_result_exp),
+    .io_result_mant(u_cx_sz_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_cz_sx ( 
     .io_op_vld(cz_vld),
@@ -12403,37 +12409,37 @@ module RotateY (
     .io_op_b_sign(sx_sign),
     .io_op_b_exp(sx_exp),
     .io_op_b_mant(sx_mant),
-    .io_result_vld(_zz_21_),
-    .io_result_sign(_zz_22_),
-    .io_result_exp(_zz_23_),
-    .io_result_mant(_zz_24_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_cz_sx_io_result_vld),
+    .io_result_sign(u_cz_sx_io_result_sign),
+    .io_result_exp(u_cz_sx_io_result_exp),
+    .io_result_mant(u_cz_sx_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign cx_vld = _zz_1_;
-  assign cx_sign = _zz_2_;
-  assign cx_exp = _zz_3_;
-  assign cx_mant = _zz_4_;
-  assign sx_vld = _zz_5_;
-  assign sx_sign = _zz_6_;
-  assign sx_exp = _zz_7_;
-  assign sx_mant = _zz_8_;
-  assign cz_vld = _zz_9_;
-  assign cz_sign = _zz_10_;
-  assign cz_exp = _zz_11_;
-  assign cz_mant = _zz_12_;
-  assign sz_vld = _zz_13_;
-  assign sz_sign = _zz_14_;
-  assign sz_exp = _zz_15_;
-  assign sz_mant = _zz_16_;
-  assign cx_sz_vld = _zz_17_;
-  assign cx_sz_sign = _zz_18_;
-  assign cx_sz_exp = _zz_19_;
-  assign cx_sz_mant = _zz_20_;
-  assign cz_sx_vld = _zz_21_;
-  assign cz_sx_sign = _zz_22_;
-  assign cz_sx_exp = _zz_23_;
-  assign cz_sx_mant = _zz_24_;
+  assign cx_vld = u_cx_io_result_vld;
+  assign cx_sign = u_cx_io_result_sign;
+  assign cx_exp = u_cx_io_result_exp;
+  assign cx_mant = u_cx_io_result_mant;
+  assign sx_vld = u_sx_io_result_vld;
+  assign sx_sign = u_sx_io_result_sign;
+  assign sx_exp = u_sx_io_result_exp;
+  assign sx_mant = u_sx_io_result_mant;
+  assign cz_vld = u_cz_io_result_vld;
+  assign cz_sign = u_cz_io_result_sign;
+  assign cz_exp = u_cz_io_result_exp;
+  assign cz_mant = u_cz_io_result_mant;
+  assign sz_vld = u_sz_io_result_vld;
+  assign sz_sign = u_sz_io_result_sign;
+  assign sz_exp = u_sz_io_result_exp;
+  assign sz_mant = u_sz_io_result_mant;
+  assign cx_sz_vld = u_cx_sz_io_result_vld;
+  assign cx_sz_sign = u_cx_sz_io_result_sign;
+  assign cx_sz_exp = u_cx_sz_io_result_exp;
+  assign cx_sz_mant = u_cx_sz_io_result_mant;
+  assign cz_sx_vld = u_cz_sx_io_result_vld;
+  assign cz_sx_sign = u_cz_sx_io_result_sign;
+  assign cz_sx_exp = u_cz_sx_io_result_exp;
+  assign cz_sx_mant = u_cz_sx_io_result_mant;
   assign io_result_vld = cx_vld;
   assign io_result_x_sign = cx_sz_sign;
   assign io_result_x_exp = cx_sz_exp;
@@ -12444,7 +12450,7 @@ module RotateY (
   assign io_result_z_sign = cz_sx_sign;
   assign io_result_z_exp = cz_sx_exp;
   assign io_result_z_mant = cz_sx_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     y_delayed_sign <= io_op_y_sign;
     y_delayed_exp <= io_op_y_exp;
     y_delayed_mant <= io_op_y_mant;
@@ -12473,26 +12479,26 @@ module Normalize_2_ (
       output  io_result_z_sign,
       output [5:0] io_result_z_exp,
       output [12:0] io_result_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire [5:0] _zz_14_;
-  wire [12:0] _zz_15_;
-  wire  _zz_16_;
-  wire [5:0] _zz_17_;
-  wire [12:0] _zz_18_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_dot_io_result_vld;
+  wire  u_dot_io_result_sign;
+  wire [5:0] u_dot_io_result_exp;
+  wire [12:0] u_dot_io_result_mant;
+  wire  u_rsqrt_io_result_vld;
+  wire  u_rsqrt_io_result_sign;
+  wire [5:0] u_rsqrt_io_result_exp;
+  wire [12:0] u_rsqrt_io_result_mant;
+  wire  u_vec_adj_io_result_vld;
+  wire  u_vec_adj_io_result_x_sign;
+  wire [5:0] u_vec_adj_io_result_x_exp;
+  wire [12:0] u_vec_adj_io_result_x_mant;
+  wire  u_vec_adj_io_result_y_sign;
+  wire [5:0] u_vec_adj_io_result_y_exp;
+  wire [12:0] u_vec_adj_io_result_y_mant;
+  wire  u_vec_adj_io_result_z_sign;
+  wire [5:0] u_vec_adj_io_result_z_exp;
+  wire [12:0] u_vec_adj_io_result_z_mant;
   wire  vec_dot_vld;
   wire  vec_dot_sign;
   wire [5:0] vec_dot_exp;
@@ -12584,24 +12590,24 @@ module Normalize_2_ (
     .io_op_b_z_sign(io_op_z_sign),
     .io_op_b_z_exp(io_op_z_exp),
     .io_op_b_z_mant(io_op_z_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_io_result_vld),
+    .io_result_sign(u_dot_io_result_sign),
+    .io_result_exp(u_dot_io_result_exp),
+    .io_result_mant(u_dot_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxRSqrt_2_ u_rsqrt ( 
     .p0_vld(vec_dot_vld),
     .op_p0_sign(vec_dot_sign),
     .op_p0_exp(vec_dot_exp),
     .op_p0_mant(vec_dot_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_sign(_zz_6_),
-    .io_result_exp(_zz_7_),
-    .io_result_mant(_zz_8_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_rsqrt_io_result_vld),
+    .io_result_sign(u_rsqrt_io_result_sign),
+    .io_result_exp(u_rsqrt_io_result_exp),
+    .io_result_mant(u_rsqrt_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   MulVecScalar u_vec_adj ( 
     .io_op_vld(denom_vld),
@@ -12617,38 +12623,38 @@ module Normalize_2_ (
     .io_op_scalar_sign(denom_sign),
     .io_op_scalar_exp(denom_exp),
     .io_op_scalar_mant(denom_mant),
-    .io_result_vld(_zz_9_),
-    .io_result_x_sign(_zz_10_),
-    .io_result_x_exp(_zz_11_),
-    .io_result_x_mant(_zz_12_),
-    .io_result_y_sign(_zz_13_),
-    .io_result_y_exp(_zz_14_),
-    .io_result_y_mant(_zz_15_),
-    .io_result_z_sign(_zz_16_),
-    .io_result_z_exp(_zz_17_),
-    .io_result_z_mant(_zz_18_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_vec_adj_io_result_vld),
+    .io_result_x_sign(u_vec_adj_io_result_x_sign),
+    .io_result_x_exp(u_vec_adj_io_result_x_exp),
+    .io_result_x_mant(u_vec_adj_io_result_x_mant),
+    .io_result_y_sign(u_vec_adj_io_result_y_sign),
+    .io_result_y_exp(u_vec_adj_io_result_y_exp),
+    .io_result_y_mant(u_vec_adj_io_result_y_mant),
+    .io_result_z_sign(u_vec_adj_io_result_z_sign),
+    .io_result_z_exp(u_vec_adj_io_result_z_exp),
+    .io_result_z_mant(u_vec_adj_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign vec_dot_vld = _zz_1_;
-  assign vec_dot_sign = _zz_2_;
-  assign vec_dot_exp = _zz_3_;
-  assign vec_dot_mant = _zz_4_;
-  assign denom_vld = _zz_5_;
-  assign denom_sign = _zz_6_;
-  assign denom_exp = _zz_7_;
-  assign denom_mant = _zz_8_;
-  assign io_result_vld = _zz_9_;
-  assign io_result_x_sign = _zz_10_;
-  assign io_result_x_exp = _zz_11_;
-  assign io_result_x_mant = _zz_12_;
-  assign io_result_y_sign = _zz_13_;
-  assign io_result_y_exp = _zz_14_;
-  assign io_result_y_mant = _zz_15_;
-  assign io_result_z_sign = _zz_16_;
-  assign io_result_z_exp = _zz_17_;
-  assign io_result_z_mant = _zz_18_;
-  always @ (posedge resetCtrl_clk25) begin
+  assign vec_dot_vld = u_dot_io_result_vld;
+  assign vec_dot_sign = u_dot_io_result_sign;
+  assign vec_dot_exp = u_dot_io_result_exp;
+  assign vec_dot_mant = u_dot_io_result_mant;
+  assign denom_vld = u_rsqrt_io_result_vld;
+  assign denom_sign = u_rsqrt_io_result_sign;
+  assign denom_exp = u_rsqrt_io_result_exp;
+  assign denom_mant = u_rsqrt_io_result_mant;
+  assign io_result_vld = u_vec_adj_io_result_vld;
+  assign io_result_x_sign = u_vec_adj_io_result_x_sign;
+  assign io_result_x_exp = u_vec_adj_io_result_x_exp;
+  assign io_result_x_mant = u_vec_adj_io_result_x_mant;
+  assign io_result_y_sign = u_vec_adj_io_result_y_sign;
+  assign io_result_y_exp = u_vec_adj_io_result_y_exp;
+  assign io_result_y_mant = u_vec_adj_io_result_y_mant;
+  assign io_result_z_sign = u_vec_adj_io_result_z_sign;
+  assign io_result_z_exp = u_vec_adj_io_result_z_exp;
+  assign io_result_z_mant = u_vec_adj_io_result_z_mant;
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_op_delay_1_x_sign <= io_op_x_sign;
     io_op_delay_1_x_exp <= io_op_x_exp;
     io_op_delay_1_x_mant <= io_op_x_mant;
@@ -12819,108 +12825,108 @@ module SphereIntersect (
       output  io_result_ray_direction_z_sign,
       output [5:0] io_result_ray_direction_z_exp,
       output [12:0] io_result_ray_direction_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_6_;
-  wire  _zz_7_;
-  wire [5:0] _zz_8_;
-  wire [12:0] _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire [5:0] _zz_14_;
-  wire [12:0] _zz_15_;
-  wire  _zz_16_;
-  wire  _zz_17_;
-  wire [5:0] _zz_18_;
-  wire [12:0] _zz_19_;
-  wire  _zz_20_;
-  wire  _zz_21_;
-  wire [5:0] _zz_22_;
-  wire [12:0] _zz_23_;
-  wire  _zz_24_;
-  wire  _zz_25_;
-  wire [5:0] _zz_26_;
-  wire [12:0] _zz_27_;
-  wire  _zz_28_;
-  wire  _zz_29_;
-  wire [5:0] _zz_30_;
-  wire [12:0] _zz_31_;
-  wire  _zz_32_;
-  wire  _zz_33_;
-  wire [5:0] _zz_34_;
-  wire [12:0] _zz_35_;
-  wire  _zz_36_;
-  wire  _zz_37_;
-  wire [5:0] _zz_38_;
-  wire [12:0] _zz_39_;
-  wire  _zz_40_;
-  wire  _zz_41_;
-  wire [5:0] _zz_42_;
-  wire [12:0] _zz_43_;
-  wire  _zz_44_;
-  wire  _zz_45_;
-  wire [5:0] _zz_46_;
-  wire [12:0] _zz_47_;
-  wire  _zz_48_;
-  wire  _zz_49_;
-  wire [5:0] _zz_50_;
-  wire [12:0] _zz_51_;
-  wire  _zz_52_;
-  wire [5:0] _zz_53_;
-  wire [12:0] _zz_54_;
-  wire  _zz_55_;
-  wire [5:0] _zz_56_;
-  wire [12:0] _zz_57_;
-  wire  _zz_58_;
-  wire  _zz_59_;
-  wire [5:0] _zz_60_;
-  wire [12:0] _zz_61_;
-  wire  _zz_62_;
-  wire [5:0] _zz_63_;
-  wire [12:0] _zz_64_;
-  wire  _zz_65_;
-  wire [5:0] _zz_66_;
-  wire [12:0] _zz_67_;
-  wire  _zz_68_;
-  wire  _zz_69_;
-  wire [5:0] _zz_70_;
-  wire [12:0] _zz_71_;
-  wire  _zz_72_;
-  wire [5:0] _zz_73_;
-  wire [12:0] _zz_74_;
-  wire  _zz_75_;
-  wire [5:0] _zz_76_;
-  wire [12:0] _zz_77_;
-  wire  _zz_78_;
-  wire  _zz_79_;
-  wire [5:0] _zz_80_;
-  wire [12:0] _zz_81_;
-  wire  _zz_82_;
-  wire  _zz_83_;
-  wire [5:0] _zz_84_;
-  wire [12:0] _zz_85_;
-  wire  _zz_86_;
-  wire [5:0] _zz_87_;
-  wire [12:0] _zz_88_;
-  wire  _zz_89_;
-  wire [5:0] _zz_90_;
-  wire [12:0] _zz_91_;
-  wire  _zz_92_;
-  wire  _zz_93_;
-  wire [5:0] _zz_94_;
-  wire [12:0] _zz_95_;
-  wire  _zz_96_;
-  wire [5:0] _zz_97_;
-  wire [12:0] _zz_98_;
-  wire  _zz_99_;
-  wire [5:0] _zz_100_;
-  wire [12:0] _zz_101_;
-  wire [19:0] _zz_102_;
-  wire [19:0] _zz_103_;
-  wire [19:0] _zz_104_;
-  wire [19:0] _zz_105_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_c0r0_io_result_vld;
+  wire  u_c0r0_io_result_x_sign;
+  wire [5:0] u_c0r0_io_result_x_exp;
+  wire [12:0] u_c0r0_io_result_x_mant;
+  wire  u_c0r0_io_result_y_sign;
+  wire [5:0] u_c0r0_io_result_y_exp;
+  wire [12:0] u_c0r0_io_result_y_mant;
+  wire  u_c0r0_io_result_z_sign;
+  wire [5:0] u_c0r0_io_result_z_exp;
+  wire [12:0] u_c0r0_io_result_z_mant;
+  wire  u_dot_tca_io_result_vld;
+  wire  u_dot_tca_io_result_sign;
+  wire [5:0] u_dot_tca_io_result_exp;
+  wire [12:0] u_dot_tca_io_result_mant;
+  wire  u_dot_c0r0_c0r0_io_result_vld;
+  wire  u_dot_c0r0_c0r0_io_result_sign;
+  wire [5:0] u_dot_c0r0_c0r0_io_result_exp;
+  wire [12:0] u_dot_c0r0_c0r0_io_result_mant;
+  wire  u_tca_tca_io_result_vld;
+  wire  u_tca_tca_io_result_sign;
+  wire [5:0] u_tca_tca_io_result_exp;
+  wire [12:0] u_tca_tca_io_result_mant;
+  wire  u_d2_io_result_vld;
+  wire  u_d2_io_result_sign;
+  wire [5:0] u_d2_io_result_exp;
+  wire [12:0] u_d2_io_result_mant;
+  wire  u_radius2_m_d2_io_result_vld;
+  wire  u_radius2_m_d2_io_result_sign;
+  wire [5:0] u_radius2_m_d2_io_result_exp;
+  wire [12:0] u_radius2_m_d2_io_result_mant;
+  wire  u_thc_io_result_vld;
+  wire  u_thc_io_result_sign;
+  wire [5:0] u_thc_io_result_exp;
+  wire [12:0] u_thc_io_result_mant;
+  wire  u_t0_io_result_vld;
+  wire  u_t0_io_result_sign;
+  wire [5:0] u_t0_io_result_exp;
+  wire [12:0] u_t0_io_result_mant;
+  wire  u_t1_io_result_vld;
+  wire  u_t1_io_result_sign;
+  wire [5:0] u_t1_io_result_exp;
+  wire [12:0] u_t1_io_result_mant;
+  wire  u_intersection_io_result_vld;
+  wire  u_intersection_io_result_x_sign;
+  wire [5:0] u_intersection_io_result_x_exp;
+  wire [12:0] u_intersection_io_result_x_mant;
+  wire  u_intersection_io_result_y_sign;
+  wire [5:0] u_intersection_io_result_y_exp;
+  wire [12:0] u_intersection_io_result_y_mant;
+  wire  u_intersection_io_result_z_sign;
+  wire [5:0] u_intersection_io_result_z_exp;
+  wire [12:0] u_intersection_io_result_z_mant;
+  wire  u_normal_raw_io_result_vld;
+  wire  u_normal_raw_io_result_x_sign;
+  wire [5:0] u_normal_raw_io_result_x_exp;
+  wire [12:0] u_normal_raw_io_result_x_mant;
+  wire  u_normal_raw_io_result_y_sign;
+  wire [5:0] u_normal_raw_io_result_y_exp;
+  wire [12:0] u_normal_raw_io_result_y_mant;
+  wire  u_normal_raw_io_result_z_sign;
+  wire [5:0] u_normal_raw_io_result_z_exp;
+  wire [12:0] u_normal_raw_io_result_z_mant;
+  wire  u_normalize_io_result_vld;
+  wire  u_normalize_io_result_x_sign;
+  wire [5:0] u_normalize_io_result_x_exp;
+  wire [12:0] u_normalize_io_result_x_mant;
+  wire  u_normalize_io_result_y_sign;
+  wire [5:0] u_normalize_io_result_y_exp;
+  wire [12:0] u_normalize_io_result_y_mant;
+  wire  u_normalize_io_result_z_sign;
+  wire [5:0] u_normalize_io_result_z_exp;
+  wire [12:0] u_normalize_io_result_z_mant;
+  wire  u_dir_dot_normal_io_result_vld;
+  wire  u_dir_dot_normal_io_result_sign;
+  wire [5:0] u_dir_dot_normal_io_result_exp;
+  wire [12:0] u_dir_dot_normal_io_result_mant;
+  wire  u_dir_mirror_io_result_vld;
+  wire  u_dir_mirror_io_result_x_sign;
+  wire [5:0] u_dir_mirror_io_result_x_exp;
+  wire [12:0] u_dir_mirror_io_result_x_mant;
+  wire  u_dir_mirror_io_result_y_sign;
+  wire [5:0] u_dir_mirror_io_result_y_exp;
+  wire [12:0] u_dir_mirror_io_result_y_mant;
+  wire  u_dir_mirror_io_result_z_sign;
+  wire [5:0] u_dir_mirror_io_result_z_exp;
+  wire [12:0] u_dir_mirror_io_result_z_mant;
+  wire  u_reflect_dir_io_result_vld;
+  wire  u_reflect_dir_io_result_x_sign;
+  wire [5:0] u_reflect_dir_io_result_x_exp;
+  wire [12:0] u_reflect_dir_io_result_x_mant;
+  wire  u_reflect_dir_io_result_y_sign;
+  wire [5:0] u_reflect_dir_io_result_y_exp;
+  wire [12:0] u_reflect_dir_io_result_y_mant;
+  wire  u_reflect_dir_io_result_z_sign;
+  wire [5:0] u_reflect_dir_io_result_z_exp;
+  wire [12:0] u_reflect_dir_io_result_z_mant;
+  wire [19:0] _zz_6_;
+  wire [19:0] _zz_7_;
+  wire [19:0] _zz_8_;
+  wire [19:0] _zz_9_;
   wire  c0r0_vld;
   wire  c0r0_x_sign;
   wire [5:0] c0r0_x_exp;
@@ -14470,10 +14476,10 @@ module SphereIntersect (
   wire  ray_delayed_direction_z_sign;
   wire [5:0] ray_delayed_direction_z_exp;
   wire [12:0] ray_delayed_direction_z_mant;
-  assign _zz_102_ = {{d2_sign,d2_exp},d2_mant};
-  assign _zz_103_ = {{io_sphere_radius2_sign,io_sphere_radius2_exp},io_sphere_radius2_mant};
-  assign _zz_104_ = {{t1_sign,t1_exp},t1_mant};
-  assign _zz_105_ = {{t0_sign,t0_exp},t0_mant};
+  assign _zz_6_ = {{d2_sign,d2_exp},d2_mant};
+  assign _zz_7_ = {{io_sphere_radius2_sign,io_sphere_radius2_exp},io_sphere_radius2_mant};
+  assign _zz_8_ = {{t1_sign,t1_exp},t1_mant};
+  assign _zz_9_ = {{t0_sign,t0_exp},t0_mant};
   SubVecVec u_c0r0 ( 
     .io_op_vld(io_op_vld),
     .io_op_a_x_sign(io_sphere_center_x_sign),
@@ -14494,18 +14500,18 @@ module SphereIntersect (
     .io_op_b_z_sign(io_ray_origin_z_sign),
     .io_op_b_z_exp(io_ray_origin_z_exp),
     .io_op_b_z_mant(io_ray_origin_z_mant),
-    .io_result_vld(_zz_6_),
-    .io_result_x_sign(_zz_7_),
-    .io_result_x_exp(_zz_8_),
-    .io_result_x_mant(_zz_9_),
-    .io_result_y_sign(_zz_10_),
-    .io_result_y_exp(_zz_11_),
-    .io_result_y_mant(_zz_12_),
-    .io_result_z_sign(_zz_13_),
-    .io_result_z_exp(_zz_14_),
-    .io_result_z_mant(_zz_15_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_c0r0_io_result_vld),
+    .io_result_x_sign(u_c0r0_io_result_x_sign),
+    .io_result_x_exp(u_c0r0_io_result_x_exp),
+    .io_result_x_mant(u_c0r0_io_result_x_mant),
+    .io_result_y_sign(u_c0r0_io_result_y_sign),
+    .io_result_y_exp(u_c0r0_io_result_y_exp),
+    .io_result_y_mant(u_c0r0_io_result_y_mant),
+    .io_result_z_sign(u_c0r0_io_result_z_sign),
+    .io_result_z_exp(u_c0r0_io_result_z_exp),
+    .io_result_z_mant(u_c0r0_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dot_tca ( 
     .io_op_vld(c0r0_vld),
@@ -14527,12 +14533,12 @@ module SphereIntersect (
     .io_op_b_z_sign(dir_delayed_c0r0_z_sign),
     .io_op_b_z_exp(dir_delayed_c0r0_z_exp),
     .io_op_b_z_mant(dir_delayed_c0r0_z_mant),
-    .io_result_vld(_zz_16_),
-    .io_result_sign(_zz_17_),
-    .io_result_exp(_zz_18_),
-    .io_result_mant(_zz_19_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_tca_io_result_vld),
+    .io_result_sign(u_dot_tca_io_result_sign),
+    .io_result_exp(u_dot_tca_io_result_exp),
+    .io_result_mant(u_dot_tca_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dot_c0r0_c0r0 ( 
     .io_op_vld(c0r0_vld),
@@ -14554,12 +14560,12 @@ module SphereIntersect (
     .io_op_b_z_sign(c0r0_z_sign),
     .io_op_b_z_exp(c0r0_z_exp),
     .io_op_b_z_mant(c0r0_z_mant),
-    .io_result_vld(_zz_20_),
-    .io_result_sign(_zz_21_),
-    .io_result_exp(_zz_22_),
-    .io_result_mant(_zz_23_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_c0r0_c0r0_io_result_vld),
+    .io_result_sign(u_dot_c0r0_c0r0_io_result_sign),
+    .io_result_exp(u_dot_c0r0_c0r0_io_result_exp),
+    .io_result_mant(u_dot_c0r0_c0r0_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_tca_tca ( 
     .p0_vld(tca_vld),
@@ -14569,12 +14575,12 @@ module SphereIntersect (
     .op_b_p0_sign(tca_sign),
     .exp_b_p0(tca_exp),
     .op_b_p0_mant(tca_mant),
-    .io_result_vld(_zz_24_),
-    .io_result_sign(_zz_25_),
-    .io_result_exp(_zz_26_),
-    .io_result_mant(_zz_27_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_tca_tca_io_result_vld),
+    .io_result_sign(u_tca_tca_io_result_sign),
+    .io_result_exp(u_tca_tca_io_result_exp),
+    .io_result_mant(u_tca_tca_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_d2 ( 
     .io_op_vld(tca_tca_vld),
@@ -14584,12 +14590,12 @@ module SphereIntersect (
     .io_op_b_sign(tca_tca_sign),
     .io_op_b_exp(tca_tca_exp),
     .io_op_b_mant(tca_tca_mant),
-    .io_result_vld(_zz_28_),
-    .io_result_sign(_zz_29_),
-    .io_result_exp(_zz_30_),
-    .io_result_mant(_zz_31_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_d2_io_result_vld),
+    .io_result_sign(u_d2_io_result_sign),
+    .io_result_exp(u_d2_io_result_exp),
+    .io_result_mant(u_d2_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_radius2_m_d2 ( 
     .io_op_vld(d2_vld),
@@ -14599,24 +14605,24 @@ module SphereIntersect (
     .io_op_b_sign(d2_sign),
     .io_op_b_exp(d2_exp),
     .io_op_b_mant(d2_mant),
-    .io_result_vld(_zz_32_),
-    .io_result_sign(_zz_33_),
-    .io_result_exp(_zz_34_),
-    .io_result_mant(_zz_35_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_radius2_m_d2_io_result_vld),
+    .io_result_sign(u_radius2_m_d2_io_result_sign),
+    .io_result_exp(u_radius2_m_d2_io_result_exp),
+    .io_result_mant(u_radius2_m_d2_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSqrt u_thc ( 
     .p0_vld(radius2_m_d2_vld),
     .op_p0_sign(radius2_m_d2_sign),
     .op_p0_exp(radius2_m_d2_exp),
     .op_p0_mant(radius2_m_d2_mant),
-    .io_result_vld(_zz_36_),
-    .io_result_sign(_zz_37_),
-    .io_result_exp(_zz_38_),
-    .io_result_mant(_zz_39_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_thc_io_result_vld),
+    .io_result_sign(u_thc_io_result_sign),
+    .io_result_exp(u_thc_io_result_exp),
+    .io_result_mant(u_thc_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_t0 ( 
     .io_op_vld(thc_vld),
@@ -14626,12 +14632,12 @@ module SphereIntersect (
     .io_op_b_sign(thc_sign),
     .io_op_b_exp(thc_exp),
     .io_op_b_mant(thc_mant),
-    .io_result_vld(_zz_40_),
-    .io_result_sign(_zz_41_),
-    .io_result_exp(_zz_42_),
-    .io_result_mant(_zz_43_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_t0_io_result_vld),
+    .io_result_sign(u_t0_io_result_sign),
+    .io_result_exp(u_t0_io_result_exp),
+    .io_result_mant(u_t0_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_t1 ( 
     .p0_vld(thc_vld),
@@ -14641,12 +14647,12 @@ module SphereIntersect (
     .op_b_p0_sign(thc_sign),
     .op_b_p0_exp(thc_exp),
     .op_b_p0_mant(thc_mant),
-    .io_result_vld(_zz_44_),
-    .io_result_sign(_zz_45_),
-    .io_result_exp(_zz_46_),
-    .io_result_mant(_zz_47_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_t1_io_result_vld),
+    .io_result_sign(u_t1_io_result_sign),
+    .io_result_exp(u_t1_io_result_exp),
+    .io_result_mant(u_t1_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Intersection u_intersection ( 
     .io_op_vld(t_vld),
@@ -14671,18 +14677,18 @@ module SphereIntersect (
     .io_t_sign(t_sign),
     .io_t_exp(t_exp),
     .io_t_mant(t_mant),
-    .io_result_vld(_zz_48_),
-    .io_result_x_sign(_zz_49_),
-    .io_result_x_exp(_zz_50_),
-    .io_result_x_mant(_zz_51_),
-    .io_result_y_sign(_zz_52_),
-    .io_result_y_exp(_zz_53_),
-    .io_result_y_mant(_zz_54_),
-    .io_result_z_sign(_zz_55_),
-    .io_result_z_exp(_zz_56_),
-    .io_result_z_mant(_zz_57_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_intersection_io_result_vld),
+    .io_result_x_sign(u_intersection_io_result_x_sign),
+    .io_result_x_exp(u_intersection_io_result_x_exp),
+    .io_result_x_mant(u_intersection_io_result_x_mant),
+    .io_result_y_sign(u_intersection_io_result_y_sign),
+    .io_result_y_exp(u_intersection_io_result_y_exp),
+    .io_result_y_mant(u_intersection_io_result_y_mant),
+    .io_result_z_sign(u_intersection_io_result_z_sign),
+    .io_result_z_exp(u_intersection_io_result_z_exp),
+    .io_result_z_mant(u_intersection_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SubVecVec u_normal_raw ( 
     .io_op_vld(intersection_vld),
@@ -14704,18 +14710,18 @@ module SphereIntersect (
     .io_op_b_z_sign(intersection_z_sign),
     .io_op_b_z_exp(intersection_z_exp),
     .io_op_b_z_mant(intersection_z_mant),
-    .io_result_vld(_zz_58_),
-    .io_result_x_sign(_zz_59_),
-    .io_result_x_exp(_zz_60_),
-    .io_result_x_mant(_zz_61_),
-    .io_result_y_sign(_zz_62_),
-    .io_result_y_exp(_zz_63_),
-    .io_result_y_mant(_zz_64_),
-    .io_result_z_sign(_zz_65_),
-    .io_result_z_exp(_zz_66_),
-    .io_result_z_mant(_zz_67_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_normal_raw_io_result_vld),
+    .io_result_x_sign(u_normal_raw_io_result_x_sign),
+    .io_result_x_exp(u_normal_raw_io_result_x_exp),
+    .io_result_x_mant(u_normal_raw_io_result_x_mant),
+    .io_result_y_sign(u_normal_raw_io_result_y_sign),
+    .io_result_y_exp(u_normal_raw_io_result_y_exp),
+    .io_result_y_mant(u_normal_raw_io_result_y_mant),
+    .io_result_z_sign(u_normal_raw_io_result_z_sign),
+    .io_result_z_exp(u_normal_raw_io_result_z_exp),
+    .io_result_z_mant(u_normal_raw_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Normalize u_normalize ( 
     .io_op_vld(normal_raw_vld),
@@ -14728,18 +14734,18 @@ module SphereIntersect (
     .io_op_z_sign(normal_raw_z_sign),
     .io_op_z_exp(normal_raw_z_exp),
     .io_op_z_mant(normal_raw_z_mant),
-    .io_result_vld(_zz_68_),
-    .io_result_x_sign(_zz_69_),
-    .io_result_x_exp(_zz_70_),
-    .io_result_x_mant(_zz_71_),
-    .io_result_y_sign(_zz_72_),
-    .io_result_y_exp(_zz_73_),
-    .io_result_y_mant(_zz_74_),
-    .io_result_z_sign(_zz_75_),
-    .io_result_z_exp(_zz_76_),
-    .io_result_z_mant(_zz_77_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_normalize_io_result_vld),
+    .io_result_x_sign(u_normalize_io_result_x_sign),
+    .io_result_x_exp(u_normalize_io_result_x_exp),
+    .io_result_x_mant(u_normalize_io_result_x_mant),
+    .io_result_y_sign(u_normalize_io_result_y_sign),
+    .io_result_y_exp(u_normalize_io_result_y_exp),
+    .io_result_y_mant(u_normalize_io_result_y_mant),
+    .io_result_z_sign(u_normalize_io_result_z_sign),
+    .io_result_z_exp(u_normalize_io_result_z_exp),
+    .io_result_z_mant(u_normalize_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dir_dot_normal ( 
     .io_op_vld(normal_vld),
@@ -14761,12 +14767,12 @@ module SphereIntersect (
     .io_op_b_z_sign(dir_delayed_dot_normal_z_sign),
     .io_op_b_z_exp(dir_delayed_dot_normal_z_exp),
     .io_op_b_z_mant(dir_delayed_dot_normal_z_mant),
-    .io_result_vld(_zz_78_),
-    .io_result_sign(_zz_79_),
-    .io_result_exp(_zz_80_),
-    .io_result_mant(_zz_81_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_dot_normal_io_result_vld),
+    .io_result_sign(u_dir_dot_normal_io_result_sign),
+    .io_result_exp(u_dir_dot_normal_io_result_exp),
+    .io_result_mant(u_dir_dot_normal_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   MulVecScalar u_dir_mirror ( 
     .io_op_vld(dir_dot_normal_x2_vld),
@@ -14782,18 +14788,18 @@ module SphereIntersect (
     .io_op_scalar_sign(dir_dot_normal_x2_sign),
     .io_op_scalar_exp(dir_dot_normal_x2_exp),
     .io_op_scalar_mant(dir_dot_normal_x2_mant),
-    .io_result_vld(_zz_82_),
-    .io_result_x_sign(_zz_83_),
-    .io_result_x_exp(_zz_84_),
-    .io_result_x_mant(_zz_85_),
-    .io_result_y_sign(_zz_86_),
-    .io_result_y_exp(_zz_87_),
-    .io_result_y_mant(_zz_88_),
-    .io_result_z_sign(_zz_89_),
-    .io_result_z_exp(_zz_90_),
-    .io_result_z_mant(_zz_91_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_mirror_io_result_vld),
+    .io_result_x_sign(u_dir_mirror_io_result_x_sign),
+    .io_result_x_exp(u_dir_mirror_io_result_x_exp),
+    .io_result_x_mant(u_dir_mirror_io_result_x_mant),
+    .io_result_y_sign(u_dir_mirror_io_result_y_sign),
+    .io_result_y_exp(u_dir_mirror_io_result_y_exp),
+    .io_result_y_mant(u_dir_mirror_io_result_y_mant),
+    .io_result_z_sign(u_dir_mirror_io_result_z_sign),
+    .io_result_z_exp(u_dir_mirror_io_result_z_exp),
+    .io_result_z_mant(u_dir_mirror_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SubVecVec u_reflect_dir ( 
     .io_op_vld(dir_mirror_vld),
@@ -14815,101 +14821,101 @@ module SphereIntersect (
     .io_op_b_z_sign(dir_mirror_z_sign),
     .io_op_b_z_exp(dir_mirror_z_exp),
     .io_op_b_z_mant(dir_mirror_z_mant),
-    .io_result_vld(_zz_92_),
-    .io_result_x_sign(_zz_93_),
-    .io_result_x_exp(_zz_94_),
-    .io_result_x_mant(_zz_95_),
-    .io_result_y_sign(_zz_96_),
-    .io_result_y_exp(_zz_97_),
-    .io_result_y_mant(_zz_98_),
-    .io_result_z_sign(_zz_99_),
-    .io_result_z_exp(_zz_100_),
-    .io_result_z_mant(_zz_101_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_reflect_dir_io_result_vld),
+    .io_result_x_sign(u_reflect_dir_io_result_x_sign),
+    .io_result_x_exp(u_reflect_dir_io_result_x_exp),
+    .io_result_x_mant(u_reflect_dir_io_result_x_mant),
+    .io_result_y_sign(u_reflect_dir_io_result_y_sign),
+    .io_result_y_exp(u_reflect_dir_io_result_y_exp),
+    .io_result_y_mant(u_reflect_dir_io_result_y_mant),
+    .io_result_z_sign(u_reflect_dir_io_result_z_sign),
+    .io_result_z_exp(u_reflect_dir_io_result_z_exp),
+    .io_result_z_mant(u_reflect_dir_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign c0r0_vld = _zz_6_;
-  assign c0r0_x_sign = _zz_7_;
-  assign c0r0_x_exp = _zz_8_;
-  assign c0r0_x_mant = _zz_9_;
-  assign c0r0_y_sign = _zz_10_;
-  assign c0r0_y_exp = _zz_11_;
-  assign c0r0_y_mant = _zz_12_;
-  assign c0r0_z_sign = _zz_13_;
-  assign c0r0_z_exp = _zz_14_;
-  assign c0r0_z_mant = _zz_15_;
-  assign tca_vld = _zz_16_;
-  assign tca_sign = _zz_17_;
-  assign tca_exp = _zz_18_;
-  assign tca_mant = _zz_19_;
+  assign c0r0_vld = u_c0r0_io_result_vld;
+  assign c0r0_x_sign = u_c0r0_io_result_x_sign;
+  assign c0r0_x_exp = u_c0r0_io_result_x_exp;
+  assign c0r0_x_mant = u_c0r0_io_result_x_mant;
+  assign c0r0_y_sign = u_c0r0_io_result_y_sign;
+  assign c0r0_y_exp = u_c0r0_io_result_y_exp;
+  assign c0r0_y_mant = u_c0r0_io_result_y_mant;
+  assign c0r0_z_sign = u_c0r0_io_result_z_sign;
+  assign c0r0_z_exp = u_c0r0_io_result_z_exp;
+  assign c0r0_z_mant = u_c0r0_io_result_z_mant;
+  assign tca_vld = u_dot_tca_io_result_vld;
+  assign tca_sign = u_dot_tca_io_result_sign;
+  assign tca_exp = u_dot_tca_io_result_exp;
+  assign tca_mant = u_dot_tca_io_result_mant;
   assign intersects_tca = (((! tca_sign) && (! ((tca_exp == (6'b111111)) && (tca_mant != (13'b0000000000000))))) && (! ((tca_exp == (6'b111111)) && (! (tca_mant != (13'b0000000000000))))));
-  assign c0r0_c0r0_vld = _zz_20_;
-  assign c0r0_c0r0_sign = _zz_21_;
-  assign c0r0_c0r0_exp = _zz_22_;
-  assign c0r0_c0r0_mant = _zz_23_;
-  assign tca_tca_vld = _zz_24_;
-  assign tca_tca_sign = _zz_25_;
-  assign tca_tca_exp = _zz_26_;
-  assign tca_tca_mant = _zz_27_;
-  assign d2_vld = _zz_28_;
-  assign d2_sign = _zz_29_;
-  assign d2_exp = _zz_30_;
-  assign d2_mant = _zz_31_;
-  assign radius2_ge_d2 = ($signed(_zz_102_) <= $signed(_zz_103_));
+  assign c0r0_c0r0_vld = u_dot_c0r0_c0r0_io_result_vld;
+  assign c0r0_c0r0_sign = u_dot_c0r0_c0r0_io_result_sign;
+  assign c0r0_c0r0_exp = u_dot_c0r0_c0r0_io_result_exp;
+  assign c0r0_c0r0_mant = u_dot_c0r0_c0r0_io_result_mant;
+  assign tca_tca_vld = u_tca_tca_io_result_vld;
+  assign tca_tca_sign = u_tca_tca_io_result_sign;
+  assign tca_tca_exp = u_tca_tca_io_result_exp;
+  assign tca_tca_mant = u_tca_tca_io_result_mant;
+  assign d2_vld = u_d2_io_result_vld;
+  assign d2_sign = u_d2_io_result_sign;
+  assign d2_exp = u_d2_io_result_exp;
+  assign d2_mant = u_d2_io_result_mant;
+  assign radius2_ge_d2 = ($signed(_zz_6_) <= $signed(_zz_7_));
   assign io_early_intersects_vld = d2_vld_regNext;
   assign io_early_intersects = _zz_1_;
-  assign radius2_m_d2_vld = _zz_32_;
-  assign radius2_m_d2_sign = _zz_33_;
-  assign radius2_m_d2_exp = _zz_34_;
-  assign radius2_m_d2_mant = _zz_35_;
+  assign radius2_m_d2_vld = u_radius2_m_d2_io_result_vld;
+  assign radius2_m_d2_sign = u_radius2_m_d2_io_result_sign;
+  assign radius2_m_d2_exp = u_radius2_m_d2_io_result_exp;
+  assign radius2_m_d2_mant = u_radius2_m_d2_io_result_mant;
   assign intersects_d2 = (((! radius2_m_d2_sign) && (! ((radius2_m_d2_exp == (6'b111111)) && (radius2_m_d2_mant != (13'b0000000000000))))) && (! ((radius2_m_d2_exp == (6'b111111)) && (! (radius2_m_d2_mant != (13'b0000000000000))))));
-  assign thc_vld = _zz_36_;
-  assign thc_sign = _zz_37_;
-  assign thc_exp = _zz_38_;
-  assign thc_mant = _zz_39_;
-  assign t0_vld = _zz_40_;
-  assign t0_sign = _zz_41_;
-  assign t0_exp = _zz_42_;
-  assign t0_mant = _zz_43_;
-  assign t1_vld = _zz_44_;
-  assign t1_sign = _zz_45_;
-  assign t1_exp = _zz_46_;
-  assign t1_mant = _zz_47_;
+  assign thc_vld = u_thc_io_result_vld;
+  assign thc_sign = u_thc_io_result_sign;
+  assign thc_exp = u_thc_io_result_exp;
+  assign thc_mant = u_thc_io_result_mant;
+  assign t0_vld = u_t0_io_result_vld;
+  assign t0_sign = u_t0_io_result_sign;
+  assign t0_exp = u_t0_io_result_exp;
+  assign t0_mant = u_t0_io_result_mant;
+  assign t1_vld = u_t1_io_result_vld;
+  assign t1_sign = u_t1_io_result_sign;
+  assign t1_exp = u_t1_io_result_exp;
+  assign t1_mant = u_t1_io_result_mant;
   assign t_vld = t0_vld_regNext;
-  assign _zz_2_ = ($signed(_zz_104_) < $signed(_zz_105_));
+  assign _zz_2_ = ($signed(_zz_8_) < $signed(_zz_9_));
   assign t_sign = _zz_3_;
   assign t_exp = _zz_4_;
   assign t_mant = _zz_5_;
-  assign intersection_vld = _zz_48_;
-  assign intersection_x_sign = _zz_49_;
-  assign intersection_x_exp = _zz_50_;
-  assign intersection_x_mant = _zz_51_;
-  assign intersection_y_sign = _zz_52_;
-  assign intersection_y_exp = _zz_53_;
-  assign intersection_y_mant = _zz_54_;
-  assign intersection_z_sign = _zz_55_;
-  assign intersection_z_exp = _zz_56_;
-  assign intersection_z_mant = _zz_57_;
-  assign normal_raw_vld = _zz_58_;
-  assign normal_raw_x_sign = _zz_59_;
-  assign normal_raw_x_exp = _zz_60_;
-  assign normal_raw_x_mant = _zz_61_;
-  assign normal_raw_y_sign = _zz_62_;
-  assign normal_raw_y_exp = _zz_63_;
-  assign normal_raw_y_mant = _zz_64_;
-  assign normal_raw_z_sign = _zz_65_;
-  assign normal_raw_z_exp = _zz_66_;
-  assign normal_raw_z_mant = _zz_67_;
-  assign normal_vld = _zz_68_;
-  assign normal_x_sign = _zz_69_;
-  assign normal_x_exp = _zz_70_;
-  assign normal_x_mant = _zz_71_;
-  assign normal_y_sign = _zz_72_;
-  assign normal_y_exp = _zz_73_;
-  assign normal_y_mant = _zz_74_;
-  assign normal_z_sign = _zz_75_;
-  assign normal_z_exp = _zz_76_;
-  assign normal_z_mant = _zz_77_;
+  assign intersection_vld = u_intersection_io_result_vld;
+  assign intersection_x_sign = u_intersection_io_result_x_sign;
+  assign intersection_x_exp = u_intersection_io_result_x_exp;
+  assign intersection_x_mant = u_intersection_io_result_x_mant;
+  assign intersection_y_sign = u_intersection_io_result_y_sign;
+  assign intersection_y_exp = u_intersection_io_result_y_exp;
+  assign intersection_y_mant = u_intersection_io_result_y_mant;
+  assign intersection_z_sign = u_intersection_io_result_z_sign;
+  assign intersection_z_exp = u_intersection_io_result_z_exp;
+  assign intersection_z_mant = u_intersection_io_result_z_mant;
+  assign normal_raw_vld = u_normal_raw_io_result_vld;
+  assign normal_raw_x_sign = u_normal_raw_io_result_x_sign;
+  assign normal_raw_x_exp = u_normal_raw_io_result_x_exp;
+  assign normal_raw_x_mant = u_normal_raw_io_result_x_mant;
+  assign normal_raw_y_sign = u_normal_raw_io_result_y_sign;
+  assign normal_raw_y_exp = u_normal_raw_io_result_y_exp;
+  assign normal_raw_y_mant = u_normal_raw_io_result_y_mant;
+  assign normal_raw_z_sign = u_normal_raw_io_result_z_sign;
+  assign normal_raw_z_exp = u_normal_raw_io_result_z_exp;
+  assign normal_raw_z_mant = u_normal_raw_io_result_z_mant;
+  assign normal_vld = u_normalize_io_result_vld;
+  assign normal_x_sign = u_normalize_io_result_x_sign;
+  assign normal_x_exp = u_normalize_io_result_x_exp;
+  assign normal_x_mant = u_normalize_io_result_x_mant;
+  assign normal_y_sign = u_normalize_io_result_y_sign;
+  assign normal_y_exp = u_normalize_io_result_y_exp;
+  assign normal_y_mant = u_normalize_io_result_y_mant;
+  assign normal_z_sign = u_normalize_io_result_z_sign;
+  assign normal_z_exp = u_normalize_io_result_z_exp;
+  assign normal_z_mant = u_normalize_io_result_z_mant;
   assign io_early_normal_vld = normal_vld;
   assign io_early_normal_x_sign = normal_x_sign;
   assign io_early_normal_x_exp = normal_x_exp;
@@ -14920,34 +14926,34 @@ module SphereIntersect (
   assign io_early_normal_z_sign = normal_z_sign;
   assign io_early_normal_z_exp = normal_z_exp;
   assign io_early_normal_z_mant = normal_z_mant;
-  assign dir_dot_normal_vld = _zz_78_;
-  assign dir_dot_normal_sign = _zz_79_;
-  assign dir_dot_normal_exp = _zz_80_;
-  assign dir_dot_normal_mant = _zz_81_;
+  assign dir_dot_normal_vld = u_dir_dot_normal_io_result_vld;
+  assign dir_dot_normal_sign = u_dir_dot_normal_io_result_sign;
+  assign dir_dot_normal_exp = u_dir_dot_normal_io_result_exp;
+  assign dir_dot_normal_mant = u_dir_dot_normal_io_result_mant;
   assign dir_dot_normal_x2_vld = dir_dot_normal_vld_regNext;
   assign dir_dot_normal_x2_sign = dir_dot_normal_sign_regNext;
   assign dir_dot_normal_x2_exp = (dir_dot_normal_exp_regNext + (6'b000001));
   assign dir_dot_normal_x2_mant = dir_dot_normal_mant_regNext;
-  assign dir_mirror_vld = _zz_82_;
-  assign dir_mirror_x_sign = _zz_83_;
-  assign dir_mirror_x_exp = _zz_84_;
-  assign dir_mirror_x_mant = _zz_85_;
-  assign dir_mirror_y_sign = _zz_86_;
-  assign dir_mirror_y_exp = _zz_87_;
-  assign dir_mirror_y_mant = _zz_88_;
-  assign dir_mirror_z_sign = _zz_89_;
-  assign dir_mirror_z_exp = _zz_90_;
-  assign dir_mirror_z_mant = _zz_91_;
-  assign reflect_dir_vld = _zz_92_;
-  assign reflect_dir_x_sign = _zz_93_;
-  assign reflect_dir_x_exp = _zz_94_;
-  assign reflect_dir_x_mant = _zz_95_;
-  assign reflect_dir_y_sign = _zz_96_;
-  assign reflect_dir_y_exp = _zz_97_;
-  assign reflect_dir_y_mant = _zz_98_;
-  assign reflect_dir_z_sign = _zz_99_;
-  assign reflect_dir_z_exp = _zz_100_;
-  assign reflect_dir_z_mant = _zz_101_;
+  assign dir_mirror_vld = u_dir_mirror_io_result_vld;
+  assign dir_mirror_x_sign = u_dir_mirror_io_result_x_sign;
+  assign dir_mirror_x_exp = u_dir_mirror_io_result_x_exp;
+  assign dir_mirror_x_mant = u_dir_mirror_io_result_x_mant;
+  assign dir_mirror_y_sign = u_dir_mirror_io_result_y_sign;
+  assign dir_mirror_y_exp = u_dir_mirror_io_result_y_exp;
+  assign dir_mirror_y_mant = u_dir_mirror_io_result_y_mant;
+  assign dir_mirror_z_sign = u_dir_mirror_io_result_z_sign;
+  assign dir_mirror_z_exp = u_dir_mirror_io_result_z_exp;
+  assign dir_mirror_z_mant = u_dir_mirror_io_result_z_mant;
+  assign reflect_dir_vld = u_reflect_dir_io_result_vld;
+  assign reflect_dir_x_sign = u_reflect_dir_io_result_x_sign;
+  assign reflect_dir_x_exp = u_reflect_dir_io_result_x_exp;
+  assign reflect_dir_x_mant = u_reflect_dir_io_result_x_mant;
+  assign reflect_dir_y_sign = u_reflect_dir_io_result_y_sign;
+  assign reflect_dir_y_exp = u_reflect_dir_io_result_y_exp;
+  assign reflect_dir_y_mant = u_reflect_dir_io_result_y_mant;
+  assign reflect_dir_z_sign = u_reflect_dir_io_result_z_sign;
+  assign reflect_dir_z_exp = u_reflect_dir_io_result_z_exp;
+  assign reflect_dir_z_mant = u_reflect_dir_io_result_z_mant;
   assign intersects_delayed = (intersects_tca_delayed && intersects_d2_delayed);
   assign reflect_ray_origin_x_sign = intersection_delayed_x_sign;
   assign reflect_ray_origin_x_exp = intersection_delayed_x_exp;
@@ -15044,7 +15050,7 @@ module SphereIntersect (
   assign io_result_ray_direction_z_sign = ray_delayed_direction_z_sign;
   assign io_result_ray_direction_z_exp = ray_delayed_direction_z_exp;
   assign io_result_ray_direction_z_mant = ray_delayed_direction_z_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_ray_direction_delay_1_x_sign <= io_ray_direction_x_sign;
     io_ray_direction_delay_1_x_exp <= io_ray_direction_x_exp;
     io_ray_direction_delay_1_x_mant <= io_ray_direction_x_mant;
@@ -16505,40 +16511,40 @@ module PlaneIntersect (
       output  io_result_intersection_z_sign,
       output [5:0] io_result_intersection_z_exp,
       output [12:0] io_result_intersection_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_1_;
-  wire  _zz_2_;
-  wire [5:0] _zz_3_;
-  wire [12:0] _zz_4_;
-  wire  _zz_5_;
-  wire  _zz_6_;
-  wire [5:0] _zz_7_;
-  wire [12:0] _zz_8_;
-  wire  _zz_9_;
-  wire [5:0] _zz_10_;
-  wire [12:0] _zz_11_;
-  wire  _zz_12_;
-  wire [5:0] _zz_13_;
-  wire [12:0] _zz_14_;
-  wire  _zz_15_;
-  wire  _zz_16_;
-  wire [5:0] _zz_17_;
-  wire [12:0] _zz_18_;
-  wire  _zz_19_;
-  wire  _zz_20_;
-  wire [5:0] _zz_21_;
-  wire [12:0] _zz_22_;
-  wire  _zz_23_;
-  wire  _zz_24_;
-  wire [5:0] _zz_25_;
-  wire [12:0] _zz_26_;
-  wire  _zz_27_;
-  wire [5:0] _zz_28_;
-  wire [12:0] _zz_29_;
-  wire  _zz_30_;
-  wire [5:0] _zz_31_;
-  wire [12:0] _zz_32_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_dot_norm_dir_io_result_vld;
+  wire  u_dot_norm_dir_io_result_sign;
+  wire [5:0] u_dot_norm_dir_io_result_exp;
+  wire [12:0] u_dot_norm_dir_io_result_mant;
+  wire  u_p0r0_io_result_vld;
+  wire  u_p0r0_io_result_x_sign;
+  wire [5:0] u_p0r0_io_result_x_exp;
+  wire [12:0] u_p0r0_io_result_x_mant;
+  wire  u_p0r0_io_result_y_sign;
+  wire [5:0] u_p0r0_io_result_y_exp;
+  wire [12:0] u_p0r0_io_result_y_mant;
+  wire  u_p0r0_io_result_z_sign;
+  wire [5:0] u_p0r0_io_result_z_exp;
+  wire [12:0] u_p0r0_io_result_z_mant;
+  wire  u_dot_p0r0_norm_io_result_vld;
+  wire  u_dot_p0r0_norm_io_result_sign;
+  wire [5:0] u_dot_p0r0_norm_io_result_exp;
+  wire [12:0] u_dot_p0r0_norm_io_result_mant;
+  wire  u_div_p0r0_dot_norm_denom_io_result_vld;
+  wire  u_div_p0r0_dot_norm_denom_io_result_sign;
+  wire [5:0] u_div_p0r0_dot_norm_denom_io_result_exp;
+  wire [12:0] u_div_p0r0_dot_norm_denom_io_result_mant;
+  wire  u_intersection_io_result_vld;
+  wire  u_intersection_io_result_x_sign;
+  wire [5:0] u_intersection_io_result_x_exp;
+  wire [12:0] u_intersection_io_result_x_mant;
+  wire  u_intersection_io_result_y_sign;
+  wire [5:0] u_intersection_io_result_y_exp;
+  wire [12:0] u_intersection_io_result_y_mant;
+  wire  u_intersection_io_result_z_sign;
+  wire [5:0] u_intersection_io_result_z_exp;
+  wire [12:0] u_intersection_io_result_z_mant;
   wire  denom_vld;
   wire  denom_sign;
   wire [5:0] denom_exp;
@@ -16905,12 +16911,12 @@ module PlaneIntersect (
     .io_op_b_z_sign(io_ray_direction_z_sign),
     .io_op_b_z_exp(io_ray_direction_z_exp),
     .io_op_b_z_mant(io_ray_direction_z_mant),
-    .io_result_vld(_zz_1_),
-    .io_result_sign(_zz_2_),
-    .io_result_exp(_zz_3_),
-    .io_result_mant(_zz_4_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_norm_dir_io_result_vld),
+    .io_result_sign(u_dot_norm_dir_io_result_sign),
+    .io_result_exp(u_dot_norm_dir_io_result_exp),
+    .io_result_mant(u_dot_norm_dir_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SubVecVec u_p0r0 ( 
     .io_op_vld(io_op_vld),
@@ -16932,18 +16938,18 @@ module PlaneIntersect (
     .io_op_b_z_sign(io_ray_origin_z_sign),
     .io_op_b_z_exp(io_ray_origin_z_exp),
     .io_op_b_z_mant(io_ray_origin_z_mant),
-    .io_result_vld(_zz_5_),
-    .io_result_x_sign(_zz_6_),
-    .io_result_x_exp(_zz_7_),
-    .io_result_x_mant(_zz_8_),
-    .io_result_y_sign(_zz_9_),
-    .io_result_y_exp(_zz_10_),
-    .io_result_y_mant(_zz_11_),
-    .io_result_z_sign(_zz_12_),
-    .io_result_z_exp(_zz_13_),
-    .io_result_z_mant(_zz_14_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_p0r0_io_result_vld),
+    .io_result_x_sign(u_p0r0_io_result_x_sign),
+    .io_result_x_exp(u_p0r0_io_result_x_exp),
+    .io_result_x_mant(u_p0r0_io_result_x_mant),
+    .io_result_y_sign(u_p0r0_io_result_y_sign),
+    .io_result_y_exp(u_p0r0_io_result_y_exp),
+    .io_result_y_mant(u_p0r0_io_result_y_mant),
+    .io_result_z_sign(u_p0r0_io_result_z_sign),
+    .io_result_z_exp(u_p0r0_io_result_z_exp),
+    .io_result_z_mant(u_p0r0_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct u_dot_p0r0_norm ( 
     .io_op_vld(p0r0_vld),
@@ -16965,12 +16971,12 @@ module PlaneIntersect (
     .io_op_b_z_sign(plane_normal_delayed_z_sign),
     .io_op_b_z_exp(plane_normal_delayed_z_exp),
     .io_op_b_z_mant(plane_normal_delayed_z_mant),
-    .io_result_vld(_zz_15_),
-    .io_result_sign(_zz_16_),
-    .io_result_exp(_zz_17_),
-    .io_result_mant(_zz_18_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_p0r0_norm_io_result_vld),
+    .io_result_sign(u_dot_p0r0_norm_io_result_sign),
+    .io_result_exp(u_dot_p0r0_norm_io_result_exp),
+    .io_result_mant(u_dot_p0r0_norm_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxDiv u_div_p0r0_dot_norm_denom ( 
     .p0_vld(denom_delayed_vld),
@@ -16980,12 +16986,12 @@ module PlaneIntersect (
     .op_b_p0_sign(denom_delayed_sign),
     .op_b_p0_exp(denom_delayed_exp),
     .op_b_p0_mant(denom_delayed_mant),
-    .io_result_vld(_zz_19_),
-    .io_result_sign(_zz_20_),
-    .io_result_exp(_zz_21_),
-    .io_result_mant(_zz_22_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_div_p0r0_dot_norm_denom_io_result_vld),
+    .io_result_sign(u_div_p0r0_dot_norm_denom_io_result_sign),
+    .io_result_exp(u_div_p0r0_dot_norm_denom_io_result_exp),
+    .io_result_mant(u_div_p0r0_dot_norm_denom_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Intersection u_intersection ( 
     .io_op_vld(t_vld),
@@ -17010,38 +17016,38 @@ module PlaneIntersect (
     .io_t_sign(t_sign),
     .io_t_exp(t_exp),
     .io_t_mant(t_mant),
-    .io_result_vld(_zz_23_),
-    .io_result_x_sign(_zz_24_),
-    .io_result_x_exp(_zz_25_),
-    .io_result_x_mant(_zz_26_),
-    .io_result_y_sign(_zz_27_),
-    .io_result_y_exp(_zz_28_),
-    .io_result_y_mant(_zz_29_),
-    .io_result_z_sign(_zz_30_),
-    .io_result_z_exp(_zz_31_),
-    .io_result_z_mant(_zz_32_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_intersection_io_result_vld),
+    .io_result_x_sign(u_intersection_io_result_x_sign),
+    .io_result_x_exp(u_intersection_io_result_x_exp),
+    .io_result_x_mant(u_intersection_io_result_x_mant),
+    .io_result_y_sign(u_intersection_io_result_y_sign),
+    .io_result_y_exp(u_intersection_io_result_y_exp),
+    .io_result_y_mant(u_intersection_io_result_y_mant),
+    .io_result_z_sign(u_intersection_io_result_z_sign),
+    .io_result_z_exp(u_intersection_io_result_z_exp),
+    .io_result_z_mant(u_intersection_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign denom_vld = _zz_1_;
-  assign denom_sign = _zz_2_;
-  assign denom_exp = _zz_3_;
-  assign denom_mant = _zz_4_;
+  assign denom_vld = u_dot_norm_dir_io_result_vld;
+  assign denom_sign = u_dot_norm_dir_io_result_sign;
+  assign denom_exp = u_dot_norm_dir_io_result_exp;
+  assign denom_mant = u_dot_norm_dir_io_result_mant;
   assign intersects_par = ((6'b000011) <= denom_exp_regNext);
-  assign p0r0_vld = _zz_5_;
-  assign p0r0_x_sign = _zz_6_;
-  assign p0r0_x_exp = _zz_7_;
-  assign p0r0_x_mant = _zz_8_;
-  assign p0r0_y_sign = _zz_9_;
-  assign p0r0_y_exp = _zz_10_;
-  assign p0r0_y_mant = _zz_11_;
-  assign p0r0_z_sign = _zz_12_;
-  assign p0r0_z_exp = _zz_13_;
-  assign p0r0_z_mant = _zz_14_;
-  assign p0r0_dot_norm_vld = _zz_15_;
-  assign p0r0_dot_norm_sign = _zz_16_;
-  assign p0r0_dot_norm_exp = _zz_17_;
-  assign p0r0_dot_norm_mant = _zz_18_;
+  assign p0r0_vld = u_p0r0_io_result_vld;
+  assign p0r0_x_sign = u_p0r0_io_result_x_sign;
+  assign p0r0_x_exp = u_p0r0_io_result_x_exp;
+  assign p0r0_x_mant = u_p0r0_io_result_x_mant;
+  assign p0r0_y_sign = u_p0r0_io_result_y_sign;
+  assign p0r0_y_exp = u_p0r0_io_result_y_exp;
+  assign p0r0_y_mant = u_p0r0_io_result_y_mant;
+  assign p0r0_z_sign = u_p0r0_io_result_z_sign;
+  assign p0r0_z_exp = u_p0r0_io_result_z_exp;
+  assign p0r0_z_mant = u_p0r0_io_result_z_mant;
+  assign p0r0_dot_norm_vld = u_dot_p0r0_norm_io_result_vld;
+  assign p0r0_dot_norm_sign = u_dot_p0r0_norm_io_result_sign;
+  assign p0r0_dot_norm_exp = u_dot_p0r0_norm_io_result_exp;
+  assign p0r0_dot_norm_mant = u_dot_p0r0_norm_io_result_mant;
   assign p0r0_dot_norm_delayed_sign = p0r0_dot_norm_sign;
   assign p0r0_dot_norm_delayed_exp = p0r0_dot_norm_exp;
   assign p0r0_dot_norm_delayed_mant = p0r0_dot_norm_mant;
@@ -17049,21 +17055,21 @@ module PlaneIntersect (
   assign denom_delayed_exp = denom_delay_2_exp;
   assign denom_delayed_mant = denom_delay_2_mant;
   assign denom_delayed_vld = p0r0_dot_norm_vld;
-  assign t_vld = _zz_19_;
-  assign t_sign = _zz_20_;
-  assign t_exp = _zz_21_;
-  assign t_mant = _zz_22_;
+  assign t_vld = u_div_p0r0_dot_norm_denom_io_result_vld;
+  assign t_sign = u_div_p0r0_dot_norm_denom_io_result_sign;
+  assign t_exp = u_div_p0r0_dot_norm_denom_io_result_exp;
+  assign t_mant = u_div_p0r0_dot_norm_denom_io_result_mant;
   assign intersects_t_gt0 = (intersects_par_delayed && (((! t_p1_sign) && (! ((t_p1_exp == (6'b111111)) && (t_p1_mant != (13'b0000000000000))))) && (! ((t_p1_exp == (6'b111111)) && (! (t_p1_mant != (13'b0000000000000)))))));
-  assign intersection_vld = _zz_23_;
-  assign intersection_x_sign = _zz_24_;
-  assign intersection_x_exp = _zz_25_;
-  assign intersection_x_mant = _zz_26_;
-  assign intersection_y_sign = _zz_27_;
-  assign intersection_y_exp = _zz_28_;
-  assign intersection_y_mant = _zz_29_;
-  assign intersection_z_sign = _zz_30_;
-  assign intersection_z_exp = _zz_31_;
-  assign intersection_z_mant = _zz_32_;
+  assign intersection_vld = u_intersection_io_result_vld;
+  assign intersection_x_sign = u_intersection_io_result_x_sign;
+  assign intersection_x_exp = u_intersection_io_result_x_exp;
+  assign intersection_x_mant = u_intersection_io_result_x_mant;
+  assign intersection_y_sign = u_intersection_io_result_y_sign;
+  assign intersection_y_exp = u_intersection_io_result_y_exp;
+  assign intersection_y_mant = u_intersection_io_result_y_mant;
+  assign intersection_z_sign = u_intersection_io_result_z_sign;
+  assign intersection_z_exp = u_intersection_io_result_z_exp;
+  assign intersection_z_mant = u_intersection_io_result_z_mant;
   assign io_result_vld = intersection_vld;
   assign io_result_intersects = intersects_t_gt0_delayed;
   assign io_result_t_sign = t_delayed_sign;
@@ -17078,7 +17084,7 @@ module PlaneIntersect (
   assign io_result_intersection_z_sign = intersection_z_sign;
   assign io_result_intersection_z_exp = intersection_z_exp;
   assign io_result_intersection_z_mant = intersection_z_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     intersects_par_vld <= denom_vld;
     denom_exp_regNext <= denom_exp;
     io_plane_normal_delay_1_x_sign <= io_plane_normal_x_sign;
@@ -17497,108 +17503,108 @@ module SphereIntersect_1_ (
       output  io_result_ray_direction_z_sign,
       output [5:0] io_result_ray_direction_z_exp,
       output [12:0] io_result_ray_direction_z_mant,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
-  wire  _zz_6_;
-  wire  _zz_7_;
-  wire [5:0] _zz_8_;
-  wire [12:0] _zz_9_;
-  wire  _zz_10_;
-  wire [5:0] _zz_11_;
-  wire [12:0] _zz_12_;
-  wire  _zz_13_;
-  wire [5:0] _zz_14_;
-  wire [12:0] _zz_15_;
-  wire  _zz_16_;
-  wire  _zz_17_;
-  wire [5:0] _zz_18_;
-  wire [12:0] _zz_19_;
-  wire  _zz_20_;
-  wire  _zz_21_;
-  wire [5:0] _zz_22_;
-  wire [12:0] _zz_23_;
-  wire  _zz_24_;
-  wire  _zz_25_;
-  wire [5:0] _zz_26_;
-  wire [12:0] _zz_27_;
-  wire  _zz_28_;
-  wire  _zz_29_;
-  wire [5:0] _zz_30_;
-  wire [12:0] _zz_31_;
-  wire  _zz_32_;
-  wire  _zz_33_;
-  wire [5:0] _zz_34_;
-  wire [12:0] _zz_35_;
-  wire  _zz_36_;
-  wire  _zz_37_;
-  wire [5:0] _zz_38_;
-  wire [12:0] _zz_39_;
-  wire  _zz_40_;
-  wire  _zz_41_;
-  wire [5:0] _zz_42_;
-  wire [12:0] _zz_43_;
-  wire  _zz_44_;
-  wire  _zz_45_;
-  wire [5:0] _zz_46_;
-  wire [12:0] _zz_47_;
-  wire  _zz_48_;
-  wire  _zz_49_;
-  wire [5:0] _zz_50_;
-  wire [12:0] _zz_51_;
-  wire  _zz_52_;
-  wire [5:0] _zz_53_;
-  wire [12:0] _zz_54_;
-  wire  _zz_55_;
-  wire [5:0] _zz_56_;
-  wire [12:0] _zz_57_;
-  wire  _zz_58_;
-  wire  _zz_59_;
-  wire [5:0] _zz_60_;
-  wire [12:0] _zz_61_;
-  wire  _zz_62_;
-  wire [5:0] _zz_63_;
-  wire [12:0] _zz_64_;
-  wire  _zz_65_;
-  wire [5:0] _zz_66_;
-  wire [12:0] _zz_67_;
-  wire  _zz_68_;
-  wire  _zz_69_;
-  wire [5:0] _zz_70_;
-  wire [12:0] _zz_71_;
-  wire  _zz_72_;
-  wire [5:0] _zz_73_;
-  wire [12:0] _zz_74_;
-  wire  _zz_75_;
-  wire [5:0] _zz_76_;
-  wire [12:0] _zz_77_;
-  wire  _zz_78_;
-  wire  _zz_79_;
-  wire [5:0] _zz_80_;
-  wire [12:0] _zz_81_;
-  wire  _zz_82_;
-  wire  _zz_83_;
-  wire [5:0] _zz_84_;
-  wire [12:0] _zz_85_;
-  wire  _zz_86_;
-  wire [5:0] _zz_87_;
-  wire [12:0] _zz_88_;
-  wire  _zz_89_;
-  wire [5:0] _zz_90_;
-  wire [12:0] _zz_91_;
-  wire  _zz_92_;
-  wire  _zz_93_;
-  wire [5:0] _zz_94_;
-  wire [12:0] _zz_95_;
-  wire  _zz_96_;
-  wire [5:0] _zz_97_;
-  wire [12:0] _zz_98_;
-  wire  _zz_99_;
-  wire [5:0] _zz_100_;
-  wire [12:0] _zz_101_;
-  wire [19:0] _zz_102_;
-  wire [19:0] _zz_103_;
-  wire [19:0] _zz_104_;
-  wire [19:0] _zz_105_;
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
+  wire  u_c0r0_io_result_vld;
+  wire  u_c0r0_io_result_x_sign;
+  wire [5:0] u_c0r0_io_result_x_exp;
+  wire [12:0] u_c0r0_io_result_x_mant;
+  wire  u_c0r0_io_result_y_sign;
+  wire [5:0] u_c0r0_io_result_y_exp;
+  wire [12:0] u_c0r0_io_result_y_mant;
+  wire  u_c0r0_io_result_z_sign;
+  wire [5:0] u_c0r0_io_result_z_exp;
+  wire [12:0] u_c0r0_io_result_z_mant;
+  wire  u_dot_tca_io_result_vld;
+  wire  u_dot_tca_io_result_sign;
+  wire [5:0] u_dot_tca_io_result_exp;
+  wire [12:0] u_dot_tca_io_result_mant;
+  wire  u_dot_c0r0_c0r0_io_result_vld;
+  wire  u_dot_c0r0_c0r0_io_result_sign;
+  wire [5:0] u_dot_c0r0_c0r0_io_result_exp;
+  wire [12:0] u_dot_c0r0_c0r0_io_result_mant;
+  wire  u_tca_tca_io_result_vld;
+  wire  u_tca_tca_io_result_sign;
+  wire [5:0] u_tca_tca_io_result_exp;
+  wire [12:0] u_tca_tca_io_result_mant;
+  wire  u_d2_io_result_vld;
+  wire  u_d2_io_result_sign;
+  wire [5:0] u_d2_io_result_exp;
+  wire [12:0] u_d2_io_result_mant;
+  wire  u_radius2_m_d2_io_result_vld;
+  wire  u_radius2_m_d2_io_result_sign;
+  wire [5:0] u_radius2_m_d2_io_result_exp;
+  wire [12:0] u_radius2_m_d2_io_result_mant;
+  wire  u_thc_io_result_vld;
+  wire  u_thc_io_result_sign;
+  wire [5:0] u_thc_io_result_exp;
+  wire [12:0] u_thc_io_result_mant;
+  wire  u_t0_io_result_vld;
+  wire  u_t0_io_result_sign;
+  wire [5:0] u_t0_io_result_exp;
+  wire [12:0] u_t0_io_result_mant;
+  wire  u_t1_io_result_vld;
+  wire  u_t1_io_result_sign;
+  wire [5:0] u_t1_io_result_exp;
+  wire [12:0] u_t1_io_result_mant;
+  wire  u_intersection_io_result_vld;
+  wire  u_intersection_io_result_x_sign;
+  wire [5:0] u_intersection_io_result_x_exp;
+  wire [12:0] u_intersection_io_result_x_mant;
+  wire  u_intersection_io_result_y_sign;
+  wire [5:0] u_intersection_io_result_y_exp;
+  wire [12:0] u_intersection_io_result_y_mant;
+  wire  u_intersection_io_result_z_sign;
+  wire [5:0] u_intersection_io_result_z_exp;
+  wire [12:0] u_intersection_io_result_z_mant;
+  wire  u_normal_raw_io_result_vld;
+  wire  u_normal_raw_io_result_x_sign;
+  wire [5:0] u_normal_raw_io_result_x_exp;
+  wire [12:0] u_normal_raw_io_result_x_mant;
+  wire  u_normal_raw_io_result_y_sign;
+  wire [5:0] u_normal_raw_io_result_y_exp;
+  wire [12:0] u_normal_raw_io_result_y_mant;
+  wire  u_normal_raw_io_result_z_sign;
+  wire [5:0] u_normal_raw_io_result_z_exp;
+  wire [12:0] u_normal_raw_io_result_z_mant;
+  wire  u_normalize_io_result_vld;
+  wire  u_normalize_io_result_x_sign;
+  wire [5:0] u_normalize_io_result_x_exp;
+  wire [12:0] u_normalize_io_result_x_mant;
+  wire  u_normalize_io_result_y_sign;
+  wire [5:0] u_normalize_io_result_y_exp;
+  wire [12:0] u_normalize_io_result_y_mant;
+  wire  u_normalize_io_result_z_sign;
+  wire [5:0] u_normalize_io_result_z_exp;
+  wire [12:0] u_normalize_io_result_z_mant;
+  wire  u_dir_dot_normal_io_result_vld;
+  wire  u_dir_dot_normal_io_result_sign;
+  wire [5:0] u_dir_dot_normal_io_result_exp;
+  wire [12:0] u_dir_dot_normal_io_result_mant;
+  wire  u_dir_mirror_io_result_vld;
+  wire  u_dir_mirror_io_result_x_sign;
+  wire [5:0] u_dir_mirror_io_result_x_exp;
+  wire [12:0] u_dir_mirror_io_result_x_mant;
+  wire  u_dir_mirror_io_result_y_sign;
+  wire [5:0] u_dir_mirror_io_result_y_exp;
+  wire [12:0] u_dir_mirror_io_result_y_mant;
+  wire  u_dir_mirror_io_result_z_sign;
+  wire [5:0] u_dir_mirror_io_result_z_exp;
+  wire [12:0] u_dir_mirror_io_result_z_mant;
+  wire  u_reflect_dir_io_result_vld;
+  wire  u_reflect_dir_io_result_x_sign;
+  wire [5:0] u_reflect_dir_io_result_x_exp;
+  wire [12:0] u_reflect_dir_io_result_x_mant;
+  wire  u_reflect_dir_io_result_y_sign;
+  wire [5:0] u_reflect_dir_io_result_y_exp;
+  wire [12:0] u_reflect_dir_io_result_y_mant;
+  wire  u_reflect_dir_io_result_z_sign;
+  wire [5:0] u_reflect_dir_io_result_z_exp;
+  wire [12:0] u_reflect_dir_io_result_z_mant;
+  wire [19:0] _zz_6_;
+  wire [19:0] _zz_7_;
+  wire [19:0] _zz_8_;
+  wire [19:0] _zz_9_;
   wire  c0r0_vld;
   wire  c0r0_x_sign;
   wire [5:0] c0r0_x_exp;
@@ -19148,10 +19154,10 @@ module SphereIntersect_1_ (
   wire  ray_delayed_direction_z_sign;
   wire [5:0] ray_delayed_direction_z_exp;
   wire [12:0] ray_delayed_direction_z_mant;
-  assign _zz_102_ = {{d2_sign,d2_exp},d2_mant};
-  assign _zz_103_ = {{io_sphere_radius2_sign,io_sphere_radius2_exp},io_sphere_radius2_mant};
-  assign _zz_104_ = {{t1_sign,t1_exp},t1_mant};
-  assign _zz_105_ = {{t0_sign,t0_exp},t0_mant};
+  assign _zz_6_ = {{d2_sign,d2_exp},d2_mant};
+  assign _zz_7_ = {{io_sphere_radius2_sign,io_sphere_radius2_exp},io_sphere_radius2_mant};
+  assign _zz_8_ = {{t1_sign,t1_exp},t1_mant};
+  assign _zz_9_ = {{t0_sign,t0_exp},t0_mant};
   SubVecVec u_c0r0 ( 
     .io_op_vld(io_op_vld),
     .io_op_a_x_sign(io_sphere_center_x_sign),
@@ -19172,18 +19178,18 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(io_ray_origin_z_sign),
     .io_op_b_z_exp(io_ray_origin_z_exp),
     .io_op_b_z_mant(io_ray_origin_z_mant),
-    .io_result_vld(_zz_6_),
-    .io_result_x_sign(_zz_7_),
-    .io_result_x_exp(_zz_8_),
-    .io_result_x_mant(_zz_9_),
-    .io_result_y_sign(_zz_10_),
-    .io_result_y_exp(_zz_11_),
-    .io_result_y_mant(_zz_12_),
-    .io_result_z_sign(_zz_13_),
-    .io_result_z_exp(_zz_14_),
-    .io_result_z_mant(_zz_15_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_c0r0_io_result_vld),
+    .io_result_x_sign(u_c0r0_io_result_x_sign),
+    .io_result_x_exp(u_c0r0_io_result_x_exp),
+    .io_result_x_mant(u_c0r0_io_result_x_mant),
+    .io_result_y_sign(u_c0r0_io_result_y_sign),
+    .io_result_y_exp(u_c0r0_io_result_y_exp),
+    .io_result_y_mant(u_c0r0_io_result_y_mant),
+    .io_result_z_sign(u_c0r0_io_result_z_sign),
+    .io_result_z_exp(u_c0r0_io_result_z_exp),
+    .io_result_z_mant(u_c0r0_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dot_tca ( 
     .io_op_vld(c0r0_vld),
@@ -19205,12 +19211,12 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(dir_delayed_c0r0_z_sign),
     .io_op_b_z_exp(dir_delayed_c0r0_z_exp),
     .io_op_b_z_mant(dir_delayed_c0r0_z_mant),
-    .io_result_vld(_zz_16_),
-    .io_result_sign(_zz_17_),
-    .io_result_exp(_zz_18_),
-    .io_result_mant(_zz_19_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_tca_io_result_vld),
+    .io_result_sign(u_dot_tca_io_result_sign),
+    .io_result_exp(u_dot_tca_io_result_exp),
+    .io_result_mant(u_dot_tca_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dot_c0r0_c0r0 ( 
     .io_op_vld(c0r0_vld),
@@ -19232,12 +19238,12 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(c0r0_z_sign),
     .io_op_b_z_exp(c0r0_z_exp),
     .io_op_b_z_mant(c0r0_z_mant),
-    .io_result_vld(_zz_20_),
-    .io_result_sign(_zz_21_),
-    .io_result_exp(_zz_22_),
-    .io_result_mant(_zz_23_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dot_c0r0_c0r0_io_result_vld),
+    .io_result_sign(u_dot_c0r0_c0r0_io_result_sign),
+    .io_result_exp(u_dot_c0r0_c0r0_io_result_exp),
+    .io_result_mant(u_dot_c0r0_c0r0_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxMul u_tca_tca ( 
     .p0_vld(tca_vld),
@@ -19247,12 +19253,12 @@ module SphereIntersect_1_ (
     .op_b_p0_sign(tca_sign),
     .exp_b_p0(tca_exp),
     .op_b_p0_mant(tca_mant),
-    .io_result_vld(_zz_24_),
-    .io_result_sign(_zz_25_),
-    .io_result_exp(_zz_26_),
-    .io_result_mant(_zz_27_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_tca_tca_io_result_vld),
+    .io_result_sign(u_tca_tca_io_result_sign),
+    .io_result_exp(u_tca_tca_io_result_exp),
+    .io_result_mant(u_tca_tca_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_d2 ( 
     .io_op_vld(tca_tca_vld),
@@ -19262,12 +19268,12 @@ module SphereIntersect_1_ (
     .io_op_b_sign(tca_tca_sign),
     .io_op_b_exp(tca_tca_exp),
     .io_op_b_mant(tca_tca_mant),
-    .io_result_vld(_zz_28_),
-    .io_result_sign(_zz_29_),
-    .io_result_exp(_zz_30_),
-    .io_result_mant(_zz_31_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_d2_io_result_vld),
+    .io_result_sign(u_d2_io_result_sign),
+    .io_result_exp(u_d2_io_result_exp),
+    .io_result_mant(u_d2_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_radius2_m_d2 ( 
     .io_op_vld(d2_vld),
@@ -19277,24 +19283,24 @@ module SphereIntersect_1_ (
     .io_op_b_sign(d2_sign),
     .io_op_b_exp(d2_exp),
     .io_op_b_mant(d2_mant),
-    .io_result_vld(_zz_32_),
-    .io_result_sign(_zz_33_),
-    .io_result_exp(_zz_34_),
-    .io_result_mant(_zz_35_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_radius2_m_d2_io_result_vld),
+    .io_result_sign(u_radius2_m_d2_io_result_sign),
+    .io_result_exp(u_radius2_m_d2_io_result_exp),
+    .io_result_mant(u_radius2_m_d2_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSqrt_1_ u_thc ( 
     .p0_vld(radius2_m_d2_vld),
     .op_p0_sign(radius2_m_d2_sign),
     .op_p0_exp(radius2_m_d2_exp),
     .op_p0_mant(radius2_m_d2_mant),
-    .io_result_vld(_zz_36_),
-    .io_result_sign(_zz_37_),
-    .io_result_exp(_zz_38_),
-    .io_result_mant(_zz_39_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_thc_io_result_vld),
+    .io_result_sign(u_thc_io_result_sign),
+    .io_result_exp(u_thc_io_result_exp),
+    .io_result_mant(u_thc_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxSub u_t0 ( 
     .io_op_vld(thc_vld),
@@ -19304,12 +19310,12 @@ module SphereIntersect_1_ (
     .io_op_b_sign(thc_sign),
     .io_op_b_exp(thc_exp),
     .io_op_b_mant(thc_mant),
-    .io_result_vld(_zz_40_),
-    .io_result_sign(_zz_41_),
-    .io_result_exp(_zz_42_),
-    .io_result_mant(_zz_43_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_t0_io_result_vld),
+    .io_result_sign(u_t0_io_result_sign),
+    .io_result_exp(u_t0_io_result_exp),
+    .io_result_mant(u_t0_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   FpxxAdd u_t1 ( 
     .p0_vld(thc_vld),
@@ -19319,12 +19325,12 @@ module SphereIntersect_1_ (
     .op_b_p0_sign(thc_sign),
     .op_b_p0_exp(thc_exp),
     .op_b_p0_mant(thc_mant),
-    .io_result_vld(_zz_44_),
-    .io_result_sign(_zz_45_),
-    .io_result_exp(_zz_46_),
-    .io_result_mant(_zz_47_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_t1_io_result_vld),
+    .io_result_sign(u_t1_io_result_sign),
+    .io_result_exp(u_t1_io_result_exp),
+    .io_result_mant(u_t1_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Intersection u_intersection ( 
     .io_op_vld(t_vld),
@@ -19349,18 +19355,18 @@ module SphereIntersect_1_ (
     .io_t_sign(t_sign),
     .io_t_exp(t_exp),
     .io_t_mant(t_mant),
-    .io_result_vld(_zz_48_),
-    .io_result_x_sign(_zz_49_),
-    .io_result_x_exp(_zz_50_),
-    .io_result_x_mant(_zz_51_),
-    .io_result_y_sign(_zz_52_),
-    .io_result_y_exp(_zz_53_),
-    .io_result_y_mant(_zz_54_),
-    .io_result_z_sign(_zz_55_),
-    .io_result_z_exp(_zz_56_),
-    .io_result_z_mant(_zz_57_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_intersection_io_result_vld),
+    .io_result_x_sign(u_intersection_io_result_x_sign),
+    .io_result_x_exp(u_intersection_io_result_x_exp),
+    .io_result_x_mant(u_intersection_io_result_x_mant),
+    .io_result_y_sign(u_intersection_io_result_y_sign),
+    .io_result_y_exp(u_intersection_io_result_y_exp),
+    .io_result_y_mant(u_intersection_io_result_y_mant),
+    .io_result_z_sign(u_intersection_io_result_z_sign),
+    .io_result_z_exp(u_intersection_io_result_z_exp),
+    .io_result_z_mant(u_intersection_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SubVecVec u_normal_raw ( 
     .io_op_vld(intersection_vld),
@@ -19382,18 +19388,18 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(intersection_z_sign),
     .io_op_b_z_exp(intersection_z_exp),
     .io_op_b_z_mant(intersection_z_mant),
-    .io_result_vld(_zz_58_),
-    .io_result_x_sign(_zz_59_),
-    .io_result_x_exp(_zz_60_),
-    .io_result_x_mant(_zz_61_),
-    .io_result_y_sign(_zz_62_),
-    .io_result_y_exp(_zz_63_),
-    .io_result_y_mant(_zz_64_),
-    .io_result_z_sign(_zz_65_),
-    .io_result_z_exp(_zz_66_),
-    .io_result_z_mant(_zz_67_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_normal_raw_io_result_vld),
+    .io_result_x_sign(u_normal_raw_io_result_x_sign),
+    .io_result_x_exp(u_normal_raw_io_result_x_exp),
+    .io_result_x_mant(u_normal_raw_io_result_x_mant),
+    .io_result_y_sign(u_normal_raw_io_result_y_sign),
+    .io_result_y_exp(u_normal_raw_io_result_y_exp),
+    .io_result_y_mant(u_normal_raw_io_result_y_mant),
+    .io_result_z_sign(u_normal_raw_io_result_z_sign),
+    .io_result_z_exp(u_normal_raw_io_result_z_exp),
+    .io_result_z_mant(u_normal_raw_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Normalize_1_ u_normalize ( 
     .io_op_vld(normal_raw_vld),
@@ -19406,18 +19412,18 @@ module SphereIntersect_1_ (
     .io_op_z_sign(normal_raw_z_sign),
     .io_op_z_exp(normal_raw_z_exp),
     .io_op_z_mant(normal_raw_z_mant),
-    .io_result_vld(_zz_68_),
-    .io_result_x_sign(_zz_69_),
-    .io_result_x_exp(_zz_70_),
-    .io_result_x_mant(_zz_71_),
-    .io_result_y_sign(_zz_72_),
-    .io_result_y_exp(_zz_73_),
-    .io_result_y_mant(_zz_74_),
-    .io_result_z_sign(_zz_75_),
-    .io_result_z_exp(_zz_76_),
-    .io_result_z_mant(_zz_77_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_normalize_io_result_vld),
+    .io_result_x_sign(u_normalize_io_result_x_sign),
+    .io_result_x_exp(u_normalize_io_result_x_exp),
+    .io_result_x_mant(u_normalize_io_result_x_mant),
+    .io_result_y_sign(u_normalize_io_result_y_sign),
+    .io_result_y_exp(u_normalize_io_result_y_exp),
+    .io_result_y_mant(u_normalize_io_result_y_mant),
+    .io_result_z_sign(u_normalize_io_result_z_sign),
+    .io_result_z_exp(u_normalize_io_result_z_exp),
+    .io_result_z_mant(u_normalize_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ u_dir_dot_normal ( 
     .io_op_vld(normal_vld),
@@ -19439,12 +19445,12 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(dir_delayed_dot_normal_z_sign),
     .io_op_b_z_exp(dir_delayed_dot_normal_z_exp),
     .io_op_b_z_mant(dir_delayed_dot_normal_z_mant),
-    .io_result_vld(_zz_78_),
-    .io_result_sign(_zz_79_),
-    .io_result_exp(_zz_80_),
-    .io_result_mant(_zz_81_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_dot_normal_io_result_vld),
+    .io_result_sign(u_dir_dot_normal_io_result_sign),
+    .io_result_exp(u_dir_dot_normal_io_result_exp),
+    .io_result_mant(u_dir_dot_normal_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   MulVecScalar u_dir_mirror ( 
     .io_op_vld(dir_dot_normal_x2_vld),
@@ -19460,18 +19466,18 @@ module SphereIntersect_1_ (
     .io_op_scalar_sign(dir_dot_normal_x2_sign),
     .io_op_scalar_exp(dir_dot_normal_x2_exp),
     .io_op_scalar_mant(dir_dot_normal_x2_mant),
-    .io_result_vld(_zz_82_),
-    .io_result_x_sign(_zz_83_),
-    .io_result_x_exp(_zz_84_),
-    .io_result_x_mant(_zz_85_),
-    .io_result_y_sign(_zz_86_),
-    .io_result_y_exp(_zz_87_),
-    .io_result_y_mant(_zz_88_),
-    .io_result_z_sign(_zz_89_),
-    .io_result_z_exp(_zz_90_),
-    .io_result_z_mant(_zz_91_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_dir_mirror_io_result_vld),
+    .io_result_x_sign(u_dir_mirror_io_result_x_sign),
+    .io_result_x_exp(u_dir_mirror_io_result_x_exp),
+    .io_result_x_mant(u_dir_mirror_io_result_x_mant),
+    .io_result_y_sign(u_dir_mirror_io_result_y_sign),
+    .io_result_y_exp(u_dir_mirror_io_result_y_exp),
+    .io_result_y_mant(u_dir_mirror_io_result_y_mant),
+    .io_result_z_sign(u_dir_mirror_io_result_z_sign),
+    .io_result_z_exp(u_dir_mirror_io_result_z_exp),
+    .io_result_z_mant(u_dir_mirror_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SubVecVec u_reflect_dir ( 
     .io_op_vld(dir_mirror_vld),
@@ -19493,101 +19499,101 @@ module SphereIntersect_1_ (
     .io_op_b_z_sign(dir_mirror_z_sign),
     .io_op_b_z_exp(dir_mirror_z_exp),
     .io_op_b_z_mant(dir_mirror_z_mant),
-    .io_result_vld(_zz_92_),
-    .io_result_x_sign(_zz_93_),
-    .io_result_x_exp(_zz_94_),
-    .io_result_x_mant(_zz_95_),
-    .io_result_y_sign(_zz_96_),
-    .io_result_y_exp(_zz_97_),
-    .io_result_y_mant(_zz_98_),
-    .io_result_z_sign(_zz_99_),
-    .io_result_z_exp(_zz_100_),
-    .io_result_z_mant(_zz_101_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(u_reflect_dir_io_result_vld),
+    .io_result_x_sign(u_reflect_dir_io_result_x_sign),
+    .io_result_x_exp(u_reflect_dir_io_result_x_exp),
+    .io_result_x_mant(u_reflect_dir_io_result_x_mant),
+    .io_result_y_sign(u_reflect_dir_io_result_y_sign),
+    .io_result_y_exp(u_reflect_dir_io_result_y_exp),
+    .io_result_y_mant(u_reflect_dir_io_result_y_mant),
+    .io_result_z_sign(u_reflect_dir_io_result_z_sign),
+    .io_result_z_exp(u_reflect_dir_io_result_z_exp),
+    .io_result_z_mant(u_reflect_dir_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
-  assign c0r0_vld = _zz_6_;
-  assign c0r0_x_sign = _zz_7_;
-  assign c0r0_x_exp = _zz_8_;
-  assign c0r0_x_mant = _zz_9_;
-  assign c0r0_y_sign = _zz_10_;
-  assign c0r0_y_exp = _zz_11_;
-  assign c0r0_y_mant = _zz_12_;
-  assign c0r0_z_sign = _zz_13_;
-  assign c0r0_z_exp = _zz_14_;
-  assign c0r0_z_mant = _zz_15_;
-  assign tca_vld = _zz_16_;
-  assign tca_sign = _zz_17_;
-  assign tca_exp = _zz_18_;
-  assign tca_mant = _zz_19_;
+  assign c0r0_vld = u_c0r0_io_result_vld;
+  assign c0r0_x_sign = u_c0r0_io_result_x_sign;
+  assign c0r0_x_exp = u_c0r0_io_result_x_exp;
+  assign c0r0_x_mant = u_c0r0_io_result_x_mant;
+  assign c0r0_y_sign = u_c0r0_io_result_y_sign;
+  assign c0r0_y_exp = u_c0r0_io_result_y_exp;
+  assign c0r0_y_mant = u_c0r0_io_result_y_mant;
+  assign c0r0_z_sign = u_c0r0_io_result_z_sign;
+  assign c0r0_z_exp = u_c0r0_io_result_z_exp;
+  assign c0r0_z_mant = u_c0r0_io_result_z_mant;
+  assign tca_vld = u_dot_tca_io_result_vld;
+  assign tca_sign = u_dot_tca_io_result_sign;
+  assign tca_exp = u_dot_tca_io_result_exp;
+  assign tca_mant = u_dot_tca_io_result_mant;
   assign intersects_tca = (((! tca_sign) && (! ((tca_exp == (6'b111111)) && (tca_mant != (13'b0000000000000))))) && (! ((tca_exp == (6'b111111)) && (! (tca_mant != (13'b0000000000000))))));
-  assign c0r0_c0r0_vld = _zz_20_;
-  assign c0r0_c0r0_sign = _zz_21_;
-  assign c0r0_c0r0_exp = _zz_22_;
-  assign c0r0_c0r0_mant = _zz_23_;
-  assign tca_tca_vld = _zz_24_;
-  assign tca_tca_sign = _zz_25_;
-  assign tca_tca_exp = _zz_26_;
-  assign tca_tca_mant = _zz_27_;
-  assign d2_vld = _zz_28_;
-  assign d2_sign = _zz_29_;
-  assign d2_exp = _zz_30_;
-  assign d2_mant = _zz_31_;
-  assign radius2_ge_d2 = ($signed(_zz_102_) <= $signed(_zz_103_));
+  assign c0r0_c0r0_vld = u_dot_c0r0_c0r0_io_result_vld;
+  assign c0r0_c0r0_sign = u_dot_c0r0_c0r0_io_result_sign;
+  assign c0r0_c0r0_exp = u_dot_c0r0_c0r0_io_result_exp;
+  assign c0r0_c0r0_mant = u_dot_c0r0_c0r0_io_result_mant;
+  assign tca_tca_vld = u_tca_tca_io_result_vld;
+  assign tca_tca_sign = u_tca_tca_io_result_sign;
+  assign tca_tca_exp = u_tca_tca_io_result_exp;
+  assign tca_tca_mant = u_tca_tca_io_result_mant;
+  assign d2_vld = u_d2_io_result_vld;
+  assign d2_sign = u_d2_io_result_sign;
+  assign d2_exp = u_d2_io_result_exp;
+  assign d2_mant = u_d2_io_result_mant;
+  assign radius2_ge_d2 = ($signed(_zz_6_) <= $signed(_zz_7_));
   assign io_early_intersects_vld = d2_vld_regNext;
   assign io_early_intersects = _zz_1_;
-  assign radius2_m_d2_vld = _zz_32_;
-  assign radius2_m_d2_sign = _zz_33_;
-  assign radius2_m_d2_exp = _zz_34_;
-  assign radius2_m_d2_mant = _zz_35_;
+  assign radius2_m_d2_vld = u_radius2_m_d2_io_result_vld;
+  assign radius2_m_d2_sign = u_radius2_m_d2_io_result_sign;
+  assign radius2_m_d2_exp = u_radius2_m_d2_io_result_exp;
+  assign radius2_m_d2_mant = u_radius2_m_d2_io_result_mant;
   assign intersects_d2 = (((! radius2_m_d2_sign) && (! ((radius2_m_d2_exp == (6'b111111)) && (radius2_m_d2_mant != (13'b0000000000000))))) && (! ((radius2_m_d2_exp == (6'b111111)) && (! (radius2_m_d2_mant != (13'b0000000000000))))));
-  assign thc_vld = _zz_36_;
-  assign thc_sign = _zz_37_;
-  assign thc_exp = _zz_38_;
-  assign thc_mant = _zz_39_;
-  assign t0_vld = _zz_40_;
-  assign t0_sign = _zz_41_;
-  assign t0_exp = _zz_42_;
-  assign t0_mant = _zz_43_;
-  assign t1_vld = _zz_44_;
-  assign t1_sign = _zz_45_;
-  assign t1_exp = _zz_46_;
-  assign t1_mant = _zz_47_;
+  assign thc_vld = u_thc_io_result_vld;
+  assign thc_sign = u_thc_io_result_sign;
+  assign thc_exp = u_thc_io_result_exp;
+  assign thc_mant = u_thc_io_result_mant;
+  assign t0_vld = u_t0_io_result_vld;
+  assign t0_sign = u_t0_io_result_sign;
+  assign t0_exp = u_t0_io_result_exp;
+  assign t0_mant = u_t0_io_result_mant;
+  assign t1_vld = u_t1_io_result_vld;
+  assign t1_sign = u_t1_io_result_sign;
+  assign t1_exp = u_t1_io_result_exp;
+  assign t1_mant = u_t1_io_result_mant;
   assign t_vld = t0_vld_regNext;
-  assign _zz_2_ = ($signed(_zz_104_) < $signed(_zz_105_));
+  assign _zz_2_ = ($signed(_zz_8_) < $signed(_zz_9_));
   assign t_sign = _zz_3_;
   assign t_exp = _zz_4_;
   assign t_mant = _zz_5_;
-  assign intersection_vld = _zz_48_;
-  assign intersection_x_sign = _zz_49_;
-  assign intersection_x_exp = _zz_50_;
-  assign intersection_x_mant = _zz_51_;
-  assign intersection_y_sign = _zz_52_;
-  assign intersection_y_exp = _zz_53_;
-  assign intersection_y_mant = _zz_54_;
-  assign intersection_z_sign = _zz_55_;
-  assign intersection_z_exp = _zz_56_;
-  assign intersection_z_mant = _zz_57_;
-  assign normal_raw_vld = _zz_58_;
-  assign normal_raw_x_sign = _zz_59_;
-  assign normal_raw_x_exp = _zz_60_;
-  assign normal_raw_x_mant = _zz_61_;
-  assign normal_raw_y_sign = _zz_62_;
-  assign normal_raw_y_exp = _zz_63_;
-  assign normal_raw_y_mant = _zz_64_;
-  assign normal_raw_z_sign = _zz_65_;
-  assign normal_raw_z_exp = _zz_66_;
-  assign normal_raw_z_mant = _zz_67_;
-  assign normal_vld = _zz_68_;
-  assign normal_x_sign = _zz_69_;
-  assign normal_x_exp = _zz_70_;
-  assign normal_x_mant = _zz_71_;
-  assign normal_y_sign = _zz_72_;
-  assign normal_y_exp = _zz_73_;
-  assign normal_y_mant = _zz_74_;
-  assign normal_z_sign = _zz_75_;
-  assign normal_z_exp = _zz_76_;
-  assign normal_z_mant = _zz_77_;
+  assign intersection_vld = u_intersection_io_result_vld;
+  assign intersection_x_sign = u_intersection_io_result_x_sign;
+  assign intersection_x_exp = u_intersection_io_result_x_exp;
+  assign intersection_x_mant = u_intersection_io_result_x_mant;
+  assign intersection_y_sign = u_intersection_io_result_y_sign;
+  assign intersection_y_exp = u_intersection_io_result_y_exp;
+  assign intersection_y_mant = u_intersection_io_result_y_mant;
+  assign intersection_z_sign = u_intersection_io_result_z_sign;
+  assign intersection_z_exp = u_intersection_io_result_z_exp;
+  assign intersection_z_mant = u_intersection_io_result_z_mant;
+  assign normal_raw_vld = u_normal_raw_io_result_vld;
+  assign normal_raw_x_sign = u_normal_raw_io_result_x_sign;
+  assign normal_raw_x_exp = u_normal_raw_io_result_x_exp;
+  assign normal_raw_x_mant = u_normal_raw_io_result_x_mant;
+  assign normal_raw_y_sign = u_normal_raw_io_result_y_sign;
+  assign normal_raw_y_exp = u_normal_raw_io_result_y_exp;
+  assign normal_raw_y_mant = u_normal_raw_io_result_y_mant;
+  assign normal_raw_z_sign = u_normal_raw_io_result_z_sign;
+  assign normal_raw_z_exp = u_normal_raw_io_result_z_exp;
+  assign normal_raw_z_mant = u_normal_raw_io_result_z_mant;
+  assign normal_vld = u_normalize_io_result_vld;
+  assign normal_x_sign = u_normalize_io_result_x_sign;
+  assign normal_x_exp = u_normalize_io_result_x_exp;
+  assign normal_x_mant = u_normalize_io_result_x_mant;
+  assign normal_y_sign = u_normalize_io_result_y_sign;
+  assign normal_y_exp = u_normalize_io_result_y_exp;
+  assign normal_y_mant = u_normalize_io_result_y_mant;
+  assign normal_z_sign = u_normalize_io_result_z_sign;
+  assign normal_z_exp = u_normalize_io_result_z_exp;
+  assign normal_z_mant = u_normalize_io_result_z_mant;
   assign io_early_normal_vld = normal_vld;
   assign io_early_normal_x_sign = normal_x_sign;
   assign io_early_normal_x_exp = normal_x_exp;
@@ -19598,34 +19604,34 @@ module SphereIntersect_1_ (
   assign io_early_normal_z_sign = normal_z_sign;
   assign io_early_normal_z_exp = normal_z_exp;
   assign io_early_normal_z_mant = normal_z_mant;
-  assign dir_dot_normal_vld = _zz_78_;
-  assign dir_dot_normal_sign = _zz_79_;
-  assign dir_dot_normal_exp = _zz_80_;
-  assign dir_dot_normal_mant = _zz_81_;
+  assign dir_dot_normal_vld = u_dir_dot_normal_io_result_vld;
+  assign dir_dot_normal_sign = u_dir_dot_normal_io_result_sign;
+  assign dir_dot_normal_exp = u_dir_dot_normal_io_result_exp;
+  assign dir_dot_normal_mant = u_dir_dot_normal_io_result_mant;
   assign dir_dot_normal_x2_vld = dir_dot_normal_vld_regNext;
   assign dir_dot_normal_x2_sign = dir_dot_normal_sign_regNext;
   assign dir_dot_normal_x2_exp = (dir_dot_normal_exp_regNext + (6'b000001));
   assign dir_dot_normal_x2_mant = dir_dot_normal_mant_regNext;
-  assign dir_mirror_vld = _zz_82_;
-  assign dir_mirror_x_sign = _zz_83_;
-  assign dir_mirror_x_exp = _zz_84_;
-  assign dir_mirror_x_mant = _zz_85_;
-  assign dir_mirror_y_sign = _zz_86_;
-  assign dir_mirror_y_exp = _zz_87_;
-  assign dir_mirror_y_mant = _zz_88_;
-  assign dir_mirror_z_sign = _zz_89_;
-  assign dir_mirror_z_exp = _zz_90_;
-  assign dir_mirror_z_mant = _zz_91_;
-  assign reflect_dir_vld = _zz_92_;
-  assign reflect_dir_x_sign = _zz_93_;
-  assign reflect_dir_x_exp = _zz_94_;
-  assign reflect_dir_x_mant = _zz_95_;
-  assign reflect_dir_y_sign = _zz_96_;
-  assign reflect_dir_y_exp = _zz_97_;
-  assign reflect_dir_y_mant = _zz_98_;
-  assign reflect_dir_z_sign = _zz_99_;
-  assign reflect_dir_z_exp = _zz_100_;
-  assign reflect_dir_z_mant = _zz_101_;
+  assign dir_mirror_vld = u_dir_mirror_io_result_vld;
+  assign dir_mirror_x_sign = u_dir_mirror_io_result_x_sign;
+  assign dir_mirror_x_exp = u_dir_mirror_io_result_x_exp;
+  assign dir_mirror_x_mant = u_dir_mirror_io_result_x_mant;
+  assign dir_mirror_y_sign = u_dir_mirror_io_result_y_sign;
+  assign dir_mirror_y_exp = u_dir_mirror_io_result_y_exp;
+  assign dir_mirror_y_mant = u_dir_mirror_io_result_y_mant;
+  assign dir_mirror_z_sign = u_dir_mirror_io_result_z_sign;
+  assign dir_mirror_z_exp = u_dir_mirror_io_result_z_exp;
+  assign dir_mirror_z_mant = u_dir_mirror_io_result_z_mant;
+  assign reflect_dir_vld = u_reflect_dir_io_result_vld;
+  assign reflect_dir_x_sign = u_reflect_dir_io_result_x_sign;
+  assign reflect_dir_x_exp = u_reflect_dir_io_result_x_exp;
+  assign reflect_dir_x_mant = u_reflect_dir_io_result_x_mant;
+  assign reflect_dir_y_sign = u_reflect_dir_io_result_y_sign;
+  assign reflect_dir_y_exp = u_reflect_dir_io_result_y_exp;
+  assign reflect_dir_y_mant = u_reflect_dir_io_result_y_mant;
+  assign reflect_dir_z_sign = u_reflect_dir_io_result_z_sign;
+  assign reflect_dir_z_exp = u_reflect_dir_io_result_z_exp;
+  assign reflect_dir_z_mant = u_reflect_dir_io_result_z_mant;
   assign intersects_delayed = (intersects_tca_delayed && intersects_d2_delayed);
   assign reflect_ray_origin_x_sign = intersection_delayed_x_sign;
   assign reflect_ray_origin_x_exp = intersection_delayed_x_exp;
@@ -19722,7 +19728,7 @@ module SphereIntersect_1_ (
   assign io_result_ray_direction_z_sign = ray_delayed_direction_z_sign;
   assign io_result_ray_direction_z_exp = ray_delayed_direction_z_exp;
   assign io_result_ray_direction_z_mant = ray_delayed_direction_z_mant;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     io_ray_direction_delay_1_x_sign <= io_ray_direction_x_sign;
     io_ray_direction_delay_1_x_exp <= io_ray_direction_x_exp;
     io_ray_direction_delay_1_x_mant <= io_ray_direction_x_mant;
@@ -21155,8 +21161,8 @@ module TxtGen (
       input   io_txt_buf_wr,
       input  [10:0] io_txt_buf_wr_addr,
       input  [7:0] io_txt_buf_wr_data,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   reg [7:0] _zz_1_;
   reg [7:0] _zz_2_;
   reg [7:0] _zz_3_;
@@ -25309,7 +25315,7 @@ module TxtGen (
   assign _zz_10_ = (cur_char >>> 4);
   assign _zz_11_ = (bitmap_byte >>> ((3'b111) ^ char_sub_x_p2[2 : 0]));
   assign _zz_12_ = io_txt_buf_wr_data;
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(io_txt_buf_wr && io_txt_buf_wr ) begin
       u_txt_buf[io_txt_buf_wr_addr] <= _zz_12_;
     end
@@ -25318,7 +25324,7 @@ module TxtGen (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(txt_buf_rd_p0) begin
       _zz_1_ <= u_txt_buf[txt_buf_addr];
     end
@@ -25327,7 +25333,7 @@ module TxtGen (
   initial begin
     $readmemb("Pano.v_toplevel_core_u_pano_core_u_txt_gen_u_font_bitmap_ram.bin",u_font_bitmap_ram);
   end
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     if(txt_buf_rd_p1) begin
       _zz_3_ <= u_font_bitmap_ram[bitmap_addr];
     end
@@ -29452,8 +29458,8 @@ module TxtGen (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       pix_x <= (12'b000000000000);
       pix_y <= (11'b00000000000);
       char_x <= (8'b00000000);
@@ -29498,7 +29504,7 @@ module TxtGen (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     txt_buf_rd_p1 <= txt_buf_rd_p0;
     char_sub_x_p1 <= char_sub_x;
     txt_buf_rd_p2 <= txt_buf_rd_p1;
@@ -29547,8 +29553,8 @@ module VideoOut (
       output reg [7:0] io_vga_out_r,
       output reg [7:0] io_vga_out_g,
       output reg [7:0] io_vga_out_b,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire [7:0] _zz_1_;
   wire [5:0] _zz_2_;
   wire [10:0] _zz_3_;
@@ -29577,8 +29583,8 @@ module VideoOut (
   assign h_blank = (_zz_1_ + io_timings_h_bp);
   assign v_blank = (_zz_2_ + io_timings_v_bp);
   assign blank = ((v_cntr < _zz_3_) || (h_cntr < _zz_4_));
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       io_vga_out_vsync <= 1'b0;
       io_vga_out_hsync <= 1'b0;
       io_vga_out_blank_ <= 1'b0;
@@ -29619,327 +29625,327 @@ module PanoCore (
       output [7:0] io_vo_b,
       output  io_led_green,
       output  io_led_blue,
-      input   resetCtrl_clk25,
-      input   resetCtrl_reset_);
+      input   toplevel_resetCtrl_clk25,
+      input   toplevel_resetCtrl_reset_);
   wire  _zz_11_;
-  wire  _zz_12_;
-  wire  _zz_13_;
-  wire  _zz_14_;
-  wire  _zz_15_;
-  wire [5:0] _zz_16_;
-  wire [12:0] _zz_17_;
-  wire  _zz_18_;
-  wire [5:0] _zz_19_;
-  wire [12:0] _zz_20_;
-  wire  _zz_21_;
-  wire [5:0] _zz_22_;
-  wire [12:0] _zz_23_;
-  wire  _zz_24_;
-  wire [5:0] _zz_25_;
-  wire [12:0] _zz_26_;
-  wire  _zz_27_;
-  wire [5:0] _zz_28_;
-  wire [12:0] _zz_29_;
-  wire  _zz_30_;
-  wire [5:0] _zz_31_;
-  wire [12:0] _zz_32_;
-  wire  _zz_33_;
-  wire [5:0] _zz_34_;
-  wire [12:0] _zz_35_;
-  wire  _zz_36_;
-  wire [5:0] _zz_37_;
-  wire [12:0] _zz_38_;
-  wire  _zz_39_;
-  wire [5:0] _zz_40_;
-  wire [12:0] _zz_41_;
-  wire  _zz_42_;
-  wire [5:0] _zz_43_;
-  wire [12:0] _zz_44_;
-  wire  _zz_45_;
-  wire [10:0] _zz_46_;
+  wire  u_mr1_top_io_led1;
+  wire  u_mr1_top_io_led2;
+  wire  u_mr1_top_io_led3;
+  wire  u_mr1_top_io_camera_pos_x_sign;
+  wire [5:0] u_mr1_top_io_camera_pos_x_exp;
+  wire [12:0] u_mr1_top_io_camera_pos_x_mant;
+  wire  u_mr1_top_io_camera_pos_y_sign;
+  wire [5:0] u_mr1_top_io_camera_pos_y_exp;
+  wire [12:0] u_mr1_top_io_camera_pos_y_mant;
+  wire  u_mr1_top_io_camera_pos_z_sign;
+  wire [5:0] u_mr1_top_io_camera_pos_z_exp;
+  wire [12:0] u_mr1_top_io_camera_pos_z_mant;
+  wire  u_mr1_top_io_rot_x_sin_sign;
+  wire [5:0] u_mr1_top_io_rot_x_sin_exp;
+  wire [12:0] u_mr1_top_io_rot_x_sin_mant;
+  wire  u_mr1_top_io_rot_x_cos_sign;
+  wire [5:0] u_mr1_top_io_rot_x_cos_exp;
+  wire [12:0] u_mr1_top_io_rot_x_cos_mant;
+  wire  u_mr1_top_io_rot_y_sin_sign;
+  wire [5:0] u_mr1_top_io_rot_y_sin_exp;
+  wire [12:0] u_mr1_top_io_rot_y_sin_mant;
+  wire  u_mr1_top_io_rot_y_cos_sign;
+  wire [5:0] u_mr1_top_io_rot_y_cos_exp;
+  wire [12:0] u_mr1_top_io_rot_y_cos_mant;
+  wire  u_mr1_top_io_sphere_pos_x_sign;
+  wire [5:0] u_mr1_top_io_sphere_pos_x_exp;
+  wire [12:0] u_mr1_top_io_sphere_pos_x_mant;
+  wire  u_mr1_top_io_sphere_pos_y_sign;
+  wire [5:0] u_mr1_top_io_sphere_pos_y_exp;
+  wire [12:0] u_mr1_top_io_sphere_pos_y_mant;
+  wire  u_mr1_top_io_sphere_pos_z_sign;
+  wire [5:0] u_mr1_top_io_sphere_pos_z_exp;
+  wire [12:0] u_mr1_top_io_sphere_pos_z_mant;
+  wire  u_mr1_top_io_txt_buf_wr;
+  wire [10:0] u_mr1_top_io_txt_buf_wr_addr;
+  wire [7:0] u_mr1_top_io_txt_buf_wr_data;
+  wire  vi_gen_io_pixel_out_vsync;
+  wire  vi_gen_io_pixel_out_req;
+  wire  vi_gen_io_pixel_out_eol;
+  wire  vi_gen_io_pixel_out_eof;
+  wire [7:0] vi_gen_io_pixel_out_pixel_r;
+  wire [7:0] vi_gen_io_pixel_out_pixel_g;
+  wire [7:0] vi_gen_io_pixel_out_pixel_b;
+  wire  rt_u_cam_sweep_io_pixel_out_vsync;
+  wire  rt_u_cam_sweep_io_pixel_out_req;
+  wire  rt_u_cam_sweep_io_pixel_out_eol;
+  wire  rt_u_cam_sweep_io_pixel_out_eof;
+  wire [7:0] rt_u_cam_sweep_io_pixel_out_pixel_r;
+  wire [7:0] rt_u_cam_sweep_io_pixel_out_pixel_g;
+  wire [7:0] rt_u_cam_sweep_io_pixel_out_pixel_b;
+  wire  rt_u_cam_sweep_io_ray_origin_x_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_origin_x_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_origin_x_mant;
+  wire  rt_u_cam_sweep_io_ray_origin_y_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_origin_y_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_origin_y_mant;
+  wire  rt_u_cam_sweep_io_ray_origin_z_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_origin_z_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_origin_z_mant;
+  wire  rt_u_cam_sweep_io_ray_direction_x_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_direction_x_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_direction_x_mant;
+  wire  rt_u_cam_sweep_io_ray_direction_y_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_direction_y_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_direction_y_mant;
+  wire  rt_u_cam_sweep_io_ray_direction_z_sign;
+  wire [5:0] rt_u_cam_sweep_io_ray_direction_z_exp;
+  wire [12:0] rt_u_cam_sweep_io_ray_direction_z_mant;
+  wire  rt_u_ray_dir_rot_x_io_result_vld;
+  wire  rt_u_ray_dir_rot_x_io_result_x_sign;
+  wire [5:0] rt_u_ray_dir_rot_x_io_result_x_exp;
+  wire [12:0] rt_u_ray_dir_rot_x_io_result_x_mant;
+  wire  rt_u_ray_dir_rot_x_io_result_y_sign;
+  wire [5:0] rt_u_ray_dir_rot_x_io_result_y_exp;
+  wire [12:0] rt_u_ray_dir_rot_x_io_result_y_mant;
+  wire  rt_u_ray_dir_rot_x_io_result_z_sign;
+  wire [5:0] rt_u_ray_dir_rot_x_io_result_z_exp;
+  wire [12:0] rt_u_ray_dir_rot_x_io_result_z_mant;
+  wire  rt_u_ray_dir_rot_y_io_result_vld;
+  wire  rt_u_ray_dir_rot_y_io_result_x_sign;
+  wire [5:0] rt_u_ray_dir_rot_y_io_result_x_exp;
+  wire [12:0] rt_u_ray_dir_rot_y_io_result_x_mant;
+  wire  rt_u_ray_dir_rot_y_io_result_y_sign;
+  wire [5:0] rt_u_ray_dir_rot_y_io_result_y_exp;
+  wire [12:0] rt_u_ray_dir_rot_y_io_result_y_mant;
+  wire  rt_u_ray_dir_rot_y_io_result_z_sign;
+  wire [5:0] rt_u_ray_dir_rot_y_io_result_z_exp;
+  wire [12:0] rt_u_ray_dir_rot_y_io_result_z_mant;
+  wire  rt_u_normalize_ray_io_result_vld;
+  wire  rt_u_normalize_ray_io_result_x_sign;
+  wire [5:0] rt_u_normalize_ray_io_result_x_exp;
+  wire [12:0] rt_u_normalize_ray_io_result_x_mant;
+  wire  rt_u_normalize_ray_io_result_y_sign;
+  wire [5:0] rt_u_normalize_ray_io_result_y_exp;
+  wire [12:0] rt_u_normalize_ray_io_result_y_mant;
+  wire  rt_u_normalize_ray_io_result_z_sign;
+  wire [5:0] rt_u_normalize_ray_io_result_z_exp;
+  wire [12:0] rt_u_normalize_ray_io_result_z_mant;
+  wire  rt_u_sphere_intersect_io_early_intersects_vld;
+  wire  rt_u_sphere_intersect_io_early_intersects;
+  wire  rt_u_sphere_intersect_io_early_normal_vld;
+  wire  rt_u_sphere_intersect_io_early_normal_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_early_normal_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_early_normal_x_mant;
+  wire  rt_u_sphere_intersect_io_early_normal_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_early_normal_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_early_normal_y_mant;
+  wire  rt_u_sphere_intersect_io_early_normal_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_early_normal_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_early_normal_z_mant;
+  wire  rt_u_sphere_intersect_io_result_vld;
+  wire  rt_u_sphere_intersect_io_result_intersects;
+  wire  rt_u_sphere_intersect_io_result_t_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_t_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_t_mant;
+  wire  rt_u_sphere_intersect_io_result_intersection_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_intersection_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_intersection_x_mant;
+  wire  rt_u_sphere_intersect_io_result_intersection_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_intersection_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_intersection_y_mant;
+  wire  rt_u_sphere_intersect_io_result_intersection_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_intersection_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_intersection_z_mant;
+  wire  rt_u_sphere_intersect_io_result_normal_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_normal_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_normal_x_mant;
+  wire  rt_u_sphere_intersect_io_result_normal_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_normal_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_normal_y_mant;
+  wire  rt_u_sphere_intersect_io_result_normal_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_normal_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_normal_z_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_origin_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_x_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_origin_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_y_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_origin_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_origin_z_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_direction_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_x_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_direction_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_y_mant;
+  wire  rt_u_sphere_intersect_io_result_reflect_ray_direction_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_reflect_ray_direction_z_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_origin_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_origin_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_origin_x_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_origin_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_origin_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_origin_y_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_origin_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_origin_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_origin_z_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_direction_x_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_direction_x_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_direction_x_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_direction_y_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_direction_y_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_direction_y_mant;
+  wire  rt_u_sphere_intersect_io_result_ray_direction_z_sign;
+  wire [5:0] rt_u_sphere_intersect_io_result_ray_direction_z_exp;
+  wire [12:0] rt_u_sphere_intersect_io_result_ray_direction_z_mant;
+  wire  rt_u_plane_intersect_io_result_vld;
+  wire  rt_u_plane_intersect_io_result_intersects;
+  wire  rt_u_plane_intersect_io_result_t_sign;
+  wire [5:0] rt_u_plane_intersect_io_result_t_exp;
+  wire [12:0] rt_u_plane_intersect_io_result_t_mant;
+  wire  rt_u_plane_intersect_io_result_intersection_x_sign;
+  wire [5:0] rt_u_plane_intersect_io_result_intersection_x_exp;
+  wire [12:0] rt_u_plane_intersect_io_result_intersection_x_mant;
+  wire  rt_u_plane_intersect_io_result_intersection_y_sign;
+  wire [5:0] rt_u_plane_intersect_io_result_intersection_y_exp;
+  wire [12:0] rt_u_plane_intersect_io_result_intersection_y_mant;
+  wire  rt_u_plane_intersect_io_result_intersection_z_sign;
+  wire [5:0] rt_u_plane_intersect_io_result_intersection_z_exp;
+  wire [12:0] rt_u_plane_intersect_io_result_intersection_z_mant;
+  wire  rt_u_plane_x_int_io_result_vld;
+  wire [19:0] rt_u_plane_x_int_io_result;
+  wire  rt_u_plane_x_int_io_result_ovfl;
+  wire  rt_u_plane_z_int_io_result_vld;
+  wire [19:0] rt_u_plane_z_int_io_result;
+  wire  rt_u_plane_z_int_io_result_ovfl;
+  wire  rt_u_shadow_sphere_intersect_io_early_intersects_vld;
+  wire  rt_u_shadow_sphere_intersect_io_early_intersects;
+  wire  rt_u_shadow_sphere_intersect_io_early_normal_vld;
+  wire  rt_u_shadow_sphere_intersect_io_early_normal_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_early_normal_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_early_normal_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_early_normal_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_early_normal_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_early_normal_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_early_normal_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_early_normal_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_early_normal_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_vld;
+  wire  rt_u_shadow_sphere_intersect_io_result_intersects;
+  wire  rt_u_shadow_sphere_intersect_io_result_t_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_t_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_t_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_intersection_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_intersection_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_intersection_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_intersection_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_intersection_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_intersection_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_intersection_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_intersection_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_intersection_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_normal_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_normal_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_normal_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_normal_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_normal_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_normal_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_normal_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_normal_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_normal_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_origin_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_origin_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_origin_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_origin_z_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_direction_x_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_x_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_x_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_direction_y_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_y_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_y_mant;
+  wire  rt_u_shadow_sphere_intersect_io_result_ray_direction_z_sign;
+  wire [5:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_z_exp;
+  wire [12:0] rt_u_shadow_sphere_intersect_io_result_ray_direction_z_mant;
+  wire  rt_u_dot_spot_light_io_result_vld;
+  wire  rt_u_dot_spot_light_io_result_sign;
+  wire [5:0] rt_u_dot_spot_light_io_result_exp;
+  wire [12:0] rt_u_dot_spot_light_io_result_mant;
+  wire  rt_u_spot_light_int_io_result_vld;
+  wire [19:0] rt_u_spot_light_int_io_result;
+  wire  rt_u_spot_light_int_io_result_ovfl;
+  wire  u_txt_gen_io_pixel_out_vsync;
+  wire  u_txt_gen_io_pixel_out_req;
+  wire  u_txt_gen_io_pixel_out_eol;
+  wire  u_txt_gen_io_pixel_out_eof;
+  wire [7:0] u_txt_gen_io_pixel_out_pixel_r;
+  wire [7:0] u_txt_gen_io_pixel_out_pixel_g;
+  wire [7:0] u_txt_gen_io_pixel_out_pixel_b;
+  wire  vo_io_vga_out_vsync;
+  wire  vo_io_vga_out_hsync;
+  wire  vo_io_vga_out_blank_;
+  wire [7:0] vo_io_vga_out_r;
+  wire [7:0] vo_io_vga_out_g;
+  wire [7:0] vo_io_vga_out_b;
+  wire [11:0] _zz_12_;
+  wire [11:0] _zz_13_;
+  wire [11:0] _zz_14_;
+  wire [11:0] _zz_15_;
+  wire [11:0] _zz_16_;
+  wire [11:0] _zz_17_;
+  wire [11:0] _zz_18_;
+  wire [10:0] _zz_19_;
+  wire [10:0] _zz_20_;
+  wire [10:0] _zz_21_;
+  wire [10:0] _zz_22_;
+  wire [10:0] _zz_23_;
+  wire [10:0] _zz_24_;
+  wire [10:0] _zz_25_;
+  wire [7:0] _zz_26_;
+  wire [7:0] _zz_27_;
+  wire [7:0] _zz_28_;
+  wire [7:0] _zz_29_;
+  wire [8:0] _zz_30_;
+  wire [9:0] _zz_31_;
+  wire [17:0] _zz_32_;
+  wire [9:0] _zz_33_;
+  wire [17:0] _zz_34_;
+  wire [9:0] _zz_35_;
+  wire [17:0] _zz_36_;
+  wire [7:0] _zz_37_;
+  wire [8:0] _zz_38_;
+  wire [6:0] _zz_39_;
+  wire [8:0] _zz_40_;
+  wire [8:0] _zz_41_;
+  wire [6:0] _zz_42_;
+  wire [8:0] _zz_43_;
+  wire [8:0] _zz_44_;
+  wire [6:0] _zz_45_;
+  wire [8:0] _zz_46_;
   wire [7:0] _zz_47_;
-  wire  _zz_48_;
-  wire  _zz_49_;
-  wire  _zz_50_;
-  wire  _zz_51_;
-  wire [7:0] _zz_52_;
-  wire [7:0] _zz_53_;
-  wire [7:0] _zz_54_;
-  wire  _zz_55_;
-  wire  _zz_56_;
-  wire  _zz_57_;
-  wire  _zz_58_;
-  wire [7:0] _zz_59_;
-  wire [7:0] _zz_60_;
-  wire [7:0] _zz_61_;
-  wire  _zz_62_;
-  wire [5:0] _zz_63_;
-  wire [12:0] _zz_64_;
-  wire  _zz_65_;
-  wire [5:0] _zz_66_;
-  wire [12:0] _zz_67_;
-  wire  _zz_68_;
-  wire [5:0] _zz_69_;
-  wire [12:0] _zz_70_;
-  wire  _zz_71_;
-  wire [5:0] _zz_72_;
-  wire [12:0] _zz_73_;
-  wire  _zz_74_;
-  wire [5:0] _zz_75_;
-  wire [12:0] _zz_76_;
-  wire  _zz_77_;
-  wire [5:0] _zz_78_;
-  wire [12:0] _zz_79_;
-  wire  _zz_80_;
-  wire  _zz_81_;
-  wire [5:0] _zz_82_;
-  wire [12:0] _zz_83_;
-  wire  _zz_84_;
-  wire [5:0] _zz_85_;
-  wire [12:0] _zz_86_;
-  wire  _zz_87_;
-  wire [5:0] _zz_88_;
-  wire [12:0] _zz_89_;
-  wire  _zz_90_;
-  wire  _zz_91_;
-  wire [5:0] _zz_92_;
-  wire [12:0] _zz_93_;
-  wire  _zz_94_;
-  wire [5:0] _zz_95_;
-  wire [12:0] _zz_96_;
-  wire  _zz_97_;
-  wire [5:0] _zz_98_;
-  wire [12:0] _zz_99_;
-  wire  _zz_100_;
-  wire  _zz_101_;
-  wire [5:0] _zz_102_;
-  wire [12:0] _zz_103_;
-  wire  _zz_104_;
-  wire [5:0] _zz_105_;
-  wire [12:0] _zz_106_;
-  wire  _zz_107_;
-  wire [5:0] _zz_108_;
-  wire [12:0] _zz_109_;
-  wire  _zz_110_;
-  wire  _zz_111_;
-  wire  _zz_112_;
-  wire  _zz_113_;
-  wire [5:0] _zz_114_;
-  wire [12:0] _zz_115_;
-  wire  _zz_116_;
-  wire [5:0] _zz_117_;
-  wire [12:0] _zz_118_;
-  wire  _zz_119_;
-  wire [5:0] _zz_120_;
-  wire [12:0] _zz_121_;
-  wire  _zz_122_;
-  wire  _zz_123_;
-  wire  _zz_124_;
-  wire [5:0] _zz_125_;
-  wire [12:0] _zz_126_;
-  wire  _zz_127_;
-  wire [5:0] _zz_128_;
-  wire [12:0] _zz_129_;
-  wire  _zz_130_;
-  wire [5:0] _zz_131_;
-  wire [12:0] _zz_132_;
-  wire  _zz_133_;
-  wire [5:0] _zz_134_;
-  wire [12:0] _zz_135_;
-  wire  _zz_136_;
-  wire [5:0] _zz_137_;
-  wire [12:0] _zz_138_;
-  wire  _zz_139_;
-  wire [5:0] _zz_140_;
-  wire [12:0] _zz_141_;
-  wire  _zz_142_;
-  wire [5:0] _zz_143_;
-  wire [12:0] _zz_144_;
-  wire  _zz_145_;
-  wire [5:0] _zz_146_;
-  wire [12:0] _zz_147_;
-  wire  _zz_148_;
-  wire [5:0] _zz_149_;
-  wire [12:0] _zz_150_;
-  wire  _zz_151_;
-  wire [5:0] _zz_152_;
-  wire [12:0] _zz_153_;
-  wire  _zz_154_;
-  wire [5:0] _zz_155_;
-  wire [12:0] _zz_156_;
-  wire  _zz_157_;
-  wire [5:0] _zz_158_;
-  wire [12:0] _zz_159_;
-  wire  _zz_160_;
-  wire [5:0] _zz_161_;
-  wire [12:0] _zz_162_;
-  wire  _zz_163_;
-  wire [5:0] _zz_164_;
-  wire [12:0] _zz_165_;
-  wire  _zz_166_;
-  wire [5:0] _zz_167_;
-  wire [12:0] _zz_168_;
-  wire  _zz_169_;
-  wire [5:0] _zz_170_;
-  wire [12:0] _zz_171_;
-  wire  _zz_172_;
-  wire [5:0] _zz_173_;
-  wire [12:0] _zz_174_;
-  wire  _zz_175_;
-  wire [5:0] _zz_176_;
-  wire [12:0] _zz_177_;
-  wire  _zz_178_;
-  wire [5:0] _zz_179_;
-  wire [12:0] _zz_180_;
-  wire  _zz_181_;
-  wire  _zz_182_;
-  wire  _zz_183_;
-  wire [5:0] _zz_184_;
-  wire [12:0] _zz_185_;
-  wire  _zz_186_;
-  wire [5:0] _zz_187_;
-  wire [12:0] _zz_188_;
-  wire  _zz_189_;
-  wire [5:0] _zz_190_;
-  wire [12:0] _zz_191_;
-  wire  _zz_192_;
-  wire [5:0] _zz_193_;
-  wire [12:0] _zz_194_;
-  wire  _zz_195_;
-  wire [19:0] _zz_196_;
-  wire  _zz_197_;
-  wire  _zz_198_;
-  wire [19:0] _zz_199_;
-  wire  _zz_200_;
-  wire  _zz_201_;
-  wire  _zz_202_;
-  wire  _zz_203_;
-  wire  _zz_204_;
-  wire [5:0] _zz_205_;
-  wire [12:0] _zz_206_;
-  wire  _zz_207_;
-  wire [5:0] _zz_208_;
-  wire [12:0] _zz_209_;
-  wire  _zz_210_;
-  wire [5:0] _zz_211_;
-  wire [12:0] _zz_212_;
-  wire  _zz_213_;
-  wire  _zz_214_;
-  wire  _zz_215_;
-  wire [5:0] _zz_216_;
-  wire [12:0] _zz_217_;
-  wire  _zz_218_;
-  wire [5:0] _zz_219_;
-  wire [12:0] _zz_220_;
-  wire  _zz_221_;
-  wire [5:0] _zz_222_;
-  wire [12:0] _zz_223_;
-  wire  _zz_224_;
-  wire [5:0] _zz_225_;
-  wire [12:0] _zz_226_;
-  wire  _zz_227_;
-  wire [5:0] _zz_228_;
-  wire [12:0] _zz_229_;
-  wire  _zz_230_;
-  wire [5:0] _zz_231_;
-  wire [12:0] _zz_232_;
-  wire  _zz_233_;
-  wire [5:0] _zz_234_;
-  wire [12:0] _zz_235_;
-  wire  _zz_236_;
-  wire [5:0] _zz_237_;
-  wire [12:0] _zz_238_;
-  wire  _zz_239_;
-  wire [5:0] _zz_240_;
-  wire [12:0] _zz_241_;
-  wire  _zz_242_;
-  wire [5:0] _zz_243_;
-  wire [12:0] _zz_244_;
-  wire  _zz_245_;
-  wire [5:0] _zz_246_;
-  wire [12:0] _zz_247_;
-  wire  _zz_248_;
-  wire [5:0] _zz_249_;
-  wire [12:0] _zz_250_;
-  wire  _zz_251_;
-  wire [5:0] _zz_252_;
-  wire [12:0] _zz_253_;
-  wire  _zz_254_;
-  wire [5:0] _zz_255_;
-  wire [12:0] _zz_256_;
-  wire  _zz_257_;
-  wire [5:0] _zz_258_;
-  wire [12:0] _zz_259_;
-  wire  _zz_260_;
-  wire [5:0] _zz_261_;
-  wire [12:0] _zz_262_;
-  wire  _zz_263_;
-  wire [5:0] _zz_264_;
-  wire [12:0] _zz_265_;
-  wire  _zz_266_;
-  wire [5:0] _zz_267_;
-  wire [12:0] _zz_268_;
-  wire  _zz_269_;
-  wire [5:0] _zz_270_;
-  wire [12:0] _zz_271_;
-  wire  _zz_272_;
-  wire  _zz_273_;
-  wire [5:0] _zz_274_;
-  wire [12:0] _zz_275_;
-  wire  _zz_276_;
-  wire [19:0] _zz_277_;
-  wire  _zz_278_;
-  wire  _zz_279_;
-  wire  _zz_280_;
-  wire  _zz_281_;
-  wire  _zz_282_;
-  wire [7:0] _zz_283_;
-  wire [7:0] _zz_284_;
-  wire [7:0] _zz_285_;
-  wire  _zz_286_;
-  wire  _zz_287_;
-  wire  _zz_288_;
-  wire [7:0] _zz_289_;
-  wire [7:0] _zz_290_;
-  wire [7:0] _zz_291_;
-  wire [11:0] _zz_292_;
-  wire [11:0] _zz_293_;
-  wire [11:0] _zz_294_;
-  wire [11:0] _zz_295_;
-  wire [11:0] _zz_296_;
-  wire [11:0] _zz_297_;
-  wire [11:0] _zz_298_;
-  wire [10:0] _zz_299_;
-  wire [10:0] _zz_300_;
-  wire [10:0] _zz_301_;
-  wire [10:0] _zz_302_;
-  wire [10:0] _zz_303_;
-  wire [10:0] _zz_304_;
-  wire [10:0] _zz_305_;
-  wire [7:0] _zz_306_;
-  wire [7:0] _zz_307_;
-  wire [7:0] _zz_308_;
-  wire [7:0] _zz_309_;
-  wire [8:0] _zz_310_;
-  wire [9:0] _zz_311_;
-  wire [17:0] _zz_312_;
-  wire [9:0] _zz_313_;
-  wire [17:0] _zz_314_;
-  wire [9:0] _zz_315_;
-  wire [17:0] _zz_316_;
-  wire [7:0] _zz_317_;
-  wire [8:0] _zz_318_;
-  wire [6:0] _zz_319_;
-  wire [8:0] _zz_320_;
-  wire [8:0] _zz_321_;
-  wire [6:0] _zz_322_;
-  wire [8:0] _zz_323_;
-  wire [8:0] _zz_324_;
-  wire [6:0] _zz_325_;
-  wire [8:0] _zz_326_;
-  wire [7:0] _zz_327_;
-  wire [7:0] _zz_328_;
-  wire [7:0] _zz_329_;
+  wire [7:0] _zz_48_;
+  wire [7:0] _zz_49_;
   reg [23:0] leds_led_cntr;
   wire [23:0] _zz_1_;
   wire  eof_final;
@@ -30908,85 +30914,85 @@ module PanoCore (
   wire [7:0] txt_pixel_pixel_r;
   wire [7:0] txt_pixel_pixel_g;
   wire [7:0] txt_pixel_pixel_b;
-  assign _zz_292_ = (_zz_293_ - (12'b000000000001));
-  assign _zz_293_ = (_zz_294_ + _zz_298_);
-  assign _zz_294_ = (_zz_295_ + _zz_297_);
-  assign _zz_295_ = (timings_h_active + _zz_296_);
-  assign _zz_296_ = {4'd0, timings_h_fp};
-  assign _zz_297_ = {4'd0, timings_h_sync};
-  assign _zz_298_ = {4'd0, timings_h_bp};
-  assign _zz_299_ = (_zz_300_ - (11'b00000000001));
-  assign _zz_300_ = (_zz_301_ + _zz_305_);
-  assign _zz_301_ = (_zz_302_ + _zz_304_);
-  assign _zz_302_ = (timings_v_active + _zz_303_);
-  assign _zz_303_ = {5'd0, timings_v_fp};
-  assign _zz_304_ = {5'd0, timings_v_sync};
-  assign _zz_305_ = {5'd0, timings_v_bp};
-  assign _zz_306_ = rt_plane_x_int_delayed_1[19 : 12];
-  assign _zz_307_ = (8'b00010000);
-  assign _zz_308_ = rt_plane_z_int_delayed_0[19 : 12];
-  assign _zz_309_ = (8'b00011100);
-  assign _zz_310_ = rt_spot_light_int_full[12 : 4];
-  assign _zz_311_ = (_zz_312_ >>> 8);
-  assign _zz_312_ = (rt_spot_light_int * rt_spot_light_int);
-  assign _zz_313_ = (_zz_314_ >>> 8);
-  assign _zz_314_ = (rt_spot_light_e2 * rt_spot_light_e2);
-  assign _zz_315_ = (_zz_316_ >>> 8);
-  assign _zz_316_ = (rt_spot_light_e4 * rt_spot_light_e4);
-  assign _zz_317_ = rt_spot_light_e8[7:0];
-  assign _zz_318_ = {1'd0, _zz_5_};
-  assign _zz_319_ = (rt_spot_light_final_delayed >>> 1);
-  assign _zz_320_ = {2'd0, _zz_319_};
-  assign _zz_321_ = {1'd0, _zz_6_};
-  assign _zz_322_ = (rt_spot_light_final_delayed >>> 1);
-  assign _zz_323_ = {2'd0, _zz_322_};
-  assign _zz_324_ = {1'd0, _zz_7_};
-  assign _zz_325_ = (rt_spot_light_final_delayed >>> 1);
-  assign _zz_326_ = {2'd0, _zz_325_};
-  assign _zz_327_ = _zz_8_[7:0];
-  assign _zz_328_ = _zz_9_[7:0];
-  assign _zz_329_ = _zz_10_[7:0];
+  assign _zz_12_ = (_zz_13_ - (12'b000000000001));
+  assign _zz_13_ = (_zz_14_ + _zz_18_);
+  assign _zz_14_ = (_zz_15_ + _zz_17_);
+  assign _zz_15_ = (timings_h_active + _zz_16_);
+  assign _zz_16_ = {4'd0, timings_h_fp};
+  assign _zz_17_ = {4'd0, timings_h_sync};
+  assign _zz_18_ = {4'd0, timings_h_bp};
+  assign _zz_19_ = (_zz_20_ - (11'b00000000001));
+  assign _zz_20_ = (_zz_21_ + _zz_25_);
+  assign _zz_21_ = (_zz_22_ + _zz_24_);
+  assign _zz_22_ = (timings_v_active + _zz_23_);
+  assign _zz_23_ = {5'd0, timings_v_fp};
+  assign _zz_24_ = {5'd0, timings_v_sync};
+  assign _zz_25_ = {5'd0, timings_v_bp};
+  assign _zz_26_ = rt_plane_x_int_delayed_1[19 : 12];
+  assign _zz_27_ = (8'b00010000);
+  assign _zz_28_ = rt_plane_z_int_delayed_0[19 : 12];
+  assign _zz_29_ = (8'b00011100);
+  assign _zz_30_ = rt_spot_light_int_full[12 : 4];
+  assign _zz_31_ = (_zz_32_ >>> 8);
+  assign _zz_32_ = (rt_spot_light_int * rt_spot_light_int);
+  assign _zz_33_ = (_zz_34_ >>> 8);
+  assign _zz_34_ = (rt_spot_light_e2 * rt_spot_light_e2);
+  assign _zz_35_ = (_zz_36_ >>> 8);
+  assign _zz_36_ = (rt_spot_light_e4 * rt_spot_light_e4);
+  assign _zz_37_ = rt_spot_light_e8[7:0];
+  assign _zz_38_ = {1'd0, _zz_5_};
+  assign _zz_39_ = (rt_spot_light_final_delayed >>> 1);
+  assign _zz_40_ = {2'd0, _zz_39_};
+  assign _zz_41_ = {1'd0, _zz_6_};
+  assign _zz_42_ = (rt_spot_light_final_delayed >>> 1);
+  assign _zz_43_ = {2'd0, _zz_42_};
+  assign _zz_44_ = {1'd0, _zz_7_};
+  assign _zz_45_ = (rt_spot_light_final_delayed >>> 1);
+  assign _zz_46_ = {2'd0, _zz_45_};
+  assign _zz_47_ = _zz_8_[7:0];
+  assign _zz_48_ = _zz_9_[7:0];
+  assign _zz_49_ = _zz_10_[7:0];
   MR1Top u_mr1_top ( 
-    .io_led1(_zz_12_),
-    .io_led2(_zz_13_),
-    .io_led3(_zz_14_),
+    .io_led1(u_mr1_top_io_led1),
+    .io_led2(u_mr1_top_io_led2),
+    .io_led3(u_mr1_top_io_led3),
     .io_switch_(_zz_11_),
-    .io_camera_pos_x_sign(_zz_15_),
-    .io_camera_pos_x_exp(_zz_16_),
-    .io_camera_pos_x_mant(_zz_17_),
-    .io_camera_pos_y_sign(_zz_18_),
-    .io_camera_pos_y_exp(_zz_19_),
-    .io_camera_pos_y_mant(_zz_20_),
-    .io_camera_pos_z_sign(_zz_21_),
-    .io_camera_pos_z_exp(_zz_22_),
-    .io_camera_pos_z_mant(_zz_23_),
-    .io_rot_x_sin_sign(_zz_24_),
-    .io_rot_x_sin_exp(_zz_25_),
-    .io_rot_x_sin_mant(_zz_26_),
-    .io_rot_x_cos_sign(_zz_27_),
-    .io_rot_x_cos_exp(_zz_28_),
-    .io_rot_x_cos_mant(_zz_29_),
-    .io_rot_y_sin_sign(_zz_30_),
-    .io_rot_y_sin_exp(_zz_31_),
-    .io_rot_y_sin_mant(_zz_32_),
-    .io_rot_y_cos_sign(_zz_33_),
-    .io_rot_y_cos_exp(_zz_34_),
-    .io_rot_y_cos_mant(_zz_35_),
-    .io_sphere_pos_x_sign(_zz_36_),
-    .io_sphere_pos_x_exp(_zz_37_),
-    .io_sphere_pos_x_mant(_zz_38_),
-    .io_sphere_pos_y_sign(_zz_39_),
-    .io_sphere_pos_y_exp(_zz_40_),
-    .io_sphere_pos_y_mant(_zz_41_),
-    .io_sphere_pos_z_sign(_zz_42_),
-    .io_sphere_pos_z_exp(_zz_43_),
-    .io_sphere_pos_z_mant(_zz_44_),
-    .io_txt_buf_wr(_zz_45_),
-    .io_txt_buf_wr_addr(_zz_46_),
-    .io_txt_buf_wr_data(_zz_47_),
+    .io_camera_pos_x_sign(u_mr1_top_io_camera_pos_x_sign),
+    .io_camera_pos_x_exp(u_mr1_top_io_camera_pos_x_exp),
+    .io_camera_pos_x_mant(u_mr1_top_io_camera_pos_x_mant),
+    .io_camera_pos_y_sign(u_mr1_top_io_camera_pos_y_sign),
+    .io_camera_pos_y_exp(u_mr1_top_io_camera_pos_y_exp),
+    .io_camera_pos_y_mant(u_mr1_top_io_camera_pos_y_mant),
+    .io_camera_pos_z_sign(u_mr1_top_io_camera_pos_z_sign),
+    .io_camera_pos_z_exp(u_mr1_top_io_camera_pos_z_exp),
+    .io_camera_pos_z_mant(u_mr1_top_io_camera_pos_z_mant),
+    .io_rot_x_sin_sign(u_mr1_top_io_rot_x_sin_sign),
+    .io_rot_x_sin_exp(u_mr1_top_io_rot_x_sin_exp),
+    .io_rot_x_sin_mant(u_mr1_top_io_rot_x_sin_mant),
+    .io_rot_x_cos_sign(u_mr1_top_io_rot_x_cos_sign),
+    .io_rot_x_cos_exp(u_mr1_top_io_rot_x_cos_exp),
+    .io_rot_x_cos_mant(u_mr1_top_io_rot_x_cos_mant),
+    .io_rot_y_sin_sign(u_mr1_top_io_rot_y_sin_sign),
+    .io_rot_y_sin_exp(u_mr1_top_io_rot_y_sin_exp),
+    .io_rot_y_sin_mant(u_mr1_top_io_rot_y_sin_mant),
+    .io_rot_y_cos_sign(u_mr1_top_io_rot_y_cos_sign),
+    .io_rot_y_cos_exp(u_mr1_top_io_rot_y_cos_exp),
+    .io_rot_y_cos_mant(u_mr1_top_io_rot_y_cos_mant),
+    .io_sphere_pos_x_sign(u_mr1_top_io_sphere_pos_x_sign),
+    .io_sphere_pos_x_exp(u_mr1_top_io_sphere_pos_x_exp),
+    .io_sphere_pos_x_mant(u_mr1_top_io_sphere_pos_x_mant),
+    .io_sphere_pos_y_sign(u_mr1_top_io_sphere_pos_y_sign),
+    .io_sphere_pos_y_exp(u_mr1_top_io_sphere_pos_y_exp),
+    .io_sphere_pos_y_mant(u_mr1_top_io_sphere_pos_y_mant),
+    .io_sphere_pos_z_sign(u_mr1_top_io_sphere_pos_z_sign),
+    .io_sphere_pos_z_exp(u_mr1_top_io_sphere_pos_z_exp),
+    .io_sphere_pos_z_mant(u_mr1_top_io_sphere_pos_z_mant),
+    .io_txt_buf_wr(u_mr1_top_io_txt_buf_wr),
+    .io_txt_buf_wr_addr(u_mr1_top_io_txt_buf_wr_addr),
+    .io_txt_buf_wr_data(u_mr1_top_io_txt_buf_wr_data),
     .io_eof(eof_final),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   VideoTimingGen vi_gen ( 
     .io_timings_h_active(timings_h_active),
@@ -31001,15 +31007,15 @@ module PanoCore (
     .io_timings_v_bp(timings_v_bp),
     .io_timings_v_sync_positive(timings_v_sync_positive),
     .io_timings_v_total_m1(timings_v_total_m1),
-    .io_pixel_out_vsync(_zz_48_),
-    .io_pixel_out_req(_zz_49_),
-    .io_pixel_out_eol(_zz_50_),
-    .io_pixel_out_eof(_zz_51_),
-    .io_pixel_out_pixel_r(_zz_52_),
-    .io_pixel_out_pixel_g(_zz_53_),
-    .io_pixel_out_pixel_b(_zz_54_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_pixel_out_vsync(vi_gen_io_pixel_out_vsync),
+    .io_pixel_out_req(vi_gen_io_pixel_out_req),
+    .io_pixel_out_eol(vi_gen_io_pixel_out_eol),
+    .io_pixel_out_eof(vi_gen_io_pixel_out_eof),
+    .io_pixel_out_pixel_r(vi_gen_io_pixel_out_pixel_r),
+    .io_pixel_out_pixel_g(vi_gen_io_pixel_out_pixel_g),
+    .io_pixel_out_pixel_b(vi_gen_io_pixel_out_pixel_b),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   CamSweep rt_u_cam_sweep ( 
     .io_pixel_in_vsync(vi_gen_pixel_out_vsync),
@@ -31019,33 +31025,33 @@ module PanoCore (
     .io_pixel_in_pixel_r(vi_gen_pixel_out_pixel_r),
     .io_pixel_in_pixel_g(vi_gen_pixel_out_pixel_g),
     .io_pixel_in_pixel_b(vi_gen_pixel_out_pixel_b),
-    .io_pixel_out_vsync(_zz_55_),
-    .io_pixel_out_req(_zz_56_),
-    .io_pixel_out_eol(_zz_57_),
-    .io_pixel_out_eof(_zz_58_),
-    .io_pixel_out_pixel_r(_zz_59_),
-    .io_pixel_out_pixel_g(_zz_60_),
-    .io_pixel_out_pixel_b(_zz_61_),
-    .io_ray_origin_x_sign(_zz_62_),
-    .io_ray_origin_x_exp(_zz_63_),
-    .io_ray_origin_x_mant(_zz_64_),
-    .io_ray_origin_y_sign(_zz_65_),
-    .io_ray_origin_y_exp(_zz_66_),
-    .io_ray_origin_y_mant(_zz_67_),
-    .io_ray_origin_z_sign(_zz_68_),
-    .io_ray_origin_z_exp(_zz_69_),
-    .io_ray_origin_z_mant(_zz_70_),
-    .io_ray_direction_x_sign(_zz_71_),
-    .io_ray_direction_x_exp(_zz_72_),
-    .io_ray_direction_x_mant(_zz_73_),
-    .io_ray_direction_y_sign(_zz_74_),
-    .io_ray_direction_y_exp(_zz_75_),
-    .io_ray_direction_y_mant(_zz_76_),
-    .io_ray_direction_z_sign(_zz_77_),
-    .io_ray_direction_z_exp(_zz_78_),
-    .io_ray_direction_z_mant(_zz_79_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_pixel_out_vsync(rt_u_cam_sweep_io_pixel_out_vsync),
+    .io_pixel_out_req(rt_u_cam_sweep_io_pixel_out_req),
+    .io_pixel_out_eol(rt_u_cam_sweep_io_pixel_out_eol),
+    .io_pixel_out_eof(rt_u_cam_sweep_io_pixel_out_eof),
+    .io_pixel_out_pixel_r(rt_u_cam_sweep_io_pixel_out_pixel_r),
+    .io_pixel_out_pixel_g(rt_u_cam_sweep_io_pixel_out_pixel_g),
+    .io_pixel_out_pixel_b(rt_u_cam_sweep_io_pixel_out_pixel_b),
+    .io_ray_origin_x_sign(rt_u_cam_sweep_io_ray_origin_x_sign),
+    .io_ray_origin_x_exp(rt_u_cam_sweep_io_ray_origin_x_exp),
+    .io_ray_origin_x_mant(rt_u_cam_sweep_io_ray_origin_x_mant),
+    .io_ray_origin_y_sign(rt_u_cam_sweep_io_ray_origin_y_sign),
+    .io_ray_origin_y_exp(rt_u_cam_sweep_io_ray_origin_y_exp),
+    .io_ray_origin_y_mant(rt_u_cam_sweep_io_ray_origin_y_mant),
+    .io_ray_origin_z_sign(rt_u_cam_sweep_io_ray_origin_z_sign),
+    .io_ray_origin_z_exp(rt_u_cam_sweep_io_ray_origin_z_exp),
+    .io_ray_origin_z_mant(rt_u_cam_sweep_io_ray_origin_z_mant),
+    .io_ray_direction_x_sign(rt_u_cam_sweep_io_ray_direction_x_sign),
+    .io_ray_direction_x_exp(rt_u_cam_sweep_io_ray_direction_x_exp),
+    .io_ray_direction_x_mant(rt_u_cam_sweep_io_ray_direction_x_mant),
+    .io_ray_direction_y_sign(rt_u_cam_sweep_io_ray_direction_y_sign),
+    .io_ray_direction_y_exp(rt_u_cam_sweep_io_ray_direction_y_exp),
+    .io_ray_direction_y_mant(rt_u_cam_sweep_io_ray_direction_y_mant),
+    .io_ray_direction_z_sign(rt_u_cam_sweep_io_ray_direction_z_sign),
+    .io_ray_direction_z_exp(rt_u_cam_sweep_io_ray_direction_z_exp),
+    .io_ray_direction_z_mant(rt_u_cam_sweep_io_ray_direction_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   RotateX rt_u_ray_dir_rot_x ( 
     .io_op_vld(rt_cam_sweep_pixel_req),
@@ -31064,18 +31070,18 @@ module PanoCore (
     .io_cos_sign(rt_rot_x_cos_sign),
     .io_cos_exp(rt_rot_x_cos_exp),
     .io_cos_mant(rt_rot_x_cos_mant),
-    .io_result_vld(_zz_80_),
-    .io_result_x_sign(_zz_81_),
-    .io_result_x_exp(_zz_82_),
-    .io_result_x_mant(_zz_83_),
-    .io_result_y_sign(_zz_84_),
-    .io_result_y_exp(_zz_85_),
-    .io_result_y_mant(_zz_86_),
-    .io_result_z_sign(_zz_87_),
-    .io_result_z_exp(_zz_88_),
-    .io_result_z_mant(_zz_89_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_ray_dir_rot_x_io_result_vld),
+    .io_result_x_sign(rt_u_ray_dir_rot_x_io_result_x_sign),
+    .io_result_x_exp(rt_u_ray_dir_rot_x_io_result_x_exp),
+    .io_result_x_mant(rt_u_ray_dir_rot_x_io_result_x_mant),
+    .io_result_y_sign(rt_u_ray_dir_rot_x_io_result_y_sign),
+    .io_result_y_exp(rt_u_ray_dir_rot_x_io_result_y_exp),
+    .io_result_y_mant(rt_u_ray_dir_rot_x_io_result_y_mant),
+    .io_result_z_sign(rt_u_ray_dir_rot_x_io_result_z_sign),
+    .io_result_z_exp(rt_u_ray_dir_rot_x_io_result_z_exp),
+    .io_result_z_mant(rt_u_ray_dir_rot_x_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   RotateY rt_u_ray_dir_rot_y ( 
     .io_op_vld(rt_ray_dir_rot_x_vld),
@@ -31094,18 +31100,18 @@ module PanoCore (
     .io_cos_sign(rt_rot_y_cos_sign),
     .io_cos_exp(rt_rot_y_cos_exp),
     .io_cos_mant(rt_rot_y_cos_mant),
-    .io_result_vld(_zz_90_),
-    .io_result_x_sign(_zz_91_),
-    .io_result_x_exp(_zz_92_),
-    .io_result_x_mant(_zz_93_),
-    .io_result_y_sign(_zz_94_),
-    .io_result_y_exp(_zz_95_),
-    .io_result_y_mant(_zz_96_),
-    .io_result_z_sign(_zz_97_),
-    .io_result_z_exp(_zz_98_),
-    .io_result_z_mant(_zz_99_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_ray_dir_rot_y_io_result_vld),
+    .io_result_x_sign(rt_u_ray_dir_rot_y_io_result_x_sign),
+    .io_result_x_exp(rt_u_ray_dir_rot_y_io_result_x_exp),
+    .io_result_x_mant(rt_u_ray_dir_rot_y_io_result_x_mant),
+    .io_result_y_sign(rt_u_ray_dir_rot_y_io_result_y_sign),
+    .io_result_y_exp(rt_u_ray_dir_rot_y_io_result_y_exp),
+    .io_result_y_mant(rt_u_ray_dir_rot_y_io_result_y_mant),
+    .io_result_z_sign(rt_u_ray_dir_rot_y_io_result_z_sign),
+    .io_result_z_exp(rt_u_ray_dir_rot_y_io_result_z_exp),
+    .io_result_z_mant(rt_u_ray_dir_rot_y_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Normalize_2_ rt_u_normalize_ray ( 
     .io_op_vld(rt_ray_dir_rot_y_vld),
@@ -31118,18 +31124,18 @@ module PanoCore (
     .io_op_z_sign(rt_ray_dir_rot_y_z_sign),
     .io_op_z_exp(rt_ray_dir_rot_y_z_exp),
     .io_op_z_mant(rt_ray_dir_rot_y_z_mant),
-    .io_result_vld(_zz_100_),
-    .io_result_x_sign(_zz_101_),
-    .io_result_x_exp(_zz_102_),
-    .io_result_x_mant(_zz_103_),
-    .io_result_y_sign(_zz_104_),
-    .io_result_y_exp(_zz_105_),
-    .io_result_y_mant(_zz_106_),
-    .io_result_z_sign(_zz_107_),
-    .io_result_z_exp(_zz_108_),
-    .io_result_z_mant(_zz_109_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_normalize_ray_io_result_vld),
+    .io_result_x_sign(rt_u_normalize_ray_io_result_x_sign),
+    .io_result_x_exp(rt_u_normalize_ray_io_result_x_exp),
+    .io_result_x_mant(rt_u_normalize_ray_io_result_x_mant),
+    .io_result_y_sign(rt_u_normalize_ray_io_result_y_sign),
+    .io_result_y_exp(rt_u_normalize_ray_io_result_y_exp),
+    .io_result_y_mant(rt_u_normalize_ray_io_result_y_mant),
+    .io_result_z_sign(rt_u_normalize_ray_io_result_z_sign),
+    .io_result_z_exp(rt_u_normalize_ray_io_result_z_exp),
+    .io_result_z_mant(rt_u_normalize_ray_io_result_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SphereIntersect rt_u_sphere_intersect ( 
     .io_op_vld(rt_ray_normalized_vld),
@@ -31163,79 +31169,79 @@ module PanoCore (
     .io_ray_direction_z_sign(rt_ray_normalized_direction_z_sign),
     .io_ray_direction_z_exp(rt_ray_normalized_direction_z_exp),
     .io_ray_direction_z_mant(rt_ray_normalized_direction_z_mant),
-    .io_early_intersects_vld(_zz_110_),
-    .io_early_intersects(_zz_111_),
-    .io_early_normal_vld(_zz_112_),
-    .io_early_normal_x_sign(_zz_113_),
-    .io_early_normal_x_exp(_zz_114_),
-    .io_early_normal_x_mant(_zz_115_),
-    .io_early_normal_y_sign(_zz_116_),
-    .io_early_normal_y_exp(_zz_117_),
-    .io_early_normal_y_mant(_zz_118_),
-    .io_early_normal_z_sign(_zz_119_),
-    .io_early_normal_z_exp(_zz_120_),
-    .io_early_normal_z_mant(_zz_121_),
-    .io_result_vld(_zz_122_),
-    .io_result_intersects(_zz_123_),
-    .io_result_t_sign(_zz_124_),
-    .io_result_t_exp(_zz_125_),
-    .io_result_t_mant(_zz_126_),
-    .io_result_intersection_x_sign(_zz_127_),
-    .io_result_intersection_x_exp(_zz_128_),
-    .io_result_intersection_x_mant(_zz_129_),
-    .io_result_intersection_y_sign(_zz_130_),
-    .io_result_intersection_y_exp(_zz_131_),
-    .io_result_intersection_y_mant(_zz_132_),
-    .io_result_intersection_z_sign(_zz_133_),
-    .io_result_intersection_z_exp(_zz_134_),
-    .io_result_intersection_z_mant(_zz_135_),
-    .io_result_normal_x_sign(_zz_136_),
-    .io_result_normal_x_exp(_zz_137_),
-    .io_result_normal_x_mant(_zz_138_),
-    .io_result_normal_y_sign(_zz_139_),
-    .io_result_normal_y_exp(_zz_140_),
-    .io_result_normal_y_mant(_zz_141_),
-    .io_result_normal_z_sign(_zz_142_),
-    .io_result_normal_z_exp(_zz_143_),
-    .io_result_normal_z_mant(_zz_144_),
-    .io_result_reflect_ray_origin_x_sign(_zz_145_),
-    .io_result_reflect_ray_origin_x_exp(_zz_146_),
-    .io_result_reflect_ray_origin_x_mant(_zz_147_),
-    .io_result_reflect_ray_origin_y_sign(_zz_148_),
-    .io_result_reflect_ray_origin_y_exp(_zz_149_),
-    .io_result_reflect_ray_origin_y_mant(_zz_150_),
-    .io_result_reflect_ray_origin_z_sign(_zz_151_),
-    .io_result_reflect_ray_origin_z_exp(_zz_152_),
-    .io_result_reflect_ray_origin_z_mant(_zz_153_),
-    .io_result_reflect_ray_direction_x_sign(_zz_154_),
-    .io_result_reflect_ray_direction_x_exp(_zz_155_),
-    .io_result_reflect_ray_direction_x_mant(_zz_156_),
-    .io_result_reflect_ray_direction_y_sign(_zz_157_),
-    .io_result_reflect_ray_direction_y_exp(_zz_158_),
-    .io_result_reflect_ray_direction_y_mant(_zz_159_),
-    .io_result_reflect_ray_direction_z_sign(_zz_160_),
-    .io_result_reflect_ray_direction_z_exp(_zz_161_),
-    .io_result_reflect_ray_direction_z_mant(_zz_162_),
-    .io_result_ray_origin_x_sign(_zz_163_),
-    .io_result_ray_origin_x_exp(_zz_164_),
-    .io_result_ray_origin_x_mant(_zz_165_),
-    .io_result_ray_origin_y_sign(_zz_166_),
-    .io_result_ray_origin_y_exp(_zz_167_),
-    .io_result_ray_origin_y_mant(_zz_168_),
-    .io_result_ray_origin_z_sign(_zz_169_),
-    .io_result_ray_origin_z_exp(_zz_170_),
-    .io_result_ray_origin_z_mant(_zz_171_),
-    .io_result_ray_direction_x_sign(_zz_172_),
-    .io_result_ray_direction_x_exp(_zz_173_),
-    .io_result_ray_direction_x_mant(_zz_174_),
-    .io_result_ray_direction_y_sign(_zz_175_),
-    .io_result_ray_direction_y_exp(_zz_176_),
-    .io_result_ray_direction_y_mant(_zz_177_),
-    .io_result_ray_direction_z_sign(_zz_178_),
-    .io_result_ray_direction_z_exp(_zz_179_),
-    .io_result_ray_direction_z_mant(_zz_180_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_early_intersects_vld(rt_u_sphere_intersect_io_early_intersects_vld),
+    .io_early_intersects(rt_u_sphere_intersect_io_early_intersects),
+    .io_early_normal_vld(rt_u_sphere_intersect_io_early_normal_vld),
+    .io_early_normal_x_sign(rt_u_sphere_intersect_io_early_normal_x_sign),
+    .io_early_normal_x_exp(rt_u_sphere_intersect_io_early_normal_x_exp),
+    .io_early_normal_x_mant(rt_u_sphere_intersect_io_early_normal_x_mant),
+    .io_early_normal_y_sign(rt_u_sphere_intersect_io_early_normal_y_sign),
+    .io_early_normal_y_exp(rt_u_sphere_intersect_io_early_normal_y_exp),
+    .io_early_normal_y_mant(rt_u_sphere_intersect_io_early_normal_y_mant),
+    .io_early_normal_z_sign(rt_u_sphere_intersect_io_early_normal_z_sign),
+    .io_early_normal_z_exp(rt_u_sphere_intersect_io_early_normal_z_exp),
+    .io_early_normal_z_mant(rt_u_sphere_intersect_io_early_normal_z_mant),
+    .io_result_vld(rt_u_sphere_intersect_io_result_vld),
+    .io_result_intersects(rt_u_sphere_intersect_io_result_intersects),
+    .io_result_t_sign(rt_u_sphere_intersect_io_result_t_sign),
+    .io_result_t_exp(rt_u_sphere_intersect_io_result_t_exp),
+    .io_result_t_mant(rt_u_sphere_intersect_io_result_t_mant),
+    .io_result_intersection_x_sign(rt_u_sphere_intersect_io_result_intersection_x_sign),
+    .io_result_intersection_x_exp(rt_u_sphere_intersect_io_result_intersection_x_exp),
+    .io_result_intersection_x_mant(rt_u_sphere_intersect_io_result_intersection_x_mant),
+    .io_result_intersection_y_sign(rt_u_sphere_intersect_io_result_intersection_y_sign),
+    .io_result_intersection_y_exp(rt_u_sphere_intersect_io_result_intersection_y_exp),
+    .io_result_intersection_y_mant(rt_u_sphere_intersect_io_result_intersection_y_mant),
+    .io_result_intersection_z_sign(rt_u_sphere_intersect_io_result_intersection_z_sign),
+    .io_result_intersection_z_exp(rt_u_sphere_intersect_io_result_intersection_z_exp),
+    .io_result_intersection_z_mant(rt_u_sphere_intersect_io_result_intersection_z_mant),
+    .io_result_normal_x_sign(rt_u_sphere_intersect_io_result_normal_x_sign),
+    .io_result_normal_x_exp(rt_u_sphere_intersect_io_result_normal_x_exp),
+    .io_result_normal_x_mant(rt_u_sphere_intersect_io_result_normal_x_mant),
+    .io_result_normal_y_sign(rt_u_sphere_intersect_io_result_normal_y_sign),
+    .io_result_normal_y_exp(rt_u_sphere_intersect_io_result_normal_y_exp),
+    .io_result_normal_y_mant(rt_u_sphere_intersect_io_result_normal_y_mant),
+    .io_result_normal_z_sign(rt_u_sphere_intersect_io_result_normal_z_sign),
+    .io_result_normal_z_exp(rt_u_sphere_intersect_io_result_normal_z_exp),
+    .io_result_normal_z_mant(rt_u_sphere_intersect_io_result_normal_z_mant),
+    .io_result_reflect_ray_origin_x_sign(rt_u_sphere_intersect_io_result_reflect_ray_origin_x_sign),
+    .io_result_reflect_ray_origin_x_exp(rt_u_sphere_intersect_io_result_reflect_ray_origin_x_exp),
+    .io_result_reflect_ray_origin_x_mant(rt_u_sphere_intersect_io_result_reflect_ray_origin_x_mant),
+    .io_result_reflect_ray_origin_y_sign(rt_u_sphere_intersect_io_result_reflect_ray_origin_y_sign),
+    .io_result_reflect_ray_origin_y_exp(rt_u_sphere_intersect_io_result_reflect_ray_origin_y_exp),
+    .io_result_reflect_ray_origin_y_mant(rt_u_sphere_intersect_io_result_reflect_ray_origin_y_mant),
+    .io_result_reflect_ray_origin_z_sign(rt_u_sphere_intersect_io_result_reflect_ray_origin_z_sign),
+    .io_result_reflect_ray_origin_z_exp(rt_u_sphere_intersect_io_result_reflect_ray_origin_z_exp),
+    .io_result_reflect_ray_origin_z_mant(rt_u_sphere_intersect_io_result_reflect_ray_origin_z_mant),
+    .io_result_reflect_ray_direction_x_sign(rt_u_sphere_intersect_io_result_reflect_ray_direction_x_sign),
+    .io_result_reflect_ray_direction_x_exp(rt_u_sphere_intersect_io_result_reflect_ray_direction_x_exp),
+    .io_result_reflect_ray_direction_x_mant(rt_u_sphere_intersect_io_result_reflect_ray_direction_x_mant),
+    .io_result_reflect_ray_direction_y_sign(rt_u_sphere_intersect_io_result_reflect_ray_direction_y_sign),
+    .io_result_reflect_ray_direction_y_exp(rt_u_sphere_intersect_io_result_reflect_ray_direction_y_exp),
+    .io_result_reflect_ray_direction_y_mant(rt_u_sphere_intersect_io_result_reflect_ray_direction_y_mant),
+    .io_result_reflect_ray_direction_z_sign(rt_u_sphere_intersect_io_result_reflect_ray_direction_z_sign),
+    .io_result_reflect_ray_direction_z_exp(rt_u_sphere_intersect_io_result_reflect_ray_direction_z_exp),
+    .io_result_reflect_ray_direction_z_mant(rt_u_sphere_intersect_io_result_reflect_ray_direction_z_mant),
+    .io_result_ray_origin_x_sign(rt_u_sphere_intersect_io_result_ray_origin_x_sign),
+    .io_result_ray_origin_x_exp(rt_u_sphere_intersect_io_result_ray_origin_x_exp),
+    .io_result_ray_origin_x_mant(rt_u_sphere_intersect_io_result_ray_origin_x_mant),
+    .io_result_ray_origin_y_sign(rt_u_sphere_intersect_io_result_ray_origin_y_sign),
+    .io_result_ray_origin_y_exp(rt_u_sphere_intersect_io_result_ray_origin_y_exp),
+    .io_result_ray_origin_y_mant(rt_u_sphere_intersect_io_result_ray_origin_y_mant),
+    .io_result_ray_origin_z_sign(rt_u_sphere_intersect_io_result_ray_origin_z_sign),
+    .io_result_ray_origin_z_exp(rt_u_sphere_intersect_io_result_ray_origin_z_exp),
+    .io_result_ray_origin_z_mant(rt_u_sphere_intersect_io_result_ray_origin_z_mant),
+    .io_result_ray_direction_x_sign(rt_u_sphere_intersect_io_result_ray_direction_x_sign),
+    .io_result_ray_direction_x_exp(rt_u_sphere_intersect_io_result_ray_direction_x_exp),
+    .io_result_ray_direction_x_mant(rt_u_sphere_intersect_io_result_ray_direction_x_mant),
+    .io_result_ray_direction_y_sign(rt_u_sphere_intersect_io_result_ray_direction_y_sign),
+    .io_result_ray_direction_y_exp(rt_u_sphere_intersect_io_result_ray_direction_y_exp),
+    .io_result_ray_direction_y_mant(rt_u_sphere_intersect_io_result_ray_direction_y_mant),
+    .io_result_ray_direction_z_sign(rt_u_sphere_intersect_io_result_ray_direction_z_sign),
+    .io_result_ray_direction_z_exp(rt_u_sphere_intersect_io_result_ray_direction_z_exp),
+    .io_result_ray_direction_z_mant(rt_u_sphere_intersect_io_result_ray_direction_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   PlaneIntersect rt_u_plane_intersect ( 
     .io_op_vld(rt_sphere_result_vld),
@@ -31275,44 +31281,44 @@ module PanoCore (
     .io_ray_direction_z_sign(rt_plane_ray_direction_z_sign),
     .io_ray_direction_z_exp(rt_plane_ray_direction_z_exp),
     .io_ray_direction_z_mant(rt_plane_ray_direction_z_mant),
-    .io_result_vld(_zz_181_),
-    .io_result_intersects(_zz_182_),
-    .io_result_t_sign(_zz_183_),
-    .io_result_t_exp(_zz_184_),
-    .io_result_t_mant(_zz_185_),
-    .io_result_intersection_x_sign(_zz_186_),
-    .io_result_intersection_x_exp(_zz_187_),
-    .io_result_intersection_x_mant(_zz_188_),
-    .io_result_intersection_y_sign(_zz_189_),
-    .io_result_intersection_y_exp(_zz_190_),
-    .io_result_intersection_y_mant(_zz_191_),
-    .io_result_intersection_z_sign(_zz_192_),
-    .io_result_intersection_z_exp(_zz_193_),
-    .io_result_intersection_z_mant(_zz_194_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_plane_intersect_io_result_vld),
+    .io_result_intersects(rt_u_plane_intersect_io_result_intersects),
+    .io_result_t_sign(rt_u_plane_intersect_io_result_t_sign),
+    .io_result_t_exp(rt_u_plane_intersect_io_result_t_exp),
+    .io_result_t_mant(rt_u_plane_intersect_io_result_t_mant),
+    .io_result_intersection_x_sign(rt_u_plane_intersect_io_result_intersection_x_sign),
+    .io_result_intersection_x_exp(rt_u_plane_intersect_io_result_intersection_x_exp),
+    .io_result_intersection_x_mant(rt_u_plane_intersect_io_result_intersection_x_mant),
+    .io_result_intersection_y_sign(rt_u_plane_intersect_io_result_intersection_y_sign),
+    .io_result_intersection_y_exp(rt_u_plane_intersect_io_result_intersection_y_exp),
+    .io_result_intersection_y_mant(rt_u_plane_intersect_io_result_intersection_y_mant),
+    .io_result_intersection_z_sign(rt_u_plane_intersect_io_result_intersection_z_sign),
+    .io_result_intersection_z_exp(rt_u_plane_intersect_io_result_intersection_z_exp),
+    .io_result_intersection_z_mant(rt_u_plane_intersect_io_result_intersection_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Fpxx2SInt rt_u_plane_x_int ( 
     .p0_vld(rt_plane_intersect_vld),
     .sign_p0(rt_plane_intersection_x_abs_sign),
     .op_p0_exp(rt_plane_intersection_x_abs_exp),
     .op_p0_mant(rt_plane_intersection_x_abs_mant),
-    .io_result_vld(_zz_195_),
-    .io_result(_zz_196_),
-    .io_result_ovfl(_zz_197_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_plane_x_int_io_result_vld),
+    .io_result(rt_u_plane_x_int_io_result),
+    .io_result_ovfl(rt_u_plane_x_int_io_result_ovfl),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Fpxx2SInt rt_u_plane_z_int ( 
     .p0_vld(rt_plane_intersect_vld),
     .sign_p0(rt_plane_intersection_z_abs_sign),
     .op_p0_exp(rt_plane_intersection_z_abs_exp),
     .op_p0_mant(rt_plane_intersection_z_abs_mant),
-    .io_result_vld(_zz_198_),
-    .io_result(_zz_199_),
-    .io_result_ovfl(_zz_200_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_plane_z_int_io_result_vld),
+    .io_result(rt_u_plane_z_int_io_result),
+    .io_result_ovfl(rt_u_plane_z_int_io_result_ovfl),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   SphereIntersect_1_ rt_u_shadow_sphere_intersect ( 
     .io_op_vld(rt_plane_intersect_vld),
@@ -31346,79 +31352,79 @@ module PanoCore (
     .io_ray_direction_z_sign(rt_shadow_ray_direction_z_sign_1_),
     .io_ray_direction_z_exp(rt_shadow_ray_direction_z_exp_1_),
     .io_ray_direction_z_mant(rt_shadow_ray_direction_z_mant_1_),
-    .io_early_intersects_vld(_zz_201_),
-    .io_early_intersects(_zz_202_),
-    .io_early_normal_vld(_zz_203_),
-    .io_early_normal_x_sign(_zz_204_),
-    .io_early_normal_x_exp(_zz_205_),
-    .io_early_normal_x_mant(_zz_206_),
-    .io_early_normal_y_sign(_zz_207_),
-    .io_early_normal_y_exp(_zz_208_),
-    .io_early_normal_y_mant(_zz_209_),
-    .io_early_normal_z_sign(_zz_210_),
-    .io_early_normal_z_exp(_zz_211_),
-    .io_early_normal_z_mant(_zz_212_),
-    .io_result_vld(_zz_213_),
-    .io_result_intersects(_zz_214_),
-    .io_result_t_sign(_zz_215_),
-    .io_result_t_exp(_zz_216_),
-    .io_result_t_mant(_zz_217_),
-    .io_result_intersection_x_sign(_zz_218_),
-    .io_result_intersection_x_exp(_zz_219_),
-    .io_result_intersection_x_mant(_zz_220_),
-    .io_result_intersection_y_sign(_zz_221_),
-    .io_result_intersection_y_exp(_zz_222_),
-    .io_result_intersection_y_mant(_zz_223_),
-    .io_result_intersection_z_sign(_zz_224_),
-    .io_result_intersection_z_exp(_zz_225_),
-    .io_result_intersection_z_mant(_zz_226_),
-    .io_result_normal_x_sign(_zz_227_),
-    .io_result_normal_x_exp(_zz_228_),
-    .io_result_normal_x_mant(_zz_229_),
-    .io_result_normal_y_sign(_zz_230_),
-    .io_result_normal_y_exp(_zz_231_),
-    .io_result_normal_y_mant(_zz_232_),
-    .io_result_normal_z_sign(_zz_233_),
-    .io_result_normal_z_exp(_zz_234_),
-    .io_result_normal_z_mant(_zz_235_),
-    .io_result_reflect_ray_origin_x_sign(_zz_236_),
-    .io_result_reflect_ray_origin_x_exp(_zz_237_),
-    .io_result_reflect_ray_origin_x_mant(_zz_238_),
-    .io_result_reflect_ray_origin_y_sign(_zz_239_),
-    .io_result_reflect_ray_origin_y_exp(_zz_240_),
-    .io_result_reflect_ray_origin_y_mant(_zz_241_),
-    .io_result_reflect_ray_origin_z_sign(_zz_242_),
-    .io_result_reflect_ray_origin_z_exp(_zz_243_),
-    .io_result_reflect_ray_origin_z_mant(_zz_244_),
-    .io_result_reflect_ray_direction_x_sign(_zz_245_),
-    .io_result_reflect_ray_direction_x_exp(_zz_246_),
-    .io_result_reflect_ray_direction_x_mant(_zz_247_),
-    .io_result_reflect_ray_direction_y_sign(_zz_248_),
-    .io_result_reflect_ray_direction_y_exp(_zz_249_),
-    .io_result_reflect_ray_direction_y_mant(_zz_250_),
-    .io_result_reflect_ray_direction_z_sign(_zz_251_),
-    .io_result_reflect_ray_direction_z_exp(_zz_252_),
-    .io_result_reflect_ray_direction_z_mant(_zz_253_),
-    .io_result_ray_origin_x_sign(_zz_254_),
-    .io_result_ray_origin_x_exp(_zz_255_),
-    .io_result_ray_origin_x_mant(_zz_256_),
-    .io_result_ray_origin_y_sign(_zz_257_),
-    .io_result_ray_origin_y_exp(_zz_258_),
-    .io_result_ray_origin_y_mant(_zz_259_),
-    .io_result_ray_origin_z_sign(_zz_260_),
-    .io_result_ray_origin_z_exp(_zz_261_),
-    .io_result_ray_origin_z_mant(_zz_262_),
-    .io_result_ray_direction_x_sign(_zz_263_),
-    .io_result_ray_direction_x_exp(_zz_264_),
-    .io_result_ray_direction_x_mant(_zz_265_),
-    .io_result_ray_direction_y_sign(_zz_266_),
-    .io_result_ray_direction_y_exp(_zz_267_),
-    .io_result_ray_direction_y_mant(_zz_268_),
-    .io_result_ray_direction_z_sign(_zz_269_),
-    .io_result_ray_direction_z_exp(_zz_270_),
-    .io_result_ray_direction_z_mant(_zz_271_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_early_intersects_vld(rt_u_shadow_sphere_intersect_io_early_intersects_vld),
+    .io_early_intersects(rt_u_shadow_sphere_intersect_io_early_intersects),
+    .io_early_normal_vld(rt_u_shadow_sphere_intersect_io_early_normal_vld),
+    .io_early_normal_x_sign(rt_u_shadow_sphere_intersect_io_early_normal_x_sign),
+    .io_early_normal_x_exp(rt_u_shadow_sphere_intersect_io_early_normal_x_exp),
+    .io_early_normal_x_mant(rt_u_shadow_sphere_intersect_io_early_normal_x_mant),
+    .io_early_normal_y_sign(rt_u_shadow_sphere_intersect_io_early_normal_y_sign),
+    .io_early_normal_y_exp(rt_u_shadow_sphere_intersect_io_early_normal_y_exp),
+    .io_early_normal_y_mant(rt_u_shadow_sphere_intersect_io_early_normal_y_mant),
+    .io_early_normal_z_sign(rt_u_shadow_sphere_intersect_io_early_normal_z_sign),
+    .io_early_normal_z_exp(rt_u_shadow_sphere_intersect_io_early_normal_z_exp),
+    .io_early_normal_z_mant(rt_u_shadow_sphere_intersect_io_early_normal_z_mant),
+    .io_result_vld(rt_u_shadow_sphere_intersect_io_result_vld),
+    .io_result_intersects(rt_u_shadow_sphere_intersect_io_result_intersects),
+    .io_result_t_sign(rt_u_shadow_sphere_intersect_io_result_t_sign),
+    .io_result_t_exp(rt_u_shadow_sphere_intersect_io_result_t_exp),
+    .io_result_t_mant(rt_u_shadow_sphere_intersect_io_result_t_mant),
+    .io_result_intersection_x_sign(rt_u_shadow_sphere_intersect_io_result_intersection_x_sign),
+    .io_result_intersection_x_exp(rt_u_shadow_sphere_intersect_io_result_intersection_x_exp),
+    .io_result_intersection_x_mant(rt_u_shadow_sphere_intersect_io_result_intersection_x_mant),
+    .io_result_intersection_y_sign(rt_u_shadow_sphere_intersect_io_result_intersection_y_sign),
+    .io_result_intersection_y_exp(rt_u_shadow_sphere_intersect_io_result_intersection_y_exp),
+    .io_result_intersection_y_mant(rt_u_shadow_sphere_intersect_io_result_intersection_y_mant),
+    .io_result_intersection_z_sign(rt_u_shadow_sphere_intersect_io_result_intersection_z_sign),
+    .io_result_intersection_z_exp(rt_u_shadow_sphere_intersect_io_result_intersection_z_exp),
+    .io_result_intersection_z_mant(rt_u_shadow_sphere_intersect_io_result_intersection_z_mant),
+    .io_result_normal_x_sign(rt_u_shadow_sphere_intersect_io_result_normal_x_sign),
+    .io_result_normal_x_exp(rt_u_shadow_sphere_intersect_io_result_normal_x_exp),
+    .io_result_normal_x_mant(rt_u_shadow_sphere_intersect_io_result_normal_x_mant),
+    .io_result_normal_y_sign(rt_u_shadow_sphere_intersect_io_result_normal_y_sign),
+    .io_result_normal_y_exp(rt_u_shadow_sphere_intersect_io_result_normal_y_exp),
+    .io_result_normal_y_mant(rt_u_shadow_sphere_intersect_io_result_normal_y_mant),
+    .io_result_normal_z_sign(rt_u_shadow_sphere_intersect_io_result_normal_z_sign),
+    .io_result_normal_z_exp(rt_u_shadow_sphere_intersect_io_result_normal_z_exp),
+    .io_result_normal_z_mant(rt_u_shadow_sphere_intersect_io_result_normal_z_mant),
+    .io_result_reflect_ray_origin_x_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_sign),
+    .io_result_reflect_ray_origin_x_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_exp),
+    .io_result_reflect_ray_origin_x_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_x_mant),
+    .io_result_reflect_ray_origin_y_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_sign),
+    .io_result_reflect_ray_origin_y_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_exp),
+    .io_result_reflect_ray_origin_y_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_y_mant),
+    .io_result_reflect_ray_origin_z_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_sign),
+    .io_result_reflect_ray_origin_z_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_exp),
+    .io_result_reflect_ray_origin_z_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_origin_z_mant),
+    .io_result_reflect_ray_direction_x_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_sign),
+    .io_result_reflect_ray_direction_x_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_exp),
+    .io_result_reflect_ray_direction_x_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_x_mant),
+    .io_result_reflect_ray_direction_y_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_sign),
+    .io_result_reflect_ray_direction_y_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_exp),
+    .io_result_reflect_ray_direction_y_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_y_mant),
+    .io_result_reflect_ray_direction_z_sign(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_sign),
+    .io_result_reflect_ray_direction_z_exp(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_exp),
+    .io_result_reflect_ray_direction_z_mant(rt_u_shadow_sphere_intersect_io_result_reflect_ray_direction_z_mant),
+    .io_result_ray_origin_x_sign(rt_u_shadow_sphere_intersect_io_result_ray_origin_x_sign),
+    .io_result_ray_origin_x_exp(rt_u_shadow_sphere_intersect_io_result_ray_origin_x_exp),
+    .io_result_ray_origin_x_mant(rt_u_shadow_sphere_intersect_io_result_ray_origin_x_mant),
+    .io_result_ray_origin_y_sign(rt_u_shadow_sphere_intersect_io_result_ray_origin_y_sign),
+    .io_result_ray_origin_y_exp(rt_u_shadow_sphere_intersect_io_result_ray_origin_y_exp),
+    .io_result_ray_origin_y_mant(rt_u_shadow_sphere_intersect_io_result_ray_origin_y_mant),
+    .io_result_ray_origin_z_sign(rt_u_shadow_sphere_intersect_io_result_ray_origin_z_sign),
+    .io_result_ray_origin_z_exp(rt_u_shadow_sphere_intersect_io_result_ray_origin_z_exp),
+    .io_result_ray_origin_z_mant(rt_u_shadow_sphere_intersect_io_result_ray_origin_z_mant),
+    .io_result_ray_direction_x_sign(rt_u_shadow_sphere_intersect_io_result_ray_direction_x_sign),
+    .io_result_ray_direction_x_exp(rt_u_shadow_sphere_intersect_io_result_ray_direction_x_exp),
+    .io_result_ray_direction_x_mant(rt_u_shadow_sphere_intersect_io_result_ray_direction_x_mant),
+    .io_result_ray_direction_y_sign(rt_u_shadow_sphere_intersect_io_result_ray_direction_y_sign),
+    .io_result_ray_direction_y_exp(rt_u_shadow_sphere_intersect_io_result_ray_direction_y_exp),
+    .io_result_ray_direction_y_mant(rt_u_shadow_sphere_intersect_io_result_ray_direction_y_mant),
+    .io_result_ray_direction_z_sign(rt_u_shadow_sphere_intersect_io_result_ray_direction_z_sign),
+    .io_result_ray_direction_z_exp(rt_u_shadow_sphere_intersect_io_result_ray_direction_z_exp),
+    .io_result_ray_direction_z_mant(rt_u_shadow_sphere_intersect_io_result_ray_direction_z_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   DotProduct_3_ rt_u_dot_spot_light ( 
     .io_op_vld(rt_sphere_result_vld),
@@ -31440,23 +31446,23 @@ module PanoCore (
     .io_op_b_z_sign(rt_shadow_ray_direction_z_sign),
     .io_op_b_z_exp(rt_shadow_ray_direction_z_exp),
     .io_op_b_z_mant(rt_shadow_ray_direction_z_mant),
-    .io_result_vld(_zz_272_),
-    .io_result_sign(_zz_273_),
-    .io_result_exp(_zz_274_),
-    .io_result_mant(_zz_275_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_dot_spot_light_io_result_vld),
+    .io_result_sign(rt_u_dot_spot_light_io_result_sign),
+    .io_result_exp(rt_u_dot_spot_light_io_result_exp),
+    .io_result_mant(rt_u_dot_spot_light_io_result_mant),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   Fpxx2SInt rt_u_spot_light_int ( 
     .p0_vld(rt_spot_light_vld),
     .sign_p0(rt_spot_light_sign),
     .op_p0_exp(rt_spot_light_exp),
     .op_p0_mant(rt_spot_light_mant),
-    .io_result_vld(_zz_276_),
-    .io_result(_zz_277_),
-    .io_result_ovfl(_zz_278_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_result_vld(rt_u_spot_light_int_io_result_vld),
+    .io_result(rt_u_spot_light_int_io_result),
+    .io_result_ovfl(rt_u_spot_light_int_io_result_ovfl),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   TxtGen u_txt_gen ( 
     .io_pixel_in_vsync(rt_rt_pixel_vsync),
@@ -31466,18 +31472,18 @@ module PanoCore (
     .io_pixel_in_pixel_r(rt_rt_pixel_pixel_r),
     .io_pixel_in_pixel_g(rt_rt_pixel_pixel_g),
     .io_pixel_in_pixel_b(rt_rt_pixel_pixel_b),
-    .io_pixel_out_vsync(_zz_279_),
-    .io_pixel_out_req(_zz_280_),
-    .io_pixel_out_eol(_zz_281_),
-    .io_pixel_out_eof(_zz_282_),
-    .io_pixel_out_pixel_r(_zz_283_),
-    .io_pixel_out_pixel_g(_zz_284_),
-    .io_pixel_out_pixel_b(_zz_285_),
-    .io_txt_buf_wr(_zz_45_),
-    .io_txt_buf_wr_addr(_zz_46_),
-    .io_txt_buf_wr_data(_zz_47_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_pixel_out_vsync(u_txt_gen_io_pixel_out_vsync),
+    .io_pixel_out_req(u_txt_gen_io_pixel_out_req),
+    .io_pixel_out_eol(u_txt_gen_io_pixel_out_eol),
+    .io_pixel_out_eof(u_txt_gen_io_pixel_out_eof),
+    .io_pixel_out_pixel_r(u_txt_gen_io_pixel_out_pixel_r),
+    .io_pixel_out_pixel_g(u_txt_gen_io_pixel_out_pixel_g),
+    .io_pixel_out_pixel_b(u_txt_gen_io_pixel_out_pixel_b),
+    .io_txt_buf_wr(u_mr1_top_io_txt_buf_wr),
+    .io_txt_buf_wr_addr(u_mr1_top_io_txt_buf_wr_addr),
+    .io_txt_buf_wr_data(u_mr1_top_io_txt_buf_wr_data),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   VideoOut vo ( 
     .io_timings_h_active(timings_h_active),
@@ -31499,77 +31505,77 @@ module PanoCore (
     .io_pixel_in_pixel_r(txt_pixel_pixel_r),
     .io_pixel_in_pixel_g(txt_pixel_pixel_g),
     .io_pixel_in_pixel_b(txt_pixel_pixel_b),
-    .io_vga_out_vsync(_zz_286_),
-    .io_vga_out_hsync(_zz_287_),
-    .io_vga_out_blank_(_zz_288_),
-    .io_vga_out_r(_zz_289_),
-    .io_vga_out_g(_zz_290_),
-    .io_vga_out_b(_zz_291_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_vga_out_vsync(vo_io_vga_out_vsync),
+    .io_vga_out_hsync(vo_io_vga_out_hsync),
+    .io_vga_out_blank_(vo_io_vga_out_blank_),
+    .io_vga_out_r(vo_io_vga_out_r),
+    .io_vga_out_g(vo_io_vga_out_g),
+    .io_vga_out_b(vo_io_vga_out_b),
+    .toplevel_resetCtrl_clk25(toplevel_resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(toplevel_resetCtrl_reset_) 
   );
   assign _zz_1_[23 : 0] = (24'b111111111111111111111111);
   assign io_led_green = leds_led_cntr[23];
-  assign io_led_blue = _zz_12_;
+  assign io_led_blue = u_mr1_top_io_led1;
   assign _zz_11_ = 1'b1;
   assign timings_h_active = (12'b001010000000);
   assign timings_h_fp = (8'b00010000);
   assign timings_h_sync = (8'b01100000);
   assign timings_h_bp = (8'b00110000);
   assign timings_h_sync_positive = 1'b0;
-  assign timings_h_total_m1 = _zz_292_;
+  assign timings_h_total_m1 = _zz_12_;
   assign timings_v_active = (11'b00111100000);
   assign timings_v_fp = (6'b001011);
   assign timings_v_sync = (6'b000010);
   assign timings_v_bp = (6'b011111);
   assign timings_v_sync_positive = 1'b0;
-  assign timings_v_total_m1 = {1'd0, _zz_299_};
-  assign vi_gen_pixel_out_vsync = _zz_48_;
-  assign vi_gen_pixel_out_req = _zz_49_;
-  assign vi_gen_pixel_out_eol = _zz_50_;
-  assign vi_gen_pixel_out_eof = _zz_51_;
-  assign vi_gen_pixel_out_pixel_r = _zz_52_;
-  assign vi_gen_pixel_out_pixel_g = _zz_53_;
-  assign vi_gen_pixel_out_pixel_b = _zz_54_;
-  assign rt_cam_sweep_pixel_vsync = _zz_55_;
-  assign rt_cam_sweep_pixel_req = _zz_56_;
-  assign rt_cam_sweep_pixel_eol = _zz_57_;
-  assign rt_cam_sweep_pixel_eof = _zz_58_;
-  assign rt_cam_sweep_pixel_pixel_r = _zz_59_;
-  assign rt_cam_sweep_pixel_pixel_g = _zz_60_;
-  assign rt_cam_sweep_pixel_pixel_b = _zz_61_;
+  assign timings_v_total_m1 = {1'd0, _zz_19_};
+  assign vi_gen_pixel_out_vsync = vi_gen_io_pixel_out_vsync;
+  assign vi_gen_pixel_out_req = vi_gen_io_pixel_out_req;
+  assign vi_gen_pixel_out_eol = vi_gen_io_pixel_out_eol;
+  assign vi_gen_pixel_out_eof = vi_gen_io_pixel_out_eof;
+  assign vi_gen_pixel_out_pixel_r = vi_gen_io_pixel_out_pixel_r;
+  assign vi_gen_pixel_out_pixel_g = vi_gen_io_pixel_out_pixel_g;
+  assign vi_gen_pixel_out_pixel_b = vi_gen_io_pixel_out_pixel_b;
+  assign rt_cam_sweep_pixel_vsync = rt_u_cam_sweep_io_pixel_out_vsync;
+  assign rt_cam_sweep_pixel_req = rt_u_cam_sweep_io_pixel_out_req;
+  assign rt_cam_sweep_pixel_eol = rt_u_cam_sweep_io_pixel_out_eol;
+  assign rt_cam_sweep_pixel_eof = rt_u_cam_sweep_io_pixel_out_eof;
+  assign rt_cam_sweep_pixel_pixel_r = rt_u_cam_sweep_io_pixel_out_pixel_r;
+  assign rt_cam_sweep_pixel_pixel_g = rt_u_cam_sweep_io_pixel_out_pixel_g;
+  assign rt_cam_sweep_pixel_pixel_b = rt_u_cam_sweep_io_pixel_out_pixel_b;
   always @ (*) begin
-    rt_ray_origin_x_sign = _zz_62_;
-    rt_ray_origin_x_exp = _zz_63_;
-    rt_ray_origin_x_mant = _zz_64_;
-    rt_ray_origin_y_sign = _zz_65_;
-    rt_ray_origin_y_exp = _zz_66_;
-    rt_ray_origin_y_mant = _zz_67_;
-    rt_ray_origin_z_sign = _zz_68_;
-    rt_ray_origin_z_exp = _zz_69_;
-    rt_ray_origin_z_mant = _zz_70_;
+    rt_ray_origin_x_sign = rt_u_cam_sweep_io_ray_origin_x_sign;
+    rt_ray_origin_x_exp = rt_u_cam_sweep_io_ray_origin_x_exp;
+    rt_ray_origin_x_mant = rt_u_cam_sweep_io_ray_origin_x_mant;
+    rt_ray_origin_y_sign = rt_u_cam_sweep_io_ray_origin_y_sign;
+    rt_ray_origin_y_exp = rt_u_cam_sweep_io_ray_origin_y_exp;
+    rt_ray_origin_y_mant = rt_u_cam_sweep_io_ray_origin_y_mant;
+    rt_ray_origin_z_sign = rt_u_cam_sweep_io_ray_origin_z_sign;
+    rt_ray_origin_z_exp = rt_u_cam_sweep_io_ray_origin_z_exp;
+    rt_ray_origin_z_mant = rt_u_cam_sweep_io_ray_origin_z_mant;
     if(1'b1)begin
-      rt_ray_origin_x_sign = _zz_15_;
-      rt_ray_origin_x_exp = _zz_16_;
-      rt_ray_origin_x_mant = _zz_17_;
-      rt_ray_origin_y_sign = _zz_18_;
-      rt_ray_origin_y_exp = _zz_19_;
-      rt_ray_origin_y_mant = _zz_20_;
-      rt_ray_origin_z_sign = _zz_21_;
-      rt_ray_origin_z_exp = _zz_22_;
-      rt_ray_origin_z_mant = _zz_23_;
+      rt_ray_origin_x_sign = u_mr1_top_io_camera_pos_x_sign;
+      rt_ray_origin_x_exp = u_mr1_top_io_camera_pos_x_exp;
+      rt_ray_origin_x_mant = u_mr1_top_io_camera_pos_x_mant;
+      rt_ray_origin_y_sign = u_mr1_top_io_camera_pos_y_sign;
+      rt_ray_origin_y_exp = u_mr1_top_io_camera_pos_y_exp;
+      rt_ray_origin_y_mant = u_mr1_top_io_camera_pos_y_mant;
+      rt_ray_origin_z_sign = u_mr1_top_io_camera_pos_z_sign;
+      rt_ray_origin_z_exp = u_mr1_top_io_camera_pos_z_exp;
+      rt_ray_origin_z_mant = u_mr1_top_io_camera_pos_z_mant;
     end
   end
 
-  assign rt_ray_direction_x_sign = _zz_71_;
-  assign rt_ray_direction_x_exp = _zz_72_;
-  assign rt_ray_direction_x_mant = _zz_73_;
-  assign rt_ray_direction_y_sign = _zz_74_;
-  assign rt_ray_direction_y_exp = _zz_75_;
-  assign rt_ray_direction_y_mant = _zz_76_;
-  assign rt_ray_direction_z_sign = _zz_77_;
-  assign rt_ray_direction_z_exp = _zz_78_;
-  assign rt_ray_direction_z_mant = _zz_79_;
+  assign rt_ray_direction_x_sign = rt_u_cam_sweep_io_ray_direction_x_sign;
+  assign rt_ray_direction_x_exp = rt_u_cam_sweep_io_ray_direction_x_exp;
+  assign rt_ray_direction_x_mant = rt_u_cam_sweep_io_ray_direction_x_mant;
+  assign rt_ray_direction_y_sign = rt_u_cam_sweep_io_ray_direction_y_sign;
+  assign rt_ray_direction_y_exp = rt_u_cam_sweep_io_ray_direction_y_exp;
+  assign rt_ray_direction_y_mant = rt_u_cam_sweep_io_ray_direction_y_mant;
+  assign rt_ray_direction_z_sign = rt_u_cam_sweep_io_ray_direction_z_sign;
+  assign rt_ray_direction_z_exp = rt_u_cam_sweep_io_ray_direction_z_exp;
+  assign rt_ray_direction_z_mant = rt_u_cam_sweep_io_ray_direction_z_mant;
   assign rt_plane_origin_x_sign = 1'b0;
   assign rt_plane_origin_x_exp = (6'b000000);
   assign rt_plane_origin_x_mant = (13'b0000000000000);
@@ -31588,15 +31594,15 @@ module PanoCore (
   assign rt_plane_normal_z_sign = 1'b0;
   assign rt_plane_normal_z_exp = (6'b000000);
   assign rt_plane_normal_z_mant = (13'b0000000000000);
-  assign rt_sphere_center_x_sign = _zz_36_;
-  assign rt_sphere_center_x_exp = _zz_37_;
-  assign rt_sphere_center_x_mant = _zz_38_;
-  assign rt_sphere_center_y_sign = _zz_39_;
-  assign rt_sphere_center_y_exp = _zz_40_;
-  assign rt_sphere_center_y_mant = _zz_41_;
-  assign rt_sphere_center_z_sign = _zz_42_;
-  assign rt_sphere_center_z_exp = _zz_43_;
-  assign rt_sphere_center_z_mant = _zz_44_;
+  assign rt_sphere_center_x_sign = u_mr1_top_io_sphere_pos_x_sign;
+  assign rt_sphere_center_x_exp = u_mr1_top_io_sphere_pos_x_exp;
+  assign rt_sphere_center_x_mant = u_mr1_top_io_sphere_pos_x_mant;
+  assign rt_sphere_center_y_sign = u_mr1_top_io_sphere_pos_y_sign;
+  assign rt_sphere_center_y_exp = u_mr1_top_io_sphere_pos_y_exp;
+  assign rt_sphere_center_y_mant = u_mr1_top_io_sphere_pos_y_mant;
+  assign rt_sphere_center_z_sign = u_mr1_top_io_sphere_pos_z_sign;
+  assign rt_sphere_center_z_exp = u_mr1_top_io_sphere_pos_z_exp;
+  assign rt_sphere_center_z_mant = u_mr1_top_io_sphere_pos_z_mant;
   assign rt_sphere_radius2_sign = 1'b0;
   assign rt_sphere_radius2_exp = (6'b100010);
   assign rt_sphere_radius2_mant = (13'b0010000000000);
@@ -31609,38 +31615,38 @@ module PanoCore (
   assign rt_shadow_ray_direction_z_sign = 1'b0;
   assign rt_shadow_ray_direction_z_exp = (6'b011100);
   assign rt_shadow_ray_direction_z_mant = (13'b1011111011101);
-  assign rt_rot_x_sin_sign = _zz_24_;
-  assign rt_rot_x_sin_exp = _zz_25_;
-  assign rt_rot_x_sin_mant = _zz_26_;
-  assign rt_rot_x_cos_sign = _zz_27_;
-  assign rt_rot_x_cos_exp = _zz_28_;
-  assign rt_rot_x_cos_mant = _zz_29_;
-  assign rt_ray_dir_rot_x_vld = _zz_80_;
-  assign rt_ray_dir_rot_x_x_sign = _zz_81_;
-  assign rt_ray_dir_rot_x_x_exp = _zz_82_;
-  assign rt_ray_dir_rot_x_x_mant = _zz_83_;
-  assign rt_ray_dir_rot_x_y_sign = _zz_84_;
-  assign rt_ray_dir_rot_x_y_exp = _zz_85_;
-  assign rt_ray_dir_rot_x_y_mant = _zz_86_;
-  assign rt_ray_dir_rot_x_z_sign = _zz_87_;
-  assign rt_ray_dir_rot_x_z_exp = _zz_88_;
-  assign rt_ray_dir_rot_x_z_mant = _zz_89_;
-  assign rt_rot_y_sin_sign = _zz_30_;
-  assign rt_rot_y_sin_exp = _zz_31_;
-  assign rt_rot_y_sin_mant = _zz_32_;
-  assign rt_rot_y_cos_sign = _zz_33_;
-  assign rt_rot_y_cos_exp = _zz_34_;
-  assign rt_rot_y_cos_mant = _zz_35_;
-  assign rt_ray_dir_rot_y_vld = _zz_90_;
-  assign rt_ray_dir_rot_y_x_sign = _zz_91_;
-  assign rt_ray_dir_rot_y_x_exp = _zz_92_;
-  assign rt_ray_dir_rot_y_x_mant = _zz_93_;
-  assign rt_ray_dir_rot_y_y_sign = _zz_94_;
-  assign rt_ray_dir_rot_y_y_exp = _zz_95_;
-  assign rt_ray_dir_rot_y_y_mant = _zz_96_;
-  assign rt_ray_dir_rot_y_z_sign = _zz_97_;
-  assign rt_ray_dir_rot_y_z_exp = _zz_98_;
-  assign rt_ray_dir_rot_y_z_mant = _zz_99_;
+  assign rt_rot_x_sin_sign = u_mr1_top_io_rot_x_sin_sign;
+  assign rt_rot_x_sin_exp = u_mr1_top_io_rot_x_sin_exp;
+  assign rt_rot_x_sin_mant = u_mr1_top_io_rot_x_sin_mant;
+  assign rt_rot_x_cos_sign = u_mr1_top_io_rot_x_cos_sign;
+  assign rt_rot_x_cos_exp = u_mr1_top_io_rot_x_cos_exp;
+  assign rt_rot_x_cos_mant = u_mr1_top_io_rot_x_cos_mant;
+  assign rt_ray_dir_rot_x_vld = rt_u_ray_dir_rot_x_io_result_vld;
+  assign rt_ray_dir_rot_x_x_sign = rt_u_ray_dir_rot_x_io_result_x_sign;
+  assign rt_ray_dir_rot_x_x_exp = rt_u_ray_dir_rot_x_io_result_x_exp;
+  assign rt_ray_dir_rot_x_x_mant = rt_u_ray_dir_rot_x_io_result_x_mant;
+  assign rt_ray_dir_rot_x_y_sign = rt_u_ray_dir_rot_x_io_result_y_sign;
+  assign rt_ray_dir_rot_x_y_exp = rt_u_ray_dir_rot_x_io_result_y_exp;
+  assign rt_ray_dir_rot_x_y_mant = rt_u_ray_dir_rot_x_io_result_y_mant;
+  assign rt_ray_dir_rot_x_z_sign = rt_u_ray_dir_rot_x_io_result_z_sign;
+  assign rt_ray_dir_rot_x_z_exp = rt_u_ray_dir_rot_x_io_result_z_exp;
+  assign rt_ray_dir_rot_x_z_mant = rt_u_ray_dir_rot_x_io_result_z_mant;
+  assign rt_rot_y_sin_sign = u_mr1_top_io_rot_y_sin_sign;
+  assign rt_rot_y_sin_exp = u_mr1_top_io_rot_y_sin_exp;
+  assign rt_rot_y_sin_mant = u_mr1_top_io_rot_y_sin_mant;
+  assign rt_rot_y_cos_sign = u_mr1_top_io_rot_y_cos_sign;
+  assign rt_rot_y_cos_exp = u_mr1_top_io_rot_y_cos_exp;
+  assign rt_rot_y_cos_mant = u_mr1_top_io_rot_y_cos_mant;
+  assign rt_ray_dir_rot_y_vld = rt_u_ray_dir_rot_y_io_result_vld;
+  assign rt_ray_dir_rot_y_x_sign = rt_u_ray_dir_rot_y_io_result_x_sign;
+  assign rt_ray_dir_rot_y_x_exp = rt_u_ray_dir_rot_y_io_result_x_exp;
+  assign rt_ray_dir_rot_y_x_mant = rt_u_ray_dir_rot_y_io_result_x_mant;
+  assign rt_ray_dir_rot_y_y_sign = rt_u_ray_dir_rot_y_io_result_y_sign;
+  assign rt_ray_dir_rot_y_y_exp = rt_u_ray_dir_rot_y_io_result_y_exp;
+  assign rt_ray_dir_rot_y_y_mant = rt_u_ray_dir_rot_y_io_result_y_mant;
+  assign rt_ray_dir_rot_y_z_sign = rt_u_ray_dir_rot_y_io_result_z_sign;
+  assign rt_ray_dir_rot_y_z_exp = rt_u_ray_dir_rot_y_io_result_z_exp;
+  assign rt_ray_dir_rot_y_z_mant = rt_u_ray_dir_rot_y_io_result_z_mant;
   assign rt_ray_normalized_origin_x_sign = rt_ray_origin_x_sign;
   assign rt_ray_normalized_origin_x_exp = rt_ray_origin_x_exp;
   assign rt_ray_normalized_origin_x_mant = rt_ray_origin_x_mant;
@@ -31650,54 +31656,54 @@ module PanoCore (
   assign rt_ray_normalized_origin_z_sign = rt_ray_origin_z_sign;
   assign rt_ray_normalized_origin_z_exp = rt_ray_origin_z_exp;
   assign rt_ray_normalized_origin_z_mant = rt_ray_origin_z_mant;
-  assign rt_ray_normalized_vld = _zz_100_;
-  assign rt_ray_normalized_direction_x_sign = _zz_101_;
-  assign rt_ray_normalized_direction_x_exp = _zz_102_;
-  assign rt_ray_normalized_direction_x_mant = _zz_103_;
-  assign rt_ray_normalized_direction_y_sign = _zz_104_;
-  assign rt_ray_normalized_direction_y_exp = _zz_105_;
-  assign rt_ray_normalized_direction_y_mant = _zz_106_;
-  assign rt_ray_normalized_direction_z_sign = _zz_107_;
-  assign rt_ray_normalized_direction_z_exp = _zz_108_;
-  assign rt_ray_normalized_direction_z_mant = _zz_109_;
-  assign rt_sphere_result_vld = _zz_122_;
-  assign rt_sphere_intersects = _zz_123_;
-  assign rt_sphere_reflect_ray_origin_x_sign = _zz_145_;
-  assign rt_sphere_reflect_ray_origin_x_exp = _zz_146_;
-  assign rt_sphere_reflect_ray_origin_x_mant = _zz_147_;
-  assign rt_sphere_reflect_ray_origin_y_sign = _zz_148_;
-  assign rt_sphere_reflect_ray_origin_y_exp = _zz_149_;
-  assign rt_sphere_reflect_ray_origin_y_mant = _zz_150_;
-  assign rt_sphere_reflect_ray_origin_z_sign = _zz_151_;
-  assign rt_sphere_reflect_ray_origin_z_exp = _zz_152_;
-  assign rt_sphere_reflect_ray_origin_z_mant = _zz_153_;
-  assign rt_sphere_reflect_ray_direction_x_sign = _zz_154_;
-  assign rt_sphere_reflect_ray_direction_x_exp = _zz_155_;
-  assign rt_sphere_reflect_ray_direction_x_mant = _zz_156_;
-  assign rt_sphere_reflect_ray_direction_y_sign = _zz_157_;
-  assign rt_sphere_reflect_ray_direction_y_exp = _zz_158_;
-  assign rt_sphere_reflect_ray_direction_y_mant = _zz_159_;
-  assign rt_sphere_reflect_ray_direction_z_sign = _zz_160_;
-  assign rt_sphere_reflect_ray_direction_z_exp = _zz_161_;
-  assign rt_sphere_reflect_ray_direction_z_mant = _zz_162_;
-  assign rt_sphere_ray_origin_x_sign = _zz_163_;
-  assign rt_sphere_ray_origin_x_exp = _zz_164_;
-  assign rt_sphere_ray_origin_x_mant = _zz_165_;
-  assign rt_sphere_ray_origin_y_sign = _zz_166_;
-  assign rt_sphere_ray_origin_y_exp = _zz_167_;
-  assign rt_sphere_ray_origin_y_mant = _zz_168_;
-  assign rt_sphere_ray_origin_z_sign = _zz_169_;
-  assign rt_sphere_ray_origin_z_exp = _zz_170_;
-  assign rt_sphere_ray_origin_z_mant = _zz_171_;
-  assign rt_sphere_ray_direction_x_sign = _zz_172_;
-  assign rt_sphere_ray_direction_x_exp = _zz_173_;
-  assign rt_sphere_ray_direction_x_mant = _zz_174_;
-  assign rt_sphere_ray_direction_y_sign = _zz_175_;
-  assign rt_sphere_ray_direction_y_exp = _zz_176_;
-  assign rt_sphere_ray_direction_y_mant = _zz_177_;
-  assign rt_sphere_ray_direction_z_sign = _zz_178_;
-  assign rt_sphere_ray_direction_z_exp = _zz_179_;
-  assign rt_sphere_ray_direction_z_mant = _zz_180_;
+  assign rt_ray_normalized_vld = rt_u_normalize_ray_io_result_vld;
+  assign rt_ray_normalized_direction_x_sign = rt_u_normalize_ray_io_result_x_sign;
+  assign rt_ray_normalized_direction_x_exp = rt_u_normalize_ray_io_result_x_exp;
+  assign rt_ray_normalized_direction_x_mant = rt_u_normalize_ray_io_result_x_mant;
+  assign rt_ray_normalized_direction_y_sign = rt_u_normalize_ray_io_result_y_sign;
+  assign rt_ray_normalized_direction_y_exp = rt_u_normalize_ray_io_result_y_exp;
+  assign rt_ray_normalized_direction_y_mant = rt_u_normalize_ray_io_result_y_mant;
+  assign rt_ray_normalized_direction_z_sign = rt_u_normalize_ray_io_result_z_sign;
+  assign rt_ray_normalized_direction_z_exp = rt_u_normalize_ray_io_result_z_exp;
+  assign rt_ray_normalized_direction_z_mant = rt_u_normalize_ray_io_result_z_mant;
+  assign rt_sphere_result_vld = rt_u_sphere_intersect_io_result_vld;
+  assign rt_sphere_intersects = rt_u_sphere_intersect_io_result_intersects;
+  assign rt_sphere_reflect_ray_origin_x_sign = rt_u_sphere_intersect_io_result_reflect_ray_origin_x_sign;
+  assign rt_sphere_reflect_ray_origin_x_exp = rt_u_sphere_intersect_io_result_reflect_ray_origin_x_exp;
+  assign rt_sphere_reflect_ray_origin_x_mant = rt_u_sphere_intersect_io_result_reflect_ray_origin_x_mant;
+  assign rt_sphere_reflect_ray_origin_y_sign = rt_u_sphere_intersect_io_result_reflect_ray_origin_y_sign;
+  assign rt_sphere_reflect_ray_origin_y_exp = rt_u_sphere_intersect_io_result_reflect_ray_origin_y_exp;
+  assign rt_sphere_reflect_ray_origin_y_mant = rt_u_sphere_intersect_io_result_reflect_ray_origin_y_mant;
+  assign rt_sphere_reflect_ray_origin_z_sign = rt_u_sphere_intersect_io_result_reflect_ray_origin_z_sign;
+  assign rt_sphere_reflect_ray_origin_z_exp = rt_u_sphere_intersect_io_result_reflect_ray_origin_z_exp;
+  assign rt_sphere_reflect_ray_origin_z_mant = rt_u_sphere_intersect_io_result_reflect_ray_origin_z_mant;
+  assign rt_sphere_reflect_ray_direction_x_sign = rt_u_sphere_intersect_io_result_reflect_ray_direction_x_sign;
+  assign rt_sphere_reflect_ray_direction_x_exp = rt_u_sphere_intersect_io_result_reflect_ray_direction_x_exp;
+  assign rt_sphere_reflect_ray_direction_x_mant = rt_u_sphere_intersect_io_result_reflect_ray_direction_x_mant;
+  assign rt_sphere_reflect_ray_direction_y_sign = rt_u_sphere_intersect_io_result_reflect_ray_direction_y_sign;
+  assign rt_sphere_reflect_ray_direction_y_exp = rt_u_sphere_intersect_io_result_reflect_ray_direction_y_exp;
+  assign rt_sphere_reflect_ray_direction_y_mant = rt_u_sphere_intersect_io_result_reflect_ray_direction_y_mant;
+  assign rt_sphere_reflect_ray_direction_z_sign = rt_u_sphere_intersect_io_result_reflect_ray_direction_z_sign;
+  assign rt_sphere_reflect_ray_direction_z_exp = rt_u_sphere_intersect_io_result_reflect_ray_direction_z_exp;
+  assign rt_sphere_reflect_ray_direction_z_mant = rt_u_sphere_intersect_io_result_reflect_ray_direction_z_mant;
+  assign rt_sphere_ray_origin_x_sign = rt_u_sphere_intersect_io_result_ray_origin_x_sign;
+  assign rt_sphere_ray_origin_x_exp = rt_u_sphere_intersect_io_result_ray_origin_x_exp;
+  assign rt_sphere_ray_origin_x_mant = rt_u_sphere_intersect_io_result_ray_origin_x_mant;
+  assign rt_sphere_ray_origin_y_sign = rt_u_sphere_intersect_io_result_ray_origin_y_sign;
+  assign rt_sphere_ray_origin_y_exp = rt_u_sphere_intersect_io_result_ray_origin_y_exp;
+  assign rt_sphere_ray_origin_y_mant = rt_u_sphere_intersect_io_result_ray_origin_y_mant;
+  assign rt_sphere_ray_origin_z_sign = rt_u_sphere_intersect_io_result_ray_origin_z_sign;
+  assign rt_sphere_ray_origin_z_exp = rt_u_sphere_intersect_io_result_ray_origin_z_exp;
+  assign rt_sphere_ray_origin_z_mant = rt_u_sphere_intersect_io_result_ray_origin_z_mant;
+  assign rt_sphere_ray_direction_x_sign = rt_u_sphere_intersect_io_result_ray_direction_x_sign;
+  assign rt_sphere_ray_direction_x_exp = rt_u_sphere_intersect_io_result_ray_direction_x_exp;
+  assign rt_sphere_ray_direction_x_mant = rt_u_sphere_intersect_io_result_ray_direction_x_mant;
+  assign rt_sphere_ray_direction_y_sign = rt_u_sphere_intersect_io_result_ray_direction_y_sign;
+  assign rt_sphere_ray_direction_y_exp = rt_u_sphere_intersect_io_result_ray_direction_y_exp;
+  assign rt_sphere_ray_direction_y_mant = rt_u_sphere_intersect_io_result_ray_direction_y_mant;
+  assign rt_sphere_ray_direction_z_sign = rt_u_sphere_intersect_io_result_ray_direction_z_sign;
+  assign rt_sphere_ray_direction_z_exp = rt_u_sphere_intersect_io_result_ray_direction_z_exp;
+  assign rt_sphere_ray_direction_z_mant = rt_u_sphere_intersect_io_result_ray_direction_z_mant;
   assign rt_plane_ray_origin_x_sign = (rt_sphere_intersects ? rt_sphere_reflect_ray_origin_x_sign : rt_sphere_ray_origin_x_sign);
   assign rt_plane_ray_origin_x_exp = (rt_sphere_intersects ? rt_sphere_reflect_ray_origin_x_exp : rt_sphere_ray_origin_x_exp);
   assign rt_plane_ray_origin_x_mant = (rt_sphere_intersects ? rt_sphere_reflect_ray_origin_x_mant : rt_sphere_ray_origin_x_mant);
@@ -31716,32 +31722,32 @@ module PanoCore (
   assign rt_plane_ray_direction_z_sign = (rt_sphere_intersects ? rt_sphere_reflect_ray_direction_z_sign : rt_sphere_ray_direction_z_sign);
   assign rt_plane_ray_direction_z_exp = (rt_sphere_intersects ? rt_sphere_reflect_ray_direction_z_exp : rt_sphere_ray_direction_z_exp);
   assign rt_plane_ray_direction_z_mant = (rt_sphere_intersects ? rt_sphere_reflect_ray_direction_z_mant : rt_sphere_ray_direction_z_mant);
-  assign rt_plane_intersect_vld = _zz_181_;
-  assign rt_plane_intersects = _zz_182_;
-  assign rt_plane_intersect_t_sign = _zz_183_;
-  assign rt_plane_intersect_t_exp = _zz_184_;
-  assign rt_plane_intersect_t_mant = _zz_185_;
-  assign rt_plane_intersection_x_sign = _zz_186_;
-  assign rt_plane_intersection_x_exp = _zz_187_;
-  assign rt_plane_intersection_x_mant = _zz_188_;
-  assign rt_plane_intersection_y_sign = _zz_189_;
-  assign rt_plane_intersection_y_exp = _zz_190_;
-  assign rt_plane_intersection_y_mant = _zz_191_;
-  assign rt_plane_intersection_z_sign = _zz_192_;
-  assign rt_plane_intersection_z_exp = _zz_193_;
-  assign rt_plane_intersection_z_mant = _zz_194_;
+  assign rt_plane_intersect_vld = rt_u_plane_intersect_io_result_vld;
+  assign rt_plane_intersects = rt_u_plane_intersect_io_result_intersects;
+  assign rt_plane_intersect_t_sign = rt_u_plane_intersect_io_result_t_sign;
+  assign rt_plane_intersect_t_exp = rt_u_plane_intersect_io_result_t_exp;
+  assign rt_plane_intersect_t_mant = rt_u_plane_intersect_io_result_t_mant;
+  assign rt_plane_intersection_x_sign = rt_u_plane_intersect_io_result_intersection_x_sign;
+  assign rt_plane_intersection_x_exp = rt_u_plane_intersect_io_result_intersection_x_exp;
+  assign rt_plane_intersection_x_mant = rt_u_plane_intersect_io_result_intersection_x_mant;
+  assign rt_plane_intersection_y_sign = rt_u_plane_intersect_io_result_intersection_y_sign;
+  assign rt_plane_intersection_y_exp = rt_u_plane_intersect_io_result_intersection_y_exp;
+  assign rt_plane_intersection_y_mant = rt_u_plane_intersect_io_result_intersection_y_mant;
+  assign rt_plane_intersection_z_sign = rt_u_plane_intersect_io_result_intersection_z_sign;
+  assign rt_plane_intersection_z_exp = rt_u_plane_intersect_io_result_intersection_z_exp;
+  assign rt_plane_intersection_z_mant = rt_u_plane_intersect_io_result_intersection_z_mant;
   assign rt_plane_intersection_x_abs_sign = 1'b0;
   assign rt_plane_intersection_x_abs_exp = rt_plane_intersection_x_exp;
   assign rt_plane_intersection_x_abs_mant = rt_plane_intersection_x_mant;
   assign rt_plane_intersection_z_abs_sign = 1'b0;
   assign rt_plane_intersection_z_abs_exp = rt_plane_intersection_z_exp;
   assign rt_plane_intersection_z_abs_mant = rt_plane_intersection_z_mant;
-  assign rt_plane_intersect_vld_delayed = _zz_195_;
-  assign rt_plane_x_int_delayed_1 = _zz_196_;
-  assign rt_plane_intersection_z_vld_delayed = _zz_198_;
-  assign rt_plane_z_int_delayed_0 = _zz_199_;
+  assign rt_plane_intersect_vld_delayed = rt_u_plane_x_int_io_result_vld;
+  assign rt_plane_x_int_delayed_1 = rt_u_plane_x_int_io_result;
+  assign rt_plane_intersection_z_vld_delayed = rt_u_plane_z_int_io_result_vld;
+  assign rt_plane_z_int_delayed_0 = rt_u_plane_z_int_io_result;
   assign rt_checker_color = (((rt_plane_x_int_delayed_1[14] ^ rt_plane_z_int_delayed_0[14]) ^ rt_plane_intersection_x_sign_delayed) ^ rt_plane_intersection_z_sign_delayed);
-  assign rt_plane_in_bounds = (($signed(_zz_306_) < $signed(_zz_307_)) && ($signed(_zz_308_) < $signed(_zz_309_)));
+  assign rt_plane_in_bounds = (($signed(_zz_26_) < $signed(_zz_27_)) && ($signed(_zz_28_) < $signed(_zz_29_)));
   assign rt_plane_intersects_final = (rt_plane_in_bounds && rt_plane_intersects_delayed);
   assign rt_shadow_ray_origin_x_sign = rt_plane_intersection_x_sign;
   assign rt_shadow_ray_origin_x_exp = rt_plane_intersection_x_exp;
@@ -31761,16 +31767,16 @@ module PanoCore (
   assign rt_shadow_ray_direction_z_sign_1_ = rt_shadow_ray_direction_z_sign;
   assign rt_shadow_ray_direction_z_exp_1_ = rt_shadow_ray_direction_z_exp;
   assign rt_shadow_ray_direction_z_mant_1_ = rt_shadow_ray_direction_z_mant;
-  assign rt_cam_sweep_pixel_delayed_vld = _zz_201_;
-  assign rt_shadow_sphere_intersects_delayed_1 = _zz_202_;
-  assign rt_spot_light_vld = _zz_272_;
-  assign rt_spot_light_sign = _zz_273_;
-  assign rt_spot_light_exp = _zz_274_;
-  assign rt_spot_light_mant = _zz_275_;
-  assign rt_spot_light_int_vld = _zz_276_;
-  assign rt_spot_light_int_full = _zz_277_;
-  assign rt_spot_light_int = (rt_spot_light_sign_regNext ? (9'b000000000) : _zz_310_);
-  assign rt_spot_light_final = (rt_spot_light_e8[8] ? (8'b11111111) : _zz_317_);
+  assign rt_cam_sweep_pixel_delayed_vld = rt_u_shadow_sphere_intersect_io_early_intersects_vld;
+  assign rt_shadow_sphere_intersects_delayed_1 = rt_u_shadow_sphere_intersect_io_early_intersects;
+  assign rt_spot_light_vld = rt_u_dot_spot_light_io_result_vld;
+  assign rt_spot_light_sign = rt_u_dot_spot_light_io_result_sign;
+  assign rt_spot_light_exp = rt_u_dot_spot_light_io_result_exp;
+  assign rt_spot_light_mant = rt_u_dot_spot_light_io_result_mant;
+  assign rt_spot_light_int_vld = rt_u_spot_light_int_io_result_vld;
+  assign rt_spot_light_int_full = rt_u_spot_light_int_io_result;
+  assign rt_spot_light_int = (rt_spot_light_sign_regNext ? (9'b000000000) : _zz_30_);
+  assign rt_spot_light_final = (rt_spot_light_e8[8] ? (8'b11111111) : _zz_37_);
   assign rt_sky_r = (8'b00000000);
   assign rt_sky_g = (8'b00000000);
   assign rt_sky_b = (8'b11100101);
@@ -31838,9 +31844,9 @@ module PanoCore (
       end
     end
     if(rt_sphere_intersects_delayed)begin
-      _zz_2_ = (_zz_8_[8] ? (8'b11111111) : _zz_327_);
-      _zz_3_ = (_zz_9_[8] ? (8'b11111111) : _zz_328_);
-      _zz_4_ = (_zz_10_[8] ? (8'b11111111) : _zz_329_);
+      _zz_2_ = (_zz_8_[8] ? (8'b11111111) : _zz_47_);
+      _zz_3_ = (_zz_9_[8] ? (8'b11111111) : _zz_48_);
+      _zz_4_ = (_zz_10_[8] ? (8'b11111111) : _zz_49_);
     end else begin
       if(rt_plane_intersects_final_delayed_1)begin
         if(rt_shadow_sphere_intersects_delayed_1)begin
@@ -31878,25 +31884,25 @@ module PanoCore (
     end
   end
 
-  assign _zz_8_ = (_zz_318_ + _zz_320_);
-  assign _zz_9_ = (_zz_321_ + _zz_323_);
-  assign _zz_10_ = (_zz_324_ + _zz_326_);
+  assign _zz_8_ = (_zz_38_ + _zz_40_);
+  assign _zz_9_ = (_zz_41_ + _zz_43_);
+  assign _zz_10_ = (_zz_44_ + _zz_46_);
   assign eof_final = (rt_rt_pixel_req && rt_rt_pixel_eof);
-  assign txt_pixel_vsync = _zz_279_;
-  assign txt_pixel_req = _zz_280_;
-  assign txt_pixel_eol = _zz_281_;
-  assign txt_pixel_eof = _zz_282_;
-  assign txt_pixel_pixel_r = _zz_283_;
-  assign txt_pixel_pixel_g = _zz_284_;
-  assign txt_pixel_pixel_b = _zz_285_;
-  assign io_vo_vsync = _zz_286_;
-  assign io_vo_hsync = _zz_287_;
-  assign io_vo_blank_ = _zz_288_;
-  assign io_vo_r = _zz_289_;
-  assign io_vo_g = _zz_290_;
-  assign io_vo_b = _zz_291_;
-  always @ (posedge resetCtrl_clk25) begin
-    if(!resetCtrl_reset_) begin
+  assign txt_pixel_vsync = u_txt_gen_io_pixel_out_vsync;
+  assign txt_pixel_req = u_txt_gen_io_pixel_out_req;
+  assign txt_pixel_eol = u_txt_gen_io_pixel_out_eol;
+  assign txt_pixel_eof = u_txt_gen_io_pixel_out_eof;
+  assign txt_pixel_pixel_r = u_txt_gen_io_pixel_out_pixel_r;
+  assign txt_pixel_pixel_g = u_txt_gen_io_pixel_out_pixel_g;
+  assign txt_pixel_pixel_b = u_txt_gen_io_pixel_out_pixel_b;
+  assign io_vo_vsync = vo_io_vga_out_vsync;
+  assign io_vo_hsync = vo_io_vga_out_hsync;
+  assign io_vo_blank_ = vo_io_vga_out_blank_;
+  assign io_vo_r = vo_io_vga_out_r;
+  assign io_vo_g = vo_io_vga_out_g;
+  assign io_vo_b = vo_io_vga_out_b;
+  always @ (posedge toplevel_resetCtrl_clk25) begin
+    if(!toplevel_resetCtrl_reset_) begin
       leds_led_cntr <= (24'b000000000000000000000000);
     end else begin
       if((leds_led_cntr == _zz_1_))begin
@@ -31907,17 +31913,17 @@ module PanoCore (
     end
   end
 
-  always @ (posedge resetCtrl_clk25) begin
+  always @ (posedge toplevel_resetCtrl_clk25) begin
     rt_plane_intersection_x_sign_delayed <= rt_plane_intersection_x_sign;
     rt_plane_intersection_z_sign_delayed <= rt_plane_intersection_z_sign;
     rt_plane_intersects_delayed <= rt_plane_intersects;
     rt_spot_light_sign_regNext <= rt_spot_light_sign;
     rt_spot_light_e2_vld <= rt_spot_light_int_vld;
-    rt_spot_light_e2 <= _zz_311_[8:0];
+    rt_spot_light_e2 <= _zz_31_[8:0];
     rt_spot_light_e4_vld <= rt_spot_light_e2_vld;
-    rt_spot_light_e4 <= _zz_313_[8:0];
+    rt_spot_light_e4 <= _zz_33_[8:0];
     rt_spot_light_final_vld <= rt_spot_light_e4_vld;
-    rt_spot_light_e8 <= _zz_315_[8:0];
+    rt_spot_light_e8 <= _zz_35_[8:0];
     rt_plane_intersects_final_delay_1 <= rt_plane_intersects_final;
     rt_plane_intersects_final_delay_2 <= rt_plane_intersects_final_delay_1;
     rt_plane_intersects_final_delay_3 <= rt_plane_intersects_final_delay_2;
@@ -32587,53 +32593,53 @@ module Pano (
       output [7:0] vo_b,
       output  led_green,
       output  led_blue);
+  wire  core_u_pano_core_io_vo_vsync;
+  wire  core_u_pano_core_io_vo_hsync;
+  wire  core_u_pano_core_io_vo_blank_;
+  wire [7:0] core_u_pano_core_io_vo_r;
+  wire [7:0] core_u_pano_core_io_vo_g;
+  wire [7:0] core_u_pano_core_io_vo_b;
+  wire  core_u_pano_core_io_led_green;
+  wire  core_u_pano_core_io_led_blue;
   wire  _zz_2_;
-  wire  _zz_3_;
-  wire  _zz_4_;
-  wire [7:0] _zz_5_;
-  wire [7:0] _zz_6_;
-  wire [7:0] _zz_7_;
-  wire  _zz_8_;
-  wire  _zz_9_;
-  wire  _zz_10_;
   reg  resetCtrl_reset_unbuffered_;
   reg [4:0] resetCtrl_reset_cntr = (5'b00000);
   wire [4:0] _zz_1_;
   reg  resetCtrl_reset_;
   reg [1:0] resetCtrl_clk_cntr = (2'b00);
   reg  resetCtrl_clk25;
-  assign _zz_10_ = (resetCtrl_reset_cntr != _zz_1_);
+  assign _zz_2_ = (resetCtrl_reset_cntr != _zz_1_);
   PanoCore core_u_pano_core ( 
-    .io_vo_vsync(_zz_2_),
-    .io_vo_hsync(_zz_3_),
-    .io_vo_blank_(_zz_4_),
-    .io_vo_r(_zz_5_),
-    .io_vo_g(_zz_6_),
-    .io_vo_b(_zz_7_),
-    .io_led_green(_zz_8_),
-    .io_led_blue(_zz_9_),
-    .resetCtrl_clk25(resetCtrl_clk25),
-    .resetCtrl_reset_(resetCtrl_reset_) 
+    .io_vo_vsync(core_u_pano_core_io_vo_vsync),
+    .io_vo_hsync(core_u_pano_core_io_vo_hsync),
+    .io_vo_blank_(core_u_pano_core_io_vo_blank_),
+    .io_vo_r(core_u_pano_core_io_vo_r),
+    .io_vo_g(core_u_pano_core_io_vo_g),
+    .io_vo_b(core_u_pano_core_io_vo_b),
+    .io_led_green(core_u_pano_core_io_led_green),
+    .io_led_blue(core_u_pano_core_io_led_blue),
+    .toplevel_resetCtrl_clk25(resetCtrl_clk25),
+    .toplevel_resetCtrl_reset_(resetCtrl_reset_) 
   );
   always @ (*) begin
     resetCtrl_reset_unbuffered_ = 1'b1;
-    if(_zz_10_)begin
+    if(_zz_2_)begin
       resetCtrl_reset_unbuffered_ = 1'b0;
     end
   end
 
   assign _zz_1_[4 : 0] = (5'b11111);
   assign vo_clk = resetCtrl_clk25;
-  assign vo_vsync = _zz_2_;
-  assign vo_hsync = _zz_3_;
-  assign vo_blank_ = _zz_4_;
-  assign vo_r = _zz_5_;
-  assign vo_g = _zz_6_;
-  assign vo_b = _zz_7_;
-  assign led_green = _zz_8_;
-  assign led_blue = _zz_9_;
+  assign vo_vsync = core_u_pano_core_io_vo_vsync;
+  assign vo_hsync = core_u_pano_core_io_vo_hsync;
+  assign vo_blank_ = core_u_pano_core_io_vo_blank_;
+  assign vo_r = core_u_pano_core_io_vo_r;
+  assign vo_g = core_u_pano_core_io_vo_g;
+  assign vo_b = core_u_pano_core_io_vo_b;
+  assign led_green = core_u_pano_core_io_led_green;
+  assign led_blue = core_u_pano_core_io_led_blue;
   always @ (posedge osc_clk) begin
-    if(_zz_10_)begin
+    if(_zz_2_)begin
       resetCtrl_reset_cntr <= (resetCtrl_reset_cntr + (5'b00001));
     end
     resetCtrl_clk_cntr <= (resetCtrl_clk_cntr + (2'b01));
