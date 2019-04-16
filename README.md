@@ -5,6 +5,10 @@ This project implements a Real-Time Ray-Tracer on a small FPGA.
 
 You can read all about it [here](https://tomverbeure.github.io/rtl/2018/11/26/Racing-the-Beam-Ray-Tracer.html).
 
+I also gave a presentation about this at Bang Bang Con West 
+([slides](https://docs.google.com/presentation/d/13i0-B6UMyubHCW-YDAMFtN8TqeGcSW95Db2ao_YQLMU/edit?usp=sharing), 
+[video](https://www.youtube.com/watch?v=gWjCJI_u8SU&list=PLofFli6PGTsB0QpGpJdVxFZDoLhXwQCx4&index=22&t=8s).
+
 ## HW Requirements
 
 * A Pano Logic G1 (one with VGA port)
