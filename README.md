@@ -7,7 +7,7 @@ You can read all about it [here](https://tomverbeure.github.io/rtl/2018/11/26/Ra
 
 I also gave a presentation about this at Bang Bang Con West 
 ([slides](https://docs.google.com/presentation/d/13i0-B6UMyubHCW-YDAMFtN8TqeGcSW95Db2ao_YQLMU/edit?usp=sharing), 
-[video](https://www.youtube.com/watch?v=gWjCJI_u8SU&list=PLofFli6PGTsB0QpGpJdVxFZDoLhXwQCx4&index=22&t=8s).
+[video](https://www.youtube.com/watch?v=gWjCJI_u8SU&list=PLofFli6PGTsB0QpGpJdVxFZDoLhXwQCx4&index=22&t=8s)).
 
 ## HW Requirements
 
