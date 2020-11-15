@@ -46,12 +46,7 @@ This will update the Pano.bit file with your latest binary.
     The actual installation instructions can be found in the [VexRisc]( https://github.com/SpinalHDL/VexRiscv#dependencies)
     project.
 
-* Clone my [math](https://github.com/tomverbeure/math) github repository to `~/projects/math`.
-
-
 * Clone this github repository to `~/projects/rt`.
-
-* Patch `~/projects/rt/build.sbt` so that it points to your local math library. Use absolute directory paths!
 
 * Build font binary file
 
