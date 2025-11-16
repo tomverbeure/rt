@@ -46,6 +46,14 @@ This will update the Pano.bit file with your latest binary.
     The actual installation instructions can be found in the [VexRisc]( https://github.com/SpinalHDL/VexRiscv#dependencies)
     project.
 
+    2025 update: I ran into an "SBT fails with `String.class is broken`" error when trying to compile.
+    I fixed that as follows:
+
+    ```
+curl -s "https://get.sdkman.io" | bash
+sdk install java 11.0.29-amzn
+    ```
+
 * Clone this github repository to `~/projects/rt`.
 
 * Build font binary file
